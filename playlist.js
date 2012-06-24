@@ -3,7 +3,8 @@
 var fs = require('fs'),
     ID3 = require('id3'),
     library = require('./library'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    util = require('util');
 
 /* Function: parseFile
  *
@@ -84,4 +85,4 @@ var scanFiles = function (currentPath) {
 };
 
 scanFiles(process.argv[2] || '..');
-console.dir(library.get());
+console.log(library);

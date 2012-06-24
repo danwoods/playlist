@@ -119,7 +119,7 @@ this.add_song = function(song_obj){
   var album_idx = _.indexOf(obj.artists[artist_idx].albums, album_obj);
 //console.log('album index');
 //console.dir(album_idx);
-  var song_exists = _.find(obj.artists[artist_idx].albums[album_idx].songs, function(elm){return elm.song == song_obj.song;});
+  var song_exists = _.find(obj.artists[artist_idx].albums[album_idx].songs, function(elm){return elm.song == song_obj.title;});
 
   // If album does not exists, confirm album_obj has the proper parameters, then add it and return
   if(!song_exists){
@@ -130,17 +130,6 @@ this.add_song = function(song_obj){
   return false;
 }
 
-/* Function: get
- *
- *  If artists does not exist in library, adds artist to library
- *
- *  Returns:
- *   the library
- */
-this.get = function(){
-  return obj;
-}
-
 /* Function: inspect
  *
  *  If artists does not exist in library, adds artist to library
@@ -149,5 +138,5 @@ this.get = function(){
  *   the library
  */
 this.inspect = function(){
-  return obj;
+  return JSON.stringify(obj, null, 2);
 }
