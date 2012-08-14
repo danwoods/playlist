@@ -1,0 +1,108 @@
+<!DOCTYPE html>  <html> <head>   <title>library.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               library.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Module/Container for a library of music data</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;underscore&quot;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;artists&quot;</span><span class="o">:</span><span class="p">[]};</span>
+
+<span class="cm">/* Function: artist_exist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Checks to see if artist exists in the library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   artist - name of artist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   the artist object/undefined for exists/does not exist</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">artist_exist</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">artist</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Return artist object (or undefined)</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">elm</span><span class="p">){</span><span class="k">return</span> <span class="nx">elm</span><span class="p">.</span><span class="nx">artist</span> <span class="o">==</span> <span class="nx">artist</span><span class="p">;});</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: album_exist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Checks to see if album exists in the library. Creates artist if it does not already exist.</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   album_obj - {</span>
+<span class="cm"> *    artist - name of artist</span>
+<span class="cm"> *    album -  name of album</span>
+<span class="cm"> *   }</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   album_obj/undefined for exists/does not exist</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">album_exist</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">album_obj</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Variables</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">artist_obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">artist_exist</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">add_artist</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">),</span>  <span class="c1">// artist object</span>
+      <span class="nx">artist_idx</span> <span class="o">=</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">,</span> <span class="nx">artist_obj</span><span class="p">));</span>                                      <span class="c1">// atrist index</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Return the album object (or undefined)</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">elm</span><span class="p">){</span><span class="k">return</span> <span class="nx">elm</span><span class="p">.</span><span class="nx">album</span> <span class="o">==</span> <span class="nx">album</span><span class="p">;});</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: add_artist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If artists does not exist in library, adds artist to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   artist - name of artist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   artist object/false for added/already exists in library</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">add_artist</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">artist</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>If the artist doesn't already exist</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">artist_exist</span><span class="p">(</span><span class="nx">artist</span><span class="p">)){</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Add the arttist</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="s2">&quot;artist&quot;</span><span class="o">:</span><span class="nx">artist</span><span class="p">,</span> <span class="s2">&quot;albums&quot;</span><span class="o">:</span><span class="p">[]});</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>And return it</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;artist&quot;</span><span class="o">:</span><span class="nx">artist</span><span class="p">,</span> <span class="s2">&quot;albums&quot;</span><span class="o">:</span><span class="p">[]};</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Else, return false</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* Function: add_album</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If album does not exist in library, adds album to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   album_obj - {</span>
+<span class="cm"> *    artist - name of artist</span>
+<span class="cm"> *    album -  name of album</span>
+<span class="cm"> *   }</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   album object/false for added/already exists in library</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">add_album</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Variables</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">artist_obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">artist_exist</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">add_artist</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">),</span>
+      <span class="nx">artist_idx</span> <span class="o">=</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">,</span> <span class="nx">artist_obj</span><span class="p">)),</span>
+      <span class="nx">album_exists</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">elm</span><span class="p">){</span><span class="k">return</span> <span class="nx">elm</span><span class="p">.</span><span class="nx">album</span> <span class="o">==</span> <span class="nx">album_obj</span><span class="p">.</span><span class="nx">album</span><span class="p">;});</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>If album does not exists, confirm album_obj has the proper parameters, then add it and return</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">album_exists</span><span class="p">){</span>
+    <span class="nx">album_obj</span><span class="p">.</span><span class="nx">songs</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">album_obj</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">album_obj</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: add_album</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If album does not exist in library, adds album to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   album_obj - {</span>
+<span class="cm"> *    artist - name of artist</span>
+<span class="cm"> *    album -  name of album</span>
+<span class="cm"> *   }</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   album object/false for added/already exists in library</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">add_song</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">artist_obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">artist_exist</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">add_artist</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">),</span>
+      <span class="nx">artist_idx</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">,</span> <span class="nx">artist_obj</span><span class="p">),</span>
+      <span class="nx">album_obj</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">elm</span><span class="p">){</span><span class="k">return</span> <span class="nx">elm</span><span class="p">.</span><span class="nx">album</span> <span class="o">==</span> <span class="nx">song_obj</span><span class="p">.</span><span class="nx">album</span><span class="p">;}),</span>
+      <span class="nx">album_idx</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">,</span> <span class="nx">album_obj</span><span class="p">),</span>
+      <span class="nx">song_exists</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">[</span><span class="nx">album_idx</span><span class="p">].</span><span class="nx">songs</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">elm</span><span class="p">){</span><span class="k">return</span> <span class="nx">elm</span><span class="p">.</span><span class="nx">song</span> <span class="o">==</span> <span class="nx">song_obj</span><span class="p">.</span><span class="nx">title</span><span class="p">;});</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>If album does not exists, confirm album_obj has the proper parameters, then add it and return</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">song_exists</span><span class="p">){</span>
+    <span class="nx">obj</span><span class="p">.</span><span class="nx">artists</span><span class="p">[</span><span class="nx">artist_idx</span><span class="p">].</span><span class="nx">albums</span><span class="p">[</span><span class="nx">album_idx</span><span class="p">].</span><span class="nx">songs</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">song_obj</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* Function: inspect</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If artists does not exist in library, adds artist to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   the library</span>
+<span class="cm"> */</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">inspect</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
