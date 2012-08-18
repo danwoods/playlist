@@ -5,7 +5,24 @@
     <span class="nx">library</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./library&#39;</span><span class="p">),</span>
     <span class="nx">_</span>       <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;underscore&#39;</span><span class="p">),</span>
     <span class="nx">util</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;util&#39;</span><span class="p">),</span>
-    <span class="nx">http</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">);</span>
+    <span class="nx">http</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">),</span>
+    <span class="nx">director</span><span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;director&#39;</span><span class="p">),</span>
+    <span class="nx">plates</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;plates&#39;</span><span class="p">);</span>
+
+<span class="cm">/*** Functions ***/</span>
+<span class="cm">/* Function: createHtml</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Creates html for client</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   lib_obj: a full library object</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   a string of html</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">createHtml</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">lib_obj</span><span class="p">){</span>
+
+<span class="p">};</span>
 
 <span class="cm">/* Function: parseFile</span>
 <span class="cm"> *</span>
@@ -33,7 +50,8 @@ If they were, save tags to the return object</p>             </td>             <
       <span class="nx">retObj</span><span class="p">.</span><span class="nx">track</span>   <span class="o">=</span> <span class="nx">id3Obj</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;track&#39;</span><span class="p">);</span>
       <span class="nx">retObj</span><span class="p">.</span><span class="nx">genre</span>   <span class="o">=</span> <span class="nx">id3Obj</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;genre&#39;</span><span class="p">);</span>
     <span class="p">}</span>
-  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Return tags</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">return</span> <span class="nx">retObj</span><span class="p">;</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Return tags</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">retObj</span><span class="p">.</span><span class="nx">id</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">();</span>
+  <span class="k">return</span> <span class="nx">retObj</span><span class="p">;</span>
 
 <span class="p">}</span>
 
@@ -50,10 +68,54 @@ If they were, save tags to the return object</p>             </td>             <
     <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>Else if the file is actually a directory</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">stats</span><span class="p">.</span><span class="nx">isDirectory</span><span class="p">())</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>Recursively call scanFiles</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">scanFiles</span><span class="p">(</span><span class="nx">currentFile</span><span class="p">);</span>
     <span class="p">}</span>
   <span class="p">}</span>
-<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>Recursively scan the files for the given directory, or use the one we're currently in</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">scanFiles</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="s1">&#39;..&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>Start Server</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">});</span>
-  <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">library</span><span class="p">.</span><span class="nx">inspect</span><span class="p">());</span>
+<span class="p">};</span>
+
+<span class="cm">/*** Routing ***/</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>create some logic to be routed to.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">helloWorld</span><span class="p">(</span><span class="nx">route</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;text/plain&#39;</span> <span class="p">});</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="s1">&#39;hello world from (&#39;</span> <span class="o">+</span> <span class="nx">route</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">getSong</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">song</span> <span class="o">=</span> <span class="nx">_</span><span class="p">(</span><span class="nx">library</span><span class="p">.</span><span class="nx">get</span><span class="p">().</span><span class="nx">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">albums</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">songs</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">curSong</span><span class="p">){</span><span class="k">return</span> <span class="nx">curSong</span><span class="p">.</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">id</span><span class="p">;});</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">song</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;text/plain&#39;</span> <span class="p">});</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">song</span><span class="p">));</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>define a routing table.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">director</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="nx">Router</span><span class="p">({</span>
+  <span class="s1">&#39;/&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">});</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">library</span><span class="p">.</span><span class="nx">get</span><span class="p">()));</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s1">&#39;/song&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;/:id&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">get</span><span class="o">:</span> <span class="nx">getSong</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s1">&#39;/dog&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;/:color&#39;</span><span class="o">:</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <p>this function will return the value 'yella'.
+               //</p>             </td>             <td class="code">               <div class="highlight"><pre>                <span class="nx">on</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">color</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">color</span><span class="p">)</span> <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="p">},</span>
+  <span class="s1">&#39;/hello&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">get</span><span class="o">:</span> <span class="nx">helloWorld</span>
+  <span class="p">}</span>
+<span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <p>You can also do ad-hoc routing, similar to <code>journey</code> or <code>express</code>.
+This can be done with a string or a regexp.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/bonjour&#39;</span><span class="p">,</span> <span class="nx">helloWorld</span><span class="p">);</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sr">/hola/</span><span class="p">,</span> <span class="nx">helloWorld</span><span class="p">);</span>
+
+<span class="cm">/*** Operations ***/</span></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <p>Recursively scan the files for the given directory, or use the one we're currently in</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">scanFiles</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="s1">&#39;..&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-26">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-26">&#182;</a>               </div>               <p>Start Server</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;hit&#39;</span><span class="p">);</span>
+  <span class="nx">router</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">404</span><span class="p">);</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
 <span class="p">}).</span><span class="nx">listen</span><span class="p">(</span><span class="mi">1337</span><span class="p">,</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">);</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Server running at http://127.0.0.1:1337/&#39;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">library</span><span class="p">.</span><span class="nx">get</span><span class="p">()));</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

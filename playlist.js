@@ -69,6 +69,7 @@ var parseFile = function(file){
   }
 
   // Return tags
+  retObj.id = _.uniqueId();
   return retObj;
 
 }
@@ -112,25 +113,71 @@ var scanFiles = function (currentPath) {
   }
 };
 
+/*** Routing ***/
+//
+// create some logic to be routed to.
+//
+function helloWorld(route) {
+  this.res.writeHead(200, { 'Content-Type': 'text/plain' });
+  this.res.end('hello world from (' + route + ')');
+}
+
+var getSong = function(id){
+  var song = _(library.get().artists[0].albums[0].songs).find(function(curSong){return curSong.id == id;});
+  console.log(id);
+  console.log(song);
+  this.res.writeHead(200, { 'Content-Type': 'text/plain' });
+  this.res.end(JSON.stringify(song));
+};
+//
+//
+// define a routing table.
+//
+var router = new director.http.Router({
+  '/': {
+    get: function(){
+      this.res.writeHead(200, {'Content-Type': 'text/plain'});
+      this.res.end(JSON.stringify(library.get()));
+    }
+  },
+  '/song': {
+    '/:id': {
+      get: getSong
+    }
+  },
+  '/dog': {
+        '/:color': {
+                //
+                // this function will return the value 'yella'.
+                //                //
+                on: function (color) { console.log(color) }
+          }
+          },
+  '/hello': {
+    get: helloWorld
+  }
+});
+
+//
+// You can also do ad-hoc routing, similar to `journey` or `express`.
+// This can be done with a string or a regexp.
+router.get('/bonjour', helloWorld);
+router.get(/hola/, helloWorld);
+
 /*** Operations ***/
 // Recursively scan the files for the given directory, or use the one we're currently in
 scanFiles(process.argv[2] || '..');
 
-// Create template
-//var artist_list = "<% _.each(artists, function(elm) { %> <div><%= elm.artist %></div> <% }); %>";
-//var album_list = "<% _.each(albums, function(elm) { %> <div><%= elm.album %></div> <% }); %>";
-//var album_list = "<% _.each(songs, function(elm) { %> <div><%= elm.song %></div> <% }); %>";
-
 // Start Server
 http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  //var artist_tmpl = _.template(artist_list, {artists: library.get().artists});
-  //var album_tmpl = _.template(album_list, {albums: library.get().artists[0].albums});
-  //var song_tmpl = _.template(song_list, {songs: library.get().artists[0].albums});
-  res.end(artist_tmpl+album_tmpl);
+  console.log('hit');
+  router.dispatch(req, res, function (err) {
+    if (err) {
+      console.log(err);
+      res.writeHead(404);
+      res.end();
+    }
+  });
 }).listen(1337, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:1337/');
-console.log('lib = ');
 console.log(JSON.stringify(library.get()));
-//console.log(_.template(list, {artists: library.get().artists}));
-
