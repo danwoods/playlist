@@ -36,8 +36,12 @@
   <header>
 
   </header>
-  <div role="main">
-
+  <div role="main" id="main">
+    <ul>
+      <li><a href="#/author">#/author</a></li>
+      <li><a href="#/song/4">#/song/4</a></li>
+      <li><a href="#/books/view/1">#/books/view/1</a></li>
+    </ul>
   </div>
   <footer>
 
@@ -51,7 +55,58 @@
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 
   <!-- My js. Will concat/minify later -->
-  <script src="js/libs/mustache.jsjs"></script>
+  <script src="js/libs/path.min.js"></script>
+  <script src="js/libs/director/director-1.1.3.js"></script>
+
+  <!-- My code, will be moved into seperate files later -->
+  <script type="text/javascript" charset="utf-8">
+    var createPlayerElm = function(songObj){
+
+      var songElm = $('<source src="..'+songObj.url+'" type="audio/ogg" />');
+      var audioElm = $('<audio controls autoplay />').append(songElm);
+      console.log(audioElm);
+      return audioElm;
+
+    };
+    var getLibrary = function(){ 
+      $.getJSON('/library', function(data){
+        console.log(data);
+        library = data;
+      });
+    };
+
+    $('document').ready(function(){
+      var library;
+      getLibrary();
+    });
+
+    var author = function () { console.log("author"); },
+          books = function () { console.log("books"); },
+          viewBook = function(bookId) { console.log("viewBook: bookId is populated: " + bookId); };
+
+      var routes = {
+        '/': function(){
+          $.getJSON('/library', function(data){console.log(data);
+            //$('document').ready(function(){
+            //  $('#main').append(createPlayerElm(data));
+            //});
+          });
+        },
+        '/books': [books, function() { console.log("An inline route handler."); }],
+        '/books/view/:bookId': viewBook,
+        '/song/:songId': function(songId){
+          $.getJSON('/song/'+songId, function(data){console.log(data);
+            $('document').ready(function(){
+              $('#main').append(createPlayerElm(data));
+            });
+          });
+        }
+      };
+
+      var router = Router(routes);
+      router.init(); 
+      
+  </script>
 
 
   <!-- scripts concatenated and minified via build script -->
