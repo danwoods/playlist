@@ -18,23 +18,11 @@ var mimeTypes = {
                 "png": "image/png",
                 "js": "text/javascript",
                 "mp3": "audio/mpeg",
+                "ogg": "audio/ogg",
                 "css": "text/css"
                 };
 
 /*** Functions ***/
-/* Function: createHtml
- *
- *  Creates html for client
- *
- *  Parameters:
- *   lib_obj: a full library object
- *
- *  Returns:
- *   a string of html
- */
-var createHtml = function(lib_obj){
-
-};
 
 /* Function: parseFile
  *
@@ -53,7 +41,7 @@ var parseFile = function(file){
       id3Tags = {}, // object to hold the tags if file is using ID3 v1
       retObj  = {}; // return object
 
-  // If a file was passed in, and jen is neat
+  // If a file was passed in
   if(file){
     // Read it in from the filesystem
     id3File = fs.readFileSync(file);
@@ -75,9 +63,9 @@ var parseFile = function(file){
     retObj.album   = id3Obj.get('album');
     retObj.year    = id3Obj.get('year');
     retObj.comment = id3Obj.get('comment');
-    retObj.track   = id3Obj.get('track');
-    retObj.genre   = id3Obj.get('genre');
-  }
+  retObj.track   = id3Obj.get('track');
+  retObj.genre   = id3Obj.get('genre');
+}
 }
 
 // Return tags
@@ -85,6 +73,36 @@ retObj.id = _.uniqueId();
 return retObj;
 
 }
+
+/* Function: lookForOtherFormats
+*
+*  Check for other files with the same file name but different extensions
+*
+*  Parameters:
+*   given_filename - the file to extract the file name from
+*   formats - acceptable formats
+*
+*  Returns:
+*   an array of the matched files in the style {"url":<String>, "format":<String>}
+*/
+var lookForOtherFormats = function(given_filename, formats){
+  var filename = given_filename.replace(/.([A-z]|[0-9])+$/, ''),
+      retArr = [],
+      curStat;
+
+  // Looop through formats and check for matching files
+  for(format in formats){
+    curStat = fs.lstatSync(filename + '.' + formats[format]);
+    if(curStat.isFile()){
+      retArr.push({
+                    "url":path.resolve(process.cwd(), filename + '.'+formats[format]), 
+                    "format":formats[format]
+                  });
+    }
+  }
+
+  return retArr;
+};
 
 /* Function: scanFiles
 *
@@ -94,35 +112,40 @@ return retObj;
 *   currentPath - path to traverse
 */
 var scanFiles = function (currentPath) {
-// Variables
-var files = fs.readdirSync(currentPath),  // the current path
-    id3Obj = {};                          // id3 data
+  console.log('Starting new scan at: '+currentPath);
+  // Variables
+  var files = fs.readdirSync(currentPath),  // the current path
+      id3Obj = {};                          // id3 data
 
-// Loop through the files/directories in tthe current path
-for (var i in files) {
-  // Local variables
-  var currentFile = currentPath + '/' + files[i], // the path to the current file
-      stats = fs.statSync(currentFile);           // the data for the current file
-
-  // If the file is actually a file and it ends in .mp3
-  if (stats.isFile() && /ogg$/.test(currentFile)) {
-    // Get the id3 data from the file
-    id3Obj = parseFile(currentFile);
-    // Add the url to the id3 data
-    id3Obj.url = path.resolve(process.cwd(), currentFile);
-    // Add the artist
-    library.add_artist(id3Obj.artist);
-    // Add the album
-    library.add_album({"artist":id3Obj.artist, "album":id3Obj.album});
-    // Add the song
-    library.add_song(id3Obj);
+  // Loop through the files/directories in tthe current path
+  for (var i in files) {
+    // Local variables
+    var currentFile = currentPath + '/' + files[i], // the path to the current file
+        stats = fs.statSync(currentFile);           // the data for the current file
+    console.log('Testing file: '+currentFile);
+    // If the file is actually a file and it ends in .mp3
+    if (stats.isFile() && /mp3$/.test(currentFile)) {
+      console.log('File is a match!');
+      // Get the id3 data from the file
+      id3Obj = parseFile(currentFile);
+      // Add the url to the id3 data
+      id3Obj.urls = [];
+      id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":"mpeg"});
+      id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, ['ogg']));
+      // Add the artist
+      library.add_artist(id3Obj.artist);
+      // Add the album
+      library.add_album({"artist":id3Obj.artist, "album":id3Obj.album});
+      // Add the song
+      library.add_song(id3Obj);
+    }
+    // Else if the file is actually a directory
+    else if (stats.isDirectory()) {
+      console.log('Exploring directory: '+currentFile);
+      // Recursively call scanFiles
+      scanFiles(currentFile);
+    }
   }
-  // Else if the file is actually a directory
-  else if (stats.isDirectory()) {
-    // Recursively call scanFiles
-    scanFiles(currentFile);
-  }
-}
 };
 
 /*** Routing ***/
@@ -189,8 +212,8 @@ var router = new director.http.Router({
 
       var readStream = fs.createReadStream(filePath);
       // We replaced all the event handlers with a simple call to util.pump()
-      //util.pump(readStream, res);
-      readStream.pipe(this.res);
+      util.pump(readStream, this.res);
+      //readStream.pipe(this.res);
       //res.writeHead(404);
       //res.write('404 Not Found\n');
       //res.end();

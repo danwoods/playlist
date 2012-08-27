@@ -55,19 +55,30 @@
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 
   <!-- My js. Will concat/minify later -->
-  <script src="js/libs/path.min.js"></script>
   <script src="js/libs/director/director-1.1.3.js"></script>
+  <script src="js/libs/plates.js"></script>
 
   <!-- My code, will be moved into seperate files later -->
   <script type="text/javascript" charset="utf-8">
     var createPlayerElm = function(songObj){
+      var playerElm = false;
+      var html = '<div id="title"></div>';
+      console.log(Plates.bind(html, songObj));
+      if(songObj){
+        var audioElm = $('<audio controls autoplay />');
+        for(source in songObj.urls){
+          var songElm = $('<source src="'+songObj.urls[source].url+
+                          '" type="audio/'+songObj.urls[source].format+'" />');
+          audioElm.append(songElm);
+        }
+        playerElm = $('<div class="player"><span>Title: '+
+                        songObj.title+
+                      '<span><br /></div>').append(audioElm);
+      }
 
-      var songElm = $('<source src="..'+songObj.url+'" type="audio/ogg" />');
-      var audioElm = $('<audio controls autoplay />').append(songElm);
-      console.log(audioElm);
-      return audioElm;
-
+      return playerElm;
     };
+
     var getLibrary = function(){ 
       $.getJSON('/library', function(data){
         console.log(data);
@@ -80,23 +91,18 @@
       getLibrary();
     });
 
-    var author = function () { console.log("author"); },
-          books = function () { console.log("books"); },
-          viewBook = function(bookId) { console.log("viewBook: bookId is populated: " + bookId); };
-
       var routes = {
         '/': function(){
-          $.getJSON('/library', function(data){console.log(data);
-            //$('document').ready(function(){
-            //  $('#main').append(createPlayerElm(data));
-            //});
+          $.getJSON('/library', function(data){
+            $('document').ready(function(){
+              $('#main').append(JSON.stringify(data, null, 2));
+            });
           });
         },
-        '/books': [books, function() { console.log("An inline route handler."); }],
-        '/books/view/:bookId': viewBook,
         '/song/:songId': function(songId){
           $.getJSON('/song/'+songId, function(data){console.log(data);
             $('document').ready(function(){
+              $('#main').remove('.player');
               $('#main').append(createPlayerElm(data));
             });
           });

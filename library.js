@@ -112,12 +112,13 @@ this.add_song = function(song_obj){
       song_exists = _.find(obj.artists[artist_idx].albums[album_idx].songs, function(elm){return elm.song == song_obj.title;});
 
   // If song does not exists, add it and return the song object
-  if(!song_exists){
+  // FOR RIGHT NOW, ALLOW ALL FILES
+  //if(!song_exists){
     obj.artists[artist_idx].albums[album_idx].songs.push(song_obj);
     return song_obj;
-  }
+  //}
   // Else, return false
-  return false;
+  //return false;
 }
 
 /* Function: get
