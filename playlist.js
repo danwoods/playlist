@@ -63,8 +63,8 @@ var parseFile = function(file){
     retObj.album   = id3Obj.get('album');
     retObj.year    = id3Obj.get('year');
     retObj.comment = id3Obj.get('comment');
-  retObj.track   = id3Obj.get('track');
-  retObj.genre   = id3Obj.get('genre');
+    retObj.track   = id3Obj.get('track');
+    retObj.genre   = id3Obj.get('genre');
 }
 }
 
@@ -213,10 +213,7 @@ var router = new director.http.Router({
       var readStream = fs.createReadStream(filePath);
       // We replaced all the event handlers with a simple call to util.pump()
       util.pump(readStream, this.res);
-      //readStream.pipe(this.res);
-      //res.writeHead(404);
-      //res.write('404 Not Found\n');
-      //res.end();
+      
       return;
     }
   },
@@ -233,12 +230,9 @@ var router = new director.http.Router({
       });
 
       var readStream = fs.createReadStream(filePath);
-      // We replaced all the event handlers with a simple call to util.pump()
-      //util.pump(readStream, res);
+      
       readStream.pipe(this.res);
-      //res.writeHead(404);
-      //res.write('404 Not Found\n');
-      //res.end();
+      
       return;
     }
   },
@@ -283,7 +277,7 @@ var serveStatic = function(req, res){
     res.writeHead(200, mimeType);
     var fileStream = fs.createReadStream(filename);
     fileStream.pipe(res);
-                                                                                                               }); //end path.exists
+  }); //end path.exists
 
 };
 
