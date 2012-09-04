@@ -4,6 +4,20 @@ var _ = require("underscore");
 
 var obj = {"artists":[]};
 
+var newObj = function(){
+  this.type = "",
+  this.id = 0,
+  this.rel_id = 0,
+  this.parent_id = 0,
+  this.children =  [],
+  this.unique = {};
+};
+
+obj = new newObj();
+obj.type = "library";
+obj.id = 0;
+obj.rel_id = 0;
+
 /* Function: artist_exist
  *
  *  Checks to see if artist exists in the library
@@ -16,7 +30,7 @@ var obj = {"artists":[]};
  */
 this.artist_exist = function (artist){
   // Return artist object (or undefined)
-  return _.find(obj.artists, function(elm){return elm.artist == artist;});
+  return _.find(obj.children, function(elm){return elm.name == artist;});
 };
 
 /* Function: album_exist
@@ -54,10 +68,14 @@ this.album_exist = function (album_obj){
 this.add_artist = function(artist){
   // If the artist doesn't already exist
   if(!this.artist_exist(artist)){
-    // Add the arttist
-    obj.artists.push({"artist":artist, "albums":[]});
+    // Add the artist
+    var newArtist = new newObj();
+    newArtist.type = "artist";
+    newArtist.name = artist;
+    obj.children.push(newArtist);
+    console.log('added artist: \n'+JSON.stringify(newArtist));
     // And return it
-    return {"artist":artist, "albums":[]};
+    return newArtist;
   }
   // Else, return false
   return false;
@@ -78,20 +96,31 @@ this.add_artist = function(artist){
  */
 this.add_album = function(album_obj){
   // Variables
+
+  //console.log('album_obj = ');
+  //console.log(album_obj);
+  //console.log('artist_obj = ');
+  //console.log(this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist));
+  //console.log('artist_idx = ');
+  //console.log((_.indexOf(obj.children, artist_obj)));
   var artist_obj = this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist),
-      artist_idx = (_.indexOf(obj.artists, artist_obj)),
-      album_exists = _.find(obj.artists[artist_idx].albums, function(elm){return elm.album == album_obj.album;});
+      artist_idx = (_.indexOf(obj.children, artist_obj)),
+      album_exists = _.find(obj.children[artist_idx].children, function(elm){return elm.name == album_obj.album;});
 
   // If album does not exists, confirm album_obj has the proper parameters, then add it and return
   if(!album_exists){
     album_obj.songs = [];
-    obj.artists[artist_idx].albums.push(album_obj);
+    var newAlbum = new newObj();
+    newAlbum.name = album_obj.album;
+    newAlbum.type = 'album';
+    obj.children[artist_idx].children.push(newAlbum);
+    console.log('added album: \n'+JSON.stringify(newAlbum));
     return album_obj;
   }
   return false;
 };
 
-/* Function: add_album
+/* Function: add_song
  *
  *  If album does not exist in library, adds album to library
  *
@@ -106,15 +135,19 @@ this.add_album = function(album_obj){
  */
 this.add_song = function(song_obj){
   var artist_obj = this.artist_exist(song_obj.artist) || this.add_artist(song_obj.artist),
-      artist_idx = _.indexOf(obj.artists, artist_obj),
-      album_obj = _.find(obj.artists[artist_idx].albums, function(elm){return elm.album == song_obj.album;}),
-      album_idx = _.indexOf(obj.artists[artist_idx].albums, album_obj),
-      song_exists = _.find(obj.artists[artist_idx].albums[album_idx].songs, function(elm){return elm.song == song_obj.title;});
+      artist_idx = _.indexOf(obj.children, artist_obj),
+      album_obj = _.find(obj.children[artist_idx].children, function(elm){return elm.name == song_obj.album;}),
+      album_idx = _.indexOf(obj.children[artist_idx].children, album_obj),
+      song_exists = _.find(obj.children[artist_idx].children[album_idx].children, function(elm){return elm.title == song_obj.title;});
 
   // If song does not exists, add it and return the song object
   // FOR RIGHT NOW, ALLOW ALL FILES
   //if(!song_exists){
-    obj.artists[artist_idx].albums[album_idx].songs.push(song_obj);
+    //var newSong = new newObj();
+    //newSong.name = song_obj.song;
+    //newSong.type = 'song';
+    obj.children[artist_idx].children[album_idx].children.push(song_obj);
+    console.log('added song: \n'+JSON.stringify(song_obj));
     return song_obj;
   //}
   // Else, return false

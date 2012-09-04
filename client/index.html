@@ -60,6 +60,20 @@
 
   <!-- My code, will be moved into seperate files later -->
   <script type="text/javascript" charset="utf-8">
+
+    var makeOL = function(arr){
+      console.log(arr);
+      olElm = $('<ol class="'+arr[0].type+'" />');
+      $.each(arr, function(idx, obj){
+        liElm = $('<li>'+(obj.name || obj.title)+'</li>');
+        if(obj.children){
+          liElm.append(makeOL(obj.children));
+        }
+        olElm.append(liElm);
+      });
+      return olElm;
+    };
+    
     var createPlayerElm = function(songObj){
       var playerElm = false;
       var html = '<div id="title"></div>';
@@ -79,16 +93,21 @@
       return playerElm;
     };
 
-    var getLibrary = function(){ 
+    var setupLibrary = function(){ 
       $.getJSON('/library', function(data){
-        console.log(data);
         library = data;
+        $('#main').append(makeOL(library.children));
+        return library;
       });
+    };
+
+    var setupHomePage = function(){ 
+      setupLibrary();
     };
 
     $('document').ready(function(){
       var library;
-      getLibrary();
+      setupHomePage();
     });
 
       var routes = {
