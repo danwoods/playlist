@@ -1,4 +1,5 @@
 // Module/Container for a library of music data
+// **library.js** acts as the model layer of playlist.js.
 
 var _ = require("underscore");
 

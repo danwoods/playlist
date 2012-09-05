@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// **playlist.js** is the main function/app/whatever you want to call it. It sets up the app and controls it.
+
 var fs      = require('fs'),
     ID3     = require('id3'),
     library = require('./library'),
