@@ -2,6 +2,27 @@
 // **library.js** acts as the model layer of playlist.js.
 
 var _ = require("underscore");
+var resourceful = require("resourceful");
+
+/*** Testing resourceful ***/
+resourceful.use('memory');
+ 
+var Artist = resourceful.define('artist');
+Artist.string('name');
+
+var Album = resourceful.define('album');
+Album.string('name');
+
+var Song = resourceful.define('song');
+Song.string('name');
+
+//
+// Now we add a special property to Article indicating that Author is its parent
+//
+Album.parent('artist');
+Song.parent('album');
+ 
+/*** ***/
 
 var obj = {"artists":[]};
 
@@ -73,8 +94,21 @@ this.add_artist = function(artist){
     var newArtist = new newObj();
     newArtist.type = "artist";
     newArtist.name = artist;
+    newArtist.id = _.uniqueId();
     obj.children.push(newArtist);
+
+    // Create resource for artist
+    Artist.create({
+      id: newArtist.id,
+      name: artist
+    }, function(err, newArtist){
+      
+      console.log("Just added ");
+      console.log(newArtist);
+      console.log(" to artists");
+    });
     console.log('added artist: \n'+JSON.stringify(newArtist));
+
     // And return it
     return newArtist;
   }
@@ -98,12 +132,6 @@ this.add_artist = function(artist){
 this.add_album = function(album_obj){
   // Variables
 
-  //console.log('album_obj = ');
-  //console.log(album_obj);
-  //console.log('artist_obj = ');
-  //console.log(this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist));
-  //console.log('artist_idx = ');
-  //console.log((_.indexOf(obj.children, artist_obj)));
   var artist_obj = this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist),
       artist_idx = (_.indexOf(obj.children, artist_obj)),
       album_exists = _.find(obj.children[artist_idx].children, function(elm){return elm.name == album_obj.album;});
@@ -114,7 +142,18 @@ this.add_album = function(album_obj){
     var newAlbum = new newObj();
     newAlbum.name = album_obj.album;
     newAlbum.type = 'album';
+    newAlbum.id = _.uniqueId();
     obj.children[artist_idx].children.push(newAlbum);
+    // Create resource for album
+    Album.create({
+      id: newAlbum.id,
+      name: album_obj.album
+    }, function(err, newAlbum){
+      
+      console.log("Just added ");
+      console.log(newAlbum);
+      console.log(" to album");
+    });
     console.log('added album: \n'+JSON.stringify(newAlbum));
     return album_obj;
   }
@@ -147,7 +186,18 @@ this.add_song = function(song_obj){
     //var newSong = new newObj();
     //newSong.name = song_obj.song;
     //newSong.type = 'song';
+    song_obj.id = _.uniqueId();
     obj.children[artist_idx].children[album_idx].children.push(song_obj);
+    // Create resource for song
+    Song.create({
+      id: song_obj.id,
+      name: song_obj.title
+    }, function(err, newSong){
+      
+      console.log("Just added ");
+      console.log(newSong);
+      console.log(" to songs");
+    });
     console.log('added song: \n'+JSON.stringify(song_obj));
     return song_obj;
   //}
