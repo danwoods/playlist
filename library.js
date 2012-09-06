@@ -16,6 +16,21 @@ Album.string('name');
 var Song = resourceful.define('song');
 Song.string('name');
 
+/* Add if Does Not Exist Example:
+
+  addIfDNE(obj){
+    Song.find({name:obj.name}, function(err, existing_song){
+      if(err || !existing_song){
+        Song.create(obj, function(err, new_song){
+          if(err){
+            console.log(err);
+          }
+        });
+      }
+    })
+ }
+ * */
+
 //
 // Now we add a special property to Article indicating that Author is its parent
 //
