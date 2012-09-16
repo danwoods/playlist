@@ -60,7 +60,7 @@ var parseFile = function(file){
   // If they weren't, parse the ID3 file to try and extract the data
   else{
     id3Obj.parse();
-    retObj.title   = id3Obj.get('title');
+    retObj.name   = id3Obj.get('title');
     retObj.artist  = id3Obj.get('artist');
     retObj.album   = id3Obj.get('album');
     retObj.year    = id3Obj.get('year');
@@ -71,7 +71,7 @@ var parseFile = function(file){
 }
 
 // Return tags
-retObj.id = _.uniqueId();
+//retObj.id = _.uniqueId();
 return retObj;
 
 }
@@ -92,7 +92,7 @@ var lookForOtherFormats = function(given_filename, formats){
       retArr = [],
       curStat;
 
-  // Looop through formats and check for matching files
+  // Loop through formats and check for matching files
   for(format in formats){
     curStat = fs.lstatSync(filename + '.' + formats[format]);
     if(curStat.isFile()){
@@ -114,7 +114,7 @@ var lookForOtherFormats = function(given_filename, formats){
 *   currentPath - path to traverse
 */
 var scanFiles = function (currentPath) {
-  console.log('Starting new scan at: '+currentPath);
+  //console.log('Starting new scan at: '+currentPath);
   // Variables
   var files = fs.readdirSync(currentPath),  // the current path
       id3Obj = {};                          // id3 data
@@ -124,26 +124,19 @@ var scanFiles = function (currentPath) {
     // Local variables
     var currentFile = currentPath + '/' + files[i], // the path to the current file
         stats = fs.statSync(currentFile);           // the data for the current file
-    console.log('Testing file: '+currentFile);
     // If the file is actually a file and it ends in .mp3
     if (stats.isFile() && /mp3$/.test(currentFile)) {
-      console.log('File is a match!');
       // Get the id3 data from the file
       id3Obj = parseFile(currentFile);
       // Add the url to the id3 data
       id3Obj.urls = [];
       id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":"mpeg"});
       id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, ['ogg']));
-      // Add the artist
-      library.add_artist(id3Obj.artist);
-      // Add the album
-      library.add_album({"artist":id3Obj.artist, "album":id3Obj.album});
       // Add the song
       library.add_song(id3Obj);
     }
     // Else if the file is actually a directory
     else if (stats.isDirectory()) {
-      console.log('Exploring directory: '+currentFile);
       // Recursively call scanFiles
       scanFiles(currentFile);
     }

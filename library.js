@@ -4,132 +4,96 @@
 var _ = require("underscore");
 var resourceful = require("resourceful");
 
-/*** Testing resourceful ***/
+/*** Setup Schema ***/
 resourceful.use('memory');
- 
+
+// Create resources
 var Artist = resourceful.define('artist');
-Artist.string('name');
+Artist.string('name', { unique: true });
 
 var Album = resourceful.define('album');
 Album.string('name');
 
 var Song = resourceful.define('song');
 Song.string('name');
+Song.string('artist');
+Song.string('album');
+Song.array('urls');
+Song.number('track');
+Song.number('year');
 
-/* Add if Does Not Exist Example:
-
-  addIfDNE(obj){
-    Song.find({name:obj.name}, function(err, existing_song){
-      if(err || !existing_song){
-        Song.create(obj, function(err, new_song){
-          if(err){
-            console.log(err);
-          }
-        });
-      }
-    })
- }
- * */
-
-//
-// Now we add a special property to Article indicating that Author is its parent
-//
+// Define relationships
 Album.parent('artist');
 Song.parent('album');
- 
-/*** ***/
 
-var obj = {"artists":[]};
+/*** Utility functions ***/
+// Takes in string and returns corresponding object type
+var stringToObj = function(str){ 
+  var obj_type = {};
 
-var newObj = function(){
-  this.type = "",
-  this.id = 0,
-  this.rel_id = 0,
-  this.parent_id = 0,
-  this.children =  [],
-  this.unique = {};
+  if(str == 'artist'){
+    obj_type = Artist;
+  }
+  else if(str == 'album'){
+    obj_type = Album;
+  }
+  else if(str == 'song'){
+    obj_type = Song;
+  }
+
+  return obj_type;
 };
 
-obj = new newObj();
-obj.type = "library";
-obj.id = 0;
-obj.rel_id = 0;
-
-/* Function: artist_exist
- *
- *  Checks to see if artist exists in the library
- *
- *  Parameters:
- *   artist - name of artist
- *
- *  Returns:
- *   the artist object/undefined for exists/does not exist
- */
-this.artist_exist = function (artist){
-  // Return artist object (or undefined)
-  return _.find(obj.children, function(elm){return elm.name == artist;});
+// Logs error messages in unified format
+var log = function(msgs){
+  console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+  for(var msg in msgs){
+    console.log(msgs[msg]);
+  }
+  console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n');
 };
 
-/* Function: album_exist
- *
- *  Checks to see if album exists in the library. Creates artist if it does not already exist.
- *
- *  Parameters:
- *   album_obj - {
- *    artist - name of artist
- *    album -  name of album
- *   }
- *
- *  Returns:
- *   album_obj/undefined for exists/does not exist
- */
-this.album_exist = function (album_obj){
-  // Variables
-  var artist_obj = this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist),  // artist object
-      artist_idx = (_.indexOf(obj.artists, artist_obj));                                      // atrist index
-
-  // Return the album object (or undefined)
-  return _.find(obj.artists[artist_idx].albums, function(elm){return elm.album == album;});
-};
+/*** Resource functions ***/ 
 
 /* Function: add_artist
  *
  *  If artists does not exist in library, adds artist to library
  *
  *  Parameters:
- *   artist - name of artist
- *
- *  Returns:
- *   artist object/false for added/already exists in library
- */
-this.add_artist = function(artist){
-  // If the artist doesn't already exist
-  if(!this.artist_exist(artist)){
-    // Add the artist
-    var newArtist = new newObj();
-    newArtist.type = "artist";
-    newArtist.name = artist;
-    newArtist.id = _.uniqueId();
-    obj.children.push(newArtist);
-
-    // Create resource for artist
-    Artist.create({
-      id: newArtist.id,
-      name: artist
-    }, function(err, newArtist){
-      
-      console.log("Just added ");
-      console.log(newArtist);
-      console.log(" to artists");
-    });
-    console.log('added artist: \n'+JSON.stringify(newArtist));
-
-    // And return it
-    return newArtist;
-  }
-  // Else, return false
-  return false;
-}
+ *   artist_name - name of artist
+ *   callback - function to execute when artists is found or created
+*/
+var add_artist = function(artist_name, callback){
+  var search_obj = {"id": artist_name};
+  Artist.find(search_obj, function(err, results){
+    if(!err){
+      if(results.length == 0){
+        // Create resource for artist
+        Artist.create({
+          id: artist_name
+        }, function(err, artist){
+          if(err){
+            log(['Error in add_artist.create', err]);
+          }
+          if(callback){
+            callback(artist);
+          }
+        });
+      }
+      else if(results.length == 1){ 
+        if(callback){
+          callback(results[0]);
+        }
+      }
+      else{
+        log(['Error in add_artist.find', 'Multiple artists already exist by that name']);
+      }
+    }
+    else{
+      log(['Error in add_artist.find', err]);
+    }
+  });
+};
 
 /* Function: add_album
  *
@@ -140,39 +104,39 @@ this.add_artist = function(artist){
  *    artist - name of artist
  *    album -  name of album
  *   }
+ *   callback - function to execute when artists is found or created
  *
- *  Returns:
- *   album object/false for added/already exists in library
  */
-this.add_album = function(album_obj){
-  // Variables
-
-  var artist_obj = this.artist_exist(album_obj.artist) || this.add_artist(album_obj.artist),
-      artist_idx = (_.indexOf(obj.children, artist_obj)),
-      album_exists = _.find(obj.children[artist_idx].children, function(elm){return elm.name == album_obj.album;});
-
-  // If album does not exists, confirm album_obj has the proper parameters, then add it and return
-  if(!album_exists){
-    album_obj.songs = [];
-    var newAlbum = new newObj();
-    newAlbum.name = album_obj.album;
-    newAlbum.type = 'album';
-    newAlbum.id = _.uniqueId();
-    obj.children[artist_idx].children.push(newAlbum);
-    // Create resource for album
-    Album.create({
-      id: newAlbum.id,
-      name: album_obj.album
-    }, function(err, newAlbum){
-      
-      console.log("Just added ");
-      console.log(newAlbum);
-      console.log(" to album");
-    });
-    console.log('added album: \n'+JSON.stringify(newAlbum));
-    return album_obj;
-  }
-  return false;
+var add_album = function(album_obj, callback){
+  var serach_obj = {"id": album_obj.name, artist: album_obj.artist};
+  Album.find(serach_obj, function(err, results){
+    if(!err){
+      if(results.length == 0){
+        // Create resource for album
+        album_obj.artist.createAlbum({
+          id: album_obj.name,
+        }, function(err, album){
+          if(err){
+            log(['Error in add_album.create', err]);
+          }
+          if(callback){
+            callback(album);
+          }
+        });
+      }
+      else if(results.length == 1){
+        if(callback){
+          callback(results[0]);
+        }
+      }
+      else{
+        log(['Error in add_album.find', 'Multiple albums already exist by that name']);
+      }
+    }
+    else{
+      log(['Error in add_album.find', err]);
+    }
+  }); 
 };
 
 /* Function: add_song
@@ -185,40 +149,33 @@ this.add_album = function(album_obj){
  *    album -  name of album
  *   }
  *
- *  Returns:
- *   album object/false for added/already exists in library
  */
 this.add_song = function(song_obj){
-  var artist_obj = this.artist_exist(song_obj.artist) || this.add_artist(song_obj.artist),
-      artist_idx = _.indexOf(obj.children, artist_obj),
-      album_obj = _.find(obj.children[artist_idx].children, function(elm){return elm.name == song_obj.album;}),
-      album_idx = _.indexOf(obj.children[artist_idx].children, album_obj),
-      song_exists = _.find(obj.children[artist_idx].children[album_idx].children, function(elm){return elm.title == song_obj.title;});
-
-  // If song does not exists, add it and return the song object
-  // FOR RIGHT NOW, ALLOW ALL FILES
-  //if(!song_exists){
-    //var newSong = new newObj();
-    //newSong.name = song_obj.song;
-    //newSong.type = 'song';
-    song_obj.id = _.uniqueId();
-    obj.children[artist_idx].children[album_idx].children.push(song_obj);
-    // Create resource for song
-    Song.create({
-      id: song_obj.id,
-      name: song_obj.title
-    }, function(err, newSong){
-      
-      console.log("Just added ");
-      console.log(newSong);
-      console.log(" to songs");
+  add_artist(song_obj.artist, function(artist){
+    add_album({artist:artist, name:song_obj.album}, function(album){ 
+      var search_obj = {"id": song_obj.name, "album.id": album.id};
+      Song.find(search_obj, function(err, results){
+        if(!err){
+          if(results.length == 0){
+            // Create resource for song
+            song_obj.id = song_obj.name;
+            song_obj.track = Number(song_obj.track);
+            song_obj.year = Number(song_obj.year);
+            album.createSong(song_obj, function(err, song){
+              if(err){
+                log(['Error in add_song.create', err]);
+              }
+            });
+          }
+        }
+        else{
+          log(['Error in add_song.find', err]);
+        }
+      }); 
     });
-    console.log('added song: \n'+JSON.stringify(song_obj));
-    return song_obj;
-  //}
-  // Else, return false
-  //return false;
+  });
 }
+
 
 /* Function: get
  *
@@ -228,6 +185,7 @@ this.add_song = function(song_obj){
  *   the library
  */
 this.get = function(){
+  var obj = {};
   return obj;
 }
 
@@ -239,5 +197,5 @@ this.get = function(){
  *   the library
  */
 this.inspect = function(){
-  return JSON.stringify(obj, null, 2);
+  return JSON.stringify({}, null, 2);
 }
