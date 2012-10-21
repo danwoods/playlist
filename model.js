@@ -39,10 +39,9 @@ var log = function(msgs){
   console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n');
 };
 
-// Replaces ' ' and '/' with '_', and removes ','s.
-// The regex is kept simple for readablity
+// Makes sure id is compatable with restful's api
 var sanitize_id = function(id){
-  return id.replace(/ /g, '_').replace(/\//g, '_').replace(/,/g, '');
+  return id.replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_');
 };
 
 /*** Resource functions ***/ 

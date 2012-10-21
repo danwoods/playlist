@@ -115,7 +115,7 @@
           console.log(albumObj);
           // The album id doesn't work as a straight up GET call with restful,
           // so we have to reconstruct the id from it's name here
-          getSongs(elm, elm.text().replace(/ /g, '_').replace(/\//g, '_').replace(/,/g, ''));
+          getSongs(elm, elm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
         }));
       });
     };
