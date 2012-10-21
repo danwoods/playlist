@@ -5,12 +5,14 @@
 var fs      = require('fs'),
     ID3     = require('id3'),
     library = require('./library'),
+    Model = require('./model'),
     _       = require('underscore'),
     util    = require('util'),
     url     = require('url'),
     http    = require('http'),
     path    = require('path'),
     director= require('director'),
+    restful = require('restful'),
     plates  = require('plates');
 
 var mimeTypes = {
@@ -21,7 +23,8 @@ var mimeTypes = {
                 "js": "text/javascript",
                 "mp3": "audio/mpeg",
                 "ogg": "audio/ogg",
-                "css": "text/css"
+                "css": "text/css",
+                "ico": "image/vnd.microsoft.icon"
                 };
 
 /*** Functions ***/
@@ -57,24 +60,22 @@ var parseFile = function(file){
     if(id3Tags.artist){
       retObj = id3Tags;
     }
-  // If they weren't, parse the ID3 file to try and extract the data
-  else{
-    id3Obj.parse();
-    retObj.name   = id3Obj.get('title');
-    retObj.artist  = id3Obj.get('artist');
-    retObj.album   = id3Obj.get('album');
-    retObj.year    = id3Obj.get('year');
-    retObj.comment = id3Obj.get('comment');
-    retObj.track   = id3Obj.get('track');
-    retObj.genre   = id3Obj.get('genre');
-}
-}
+    // If they weren't, parse the ID3 file to try and extract the data
+    else{
+      id3Obj.parse();
+      retObj.name   = id3Obj.get('title');
+      retObj.artist  = id3Obj.get('artist');
+      retObj.album   = id3Obj.get('album');
+      retObj.year    = id3Obj.get('year');
+      retObj.comment = id3Obj.get('comment');
+      retObj.track   = id3Obj.get('track');
+      retObj.genre   = id3Obj.get('genre');
+    }
+  }
 
-// Return tags
-//retObj.id = _.uniqueId();
-return retObj;
+  return retObj;
 
-}
+};
 
 /* Function: lookForOtherFormats
 *
@@ -144,12 +145,39 @@ var scanFiles = function (currentPath) {
 };
 
 /*** Routing ***/
-// Gets single song data
+// Get single song data
 var getSong = function(id){
-  var song = _(library.get().artists[0].albums[0].songs).find(function(curSong){return curSong.id == id;});
-  console.log('Searching for song with id: '+id+', Returning: '+JSON.stringify(song));
-  this.res.writeHead(200, { 'Content-Type': 'application/json' });
-  this.res.end(JSON.stringify(song));
+  console.log('Searching for song with id: '+id);
+  library.get_song(id, function(song){ 
+    console.log('Returned from library.get_song with');
+    console.log(song);
+    this.res.writeHead(200, { 'Content-Type': 'application/json' });
+    this.res.end(JSON.stringify(song));
+  });
+};
+
+// Get artist(s) data
+var getArtist = function(searchObj){
+  console.log('Searching for artist');
+  var res = this.res;
+  library.get_artist({}, function(results){ 
+    console.log('Returned from library.get_artist with');
+    console.log(results);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(results));
+  });
+};
+
+// Get album data
+var getAlbums = function(search_obj){
+  console.log('Searching for album');
+  var res = this.res;
+  library.get_album(search_obj, function(results){ 
+    console.log('Returned from library.get_album with');
+    console.log(results);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(results));
+  });
 };
 
 // Gets entire library data
@@ -161,6 +189,10 @@ var getLibrary = function(){
 //
 // define a routing table.
 //
+//
+var router = restful.createRouter([Model.Artist, Model.Album, Model.Song]);
+
+/*
 var router = new director.http.Router({
 '/': {
   get: function(){
@@ -169,8 +201,10 @@ var router = new director.http.Router({
     fileStream.pipe(this.res);
     }
   },
-  '/library': {
-    get: getLibrary
+  '/artists': {
+    '/':{
+      get: getArtist
+    }
   },
   '/song': {
     '/:id': {
@@ -236,20 +270,24 @@ var router = new director.http.Router({
   }
 
 });
+*/
 
-//
-// You can also do ad-hoc routing, similar to `journey` or `express`.
-// This can be done with a string or a regexp.
-//router.get('/bonjour', helloWorld);
-//router.get(/hola/, helloWorld);
-
+/* Function: serveStatic
+*
+*  Serves static files (css, mp3). Called when the default api routing has an error.
+*
+*  Parameters:
+*   req - request,
+*   res - response
+*/
 var serveStatic = function(req, res){
-  var uri = url.parse(req.url).pathname;
-  var filename = path.join(process.cwd(), uri);
+  library.get_artists();
+  var uri = url.parse(req.url).pathname,
+      filename = path.join(process.cwd() + '/client/', uri); // Assume any static files will be in the '/client' directory
   path.exists(filename, function(exists) {
     if(!exists) {
-      // this works for mp3s but makes the page really slow to load otheerwise
-      console.log("not exists: " + filename);
+      // this works for mp3s but makes the page really slow to load otherwise
+      console.log("path does not exist: " + filename);
       var filePath = path.resolve(process.cwd(), uri);
       var stat = fs.statSync(filePath);
 
@@ -259,16 +297,10 @@ var serveStatic = function(req, res){
       });
 
       var readStream = fs.createReadStream(filePath);
-      // We replaced all the event handlers with a simple call to util.pump()
-      //util.pump(readStream, res);
-    readStream.pipe(res);
-      //res.writeHead(404);
-      //res.write('404 Not Found\n');
-      //res.end();
+      readStream.pipe(res);
       return;
     }
     var mimeType = mimeTypes[path.extname(filename).split(".")[1]];
-    console.log('mimetype = '+mimeType);
     res.writeHead(200, mimeType);
     var fileStream = fs.createReadStream(filename);
     fileStream.pipe(res);
@@ -282,18 +314,19 @@ scanFiles(process.argv[2] || '..');
 
 // Start Server
 http.createServer(function (req, res) {
+  req.chunks = [];
+  req.on('data', function (chunk) {
+    req.chunks.push(chunk.toString());
+  });
+  req.url = decodeURI(req.url);
   router.dispatch(req, res, function (err) {
     if (err) {
-      //console.log(err);
+      console.log(err);
       serveStatic(req, res);
-    //var fileStream = fs.createReadStream(req);
-    //fileStream.pipe(this.res);
-    //  console.log(err);
-    //  res.writeHead(403);
-    //  res.end();
       return;
     }
   });
-}).listen(1337, '127.0.0.1');
+  console.log('Served ' + req.url);
+}).listen(1337, '0.0.0.0');
 console.log('Server running at http://127.0.0.1:1337/');
-//console.log(JSON.stringify(library.get(), undefined, 2));
+library.get_artists();

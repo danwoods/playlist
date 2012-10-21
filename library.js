@@ -1,48 +1,13 @@
 // Module/Container for a library of music data
 // **library.js** acts as the model layer of playlist.js.
 
-var _ = require("underscore");
-var resourceful = require("resourceful");
-
-/*** Setup Schema ***/
-resourceful.use('memory');
-
-// Create resources
-var Artist = resourceful.define('artist');
-Artist.string('name', { unique: true });
-
-var Album = resourceful.define('album');
-Album.string('name');
-
-var Song = resourceful.define('song');
-Song.string('name');
-Song.string('artist');
-Song.string('album');
-Song.array('urls');
-Song.number('track');
-Song.number('year');
-
-// Define relationships
-Album.parent('artist');
-Song.parent('album');
+/* Disclaimer:
+ * I know this is dumb, but resourceful overwrites on create if an item already exists, which gets screwy with asynchronisity
+*/
+var _ = require("underscore"),
+    Model = require("./model");
 
 /*** Utility functions ***/
-// Takes in string and returns corresponding object type
-var stringToObj = function(str){ 
-  var obj_type = {};
-
-  if(str == 'artist'){
-    obj_type = Artist;
-  }
-  else if(str == 'album'){
-    obj_type = Album;
-  }
-  else if(str == 'song'){
-    obj_type = Song;
-  }
-
-  return obj_type;
-};
 
 // Logs error messages in unified format
 var log = function(msgs){
@@ -64,33 +29,22 @@ var log = function(msgs){
  *   callback - function to execute when artists is found or created
 */
 var add_artist = function(artist_name, callback){
-  var search_obj = {"id": artist_name};
-  Artist.find(search_obj, function(err, results){
-    if(!err){
-      if(results.length == 0){
-        // Create resource for artist
-        Artist.create({
-          id: artist_name
-        }, function(err, artist){
-          if(err){
-            log(['Error in add_artist.create', err]);
-          }
-          if(callback){
-            callback(artist);
-          }
-        });
-      }
-      else if(results.length == 1){ 
-        if(callback){
-          callback(results[0]);
-        }
-      }
-      else{
-        log(['Error in add_artist.find', 'Multiple artists already exist by that name']);
+  var search_obj = {"name": artist_name};
+  Model.Artist.find(search_obj, function(err, results){
+    if(err){
+      log(['LN: 118::Error in add_artist.find', err]);
+    }
+    else if(results.length == 0){
+      log(['LN: 124::add_artist.find', 'Creating artist']);
+      Model.Artist.create({"id":artist_name.replace(/ /g, '_'), "name":artist_name}, callback);
+    }
+    else if(results.length == 1){ 
+      if(callback){
+        callback(results[0]);
       }
     }
     else{
-      log(['Error in add_artist.find', err]);
+      log(['LN: 97::Error in add_artist.find', 'Multiple artists already exist by that name']);
     }
   });
 };
@@ -107,34 +61,23 @@ var add_artist = function(artist_name, callback){
  *   callback - function to execute when artists is found or created
  *
  */
-var add_album = function(album_obj, callback){
-  var serach_obj = {"id": album_obj.name, artist: album_obj.artist};
-  Album.find(serach_obj, function(err, results){
-    if(!err){
-      if(results.length == 0){
-        // Create resource for album
-        album_obj.artist.createAlbum({
-          id: album_obj.name,
-        }, function(err, album){
-          if(err){
-            log(['Error in add_album.create', err]);
-          }
-          if(callback){
-            callback(album);
-          }
-        });
-      }
-      else if(results.length == 1){
-        if(callback){
-          callback(results[0]);
-        }
-      }
-      else{
-        log(['Error in add_album.find', 'Multiple albums already exist by that name']);
+var add_album = function(artist, album_name, callback){
+  var search_obj = {"id": album_name, "artist_id": artist.name};
+  Model.Album.find(search_obj, function(err, results){
+    if(err){
+      log(['LN: 154::Error in add_album.find', err]);
+    }
+    else if(results.length == 0){
+      log(['LN: 156::add_album.find', 'Creating album', 'artist = ', artist]);
+      artist.createAlbum({"id": album_name.replace(/ /g, '_'), "name": album_name}, callback);
+    }
+    else if(results.length == 1){
+      if(callback){
+        callback(results[0]);
       }
     }
     else{
-      log(['Error in add_album.find', err]);
+      log(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
     }
   }); 
 };
@@ -151,31 +94,126 @@ var add_album = function(album_obj, callback){
  *
  */
 this.add_song = function(song_obj){
-  add_artist(song_obj.artist, function(artist){
-    add_album({artist:artist, name:song_obj.album}, function(album){ 
-      var search_obj = {"id": song_obj.name, "album.id": album.id};
-      Song.find(search_obj, function(err, results){
-        if(!err){
-          if(results.length == 0){
-            // Create resource for song
-            song_obj.id = song_obj.name;
-            song_obj.track = Number(song_obj.track);
-            song_obj.year = Number(song_obj.year);
-            album.createSong(song_obj, function(err, song){
-              if(err){
-                log(['Error in add_song.create', err]);
-              }
-            });
+  add_artist(song_obj.artist, function(err, artist){
+    add_album(artist, song_obj.album, function(err, album){ 
+      var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
+      Model.Song.find(search_obj, function(err, results){
+        if(err){
+          log(['LN: 193::Error in song_album.find', err]);
+        }
+        else if(results.length == 0){
+          log(['LN: 156::add_song.find', 'Creating song']);
+          album.createSong({"id": song_obj.name.replace(/ /g, '_'), "name": song_obj.name, "urls":song_obj.urls}, function(err, song){log(['LN:  197:: Added song:', song])});
+        }
+        else if(results.length == 1){
+          if(callback){
+            callback(results[0]);
           }
         }
         else{
-          log(['Error in add_song.find', err]);
+          log(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
         }
       }); 
     });
   });
-}
+};
 
+
+/* Function: get_song
+ *
+ *  Gets song and executes callback, if provided
+ *
+ *  Parameters:
+ *    song_id: _id of requested song
+ *    callback - function to execute when artists is found or created
+ *
+ */
+this.get_song = function(song_id, callback){
+  Model.Song.get(song_id, function(err, result){
+    if(!err){
+      if(callback){
+        callback(result);
+      }
+    }
+    else{
+      log(['Error in get_song', err]);
+    }
+  });
+};
+
+/* Function: get_artist
+ *
+ *  Gets artist(s) and executes callback, if provided
+ *
+ *  Parameters:
+ *    search_obj: object of search parameters
+ *    callback - function to execute when artists is found or created
+ *
+ */
+this.get_artist = function(search_obj, callback){
+  if(search_obj){
+    Model.Artist.find(search_obj, function(err, results){
+      if(!err){
+        if(callback){
+          callback(results);
+        }
+      }
+      else{
+        log(['Error in get_artist.Model.Artist_find', err]);
+      }
+    });
+  }
+  else{
+    Model.Artist.all(function(err, results){
+      if(!err){
+        if(callback){
+          callback(results);
+        }
+      }
+      else{
+        log(['Error in get_artist.Model.Artist_all', err]);
+      }
+      
+    });
+  }
+};
+
+/* Function: get_album
+ *
+ *  Gets album(s) and executes callback, if provided
+ *
+ *  Parameters:
+ *    search_obj: object of search parameters
+ *    callback - function to execute when artists is found or created
+ *
+ */
+this.get_album = function(search_obj, callback){
+  if(search_obj){
+    Model.Album.find(search_obj, function(err, results){
+      if(!err){
+        if(callback){
+          callback(results);
+        }
+      }
+      else{
+        log(['Error in get_album.Model.Album_find', err]);
+      }
+    });
+  }
+  else{
+    Model.Album.all(function(err, results){
+      if(!err){
+        if(callback){
+          callback(results);
+        }
+      }
+      else{
+        log(['Error in get_album.Model.Album_all', err]);
+      }
+      
+    });
+  }
+};
 
 /* Function: get
  *
@@ -188,6 +226,12 @@ this.get = function(){
   var obj = {};
   return obj;
 }
+
+this.get_artists = function(){
+  Model.Artist.all(function(err, results){
+    log(['LN: 340::Artist = ', JSON.stringify(results, null, 2)]);
+  });
+};
 
 /* Function: inspect
  *
