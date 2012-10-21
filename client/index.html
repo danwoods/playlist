@@ -47,7 +47,6 @@
 
   </footer>
 
-
   <!-- JavaScript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
@@ -106,6 +105,7 @@
         }));
       });
     };
+
     // Get album data, create ordered list from it, and append it to a pasted in element
     var getAlbums = function(elm, artist_id, album_search_obj){
       $.getJSON('/artist/'+artist_id+'/album', function(data){
@@ -113,7 +113,9 @@
         elm.append(makeOL(albumArr, function(elm, albumObj, searchObj){
           console.log(elm);
           console.log(albumObj);
-          getSongs(elm, elm.text().replace(/ /g, '_'));
+          // The album id doesn't work as a straight up GET call with restful,
+          // so we have to reconstruct the id from it's name here
+          getSongs(elm, elm.text().replace(/ /g, '_').replace(/\//g, '_').replace(/,/g, ''));
         }));
       });
     };

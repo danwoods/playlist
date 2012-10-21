@@ -39,6 +39,12 @@ var log = function(msgs){
   console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n');
 };
 
+// Replaces ' ' and '/' with '_', and removes ','s.
+// The regex is kept simple for readablity
+var sanitize_id = function(id){
+  return id.replace(/ /g, '_').replace(/\//g, '_').replace(/,/g, '');
+};
+
 /*** Resource functions ***/ 
 
 /* Function: add_artist
@@ -57,7 +63,7 @@ var add_artist = function(artist_name, callback){
     }
     else if(results.length == 0){
       log(['LN: 124::add_artist.find', 'Creating artist']);
-      Model.Artist.create({"id":artist_name.replace(/ /g, '_'), "name":artist_name}, callback);
+      Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
       if(callback){
@@ -87,7 +93,7 @@ var add_album = function(artist, album_name, callback){
     }
     else if(results.length == 0){
       log(['LN: 156::add_album.find', 'Creating album', 'artist = ', artist]);
-      artist.createAlbum({"id": album_name.replace(/ /g, '_'), "name": album_name}, callback);
+      artist.createAlbum({"id": sanitize_id(album_name), "name": album_name}, callback);
     }
     else if(results.length == 1){
       if(callback){
@@ -122,7 +128,7 @@ Model.add_song = function(song_obj){
         else if(results.length == 0){
           log(['LN: 156::add_song.find', 'Creating song']);
           album.createSong({
-                            "id": song_obj.name.replace(/ /g, '_'),
+                            "id": sanitize_id(song_obj.name),
                             "name": song_obj.name,
                             "urls":song_obj.urls
                           },
