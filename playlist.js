@@ -4,7 +4,6 @@
 
 var fs      = require('fs'),
     ID3     = require('id3'),
-    library = require('./library'),
     Model = require('./model'),
     _       = require('underscore'),
     util    = require('util'),
@@ -109,7 +108,7 @@ var lookForOtherFormats = function(given_filename, formats){
 
 /* Function: scanFiles
 *
-*  Recursively traverses files in a given path and parses/adds to the library the mp3s
+*  Recursively traverses files in a given path and parses/adds to the Model the mp3s
 *
 *  Parameters:
 *   currentPath - path to traverse
@@ -134,7 +133,7 @@ var scanFiles = function (currentPath) {
       id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":"mpeg"});
       id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, ['ogg']));
       // Add the song
-      library.add_song(id3Obj);
+      Model.add_song(id3Obj);
     }
     // Else if the file is actually a directory
     else if (stats.isDirectory()) {
@@ -148,8 +147,8 @@ var scanFiles = function (currentPath) {
 // Get single song data
 var getSong = function(id){
   console.log('Searching for song with id: '+id);
-  library.get_song(id, function(song){ 
-    console.log('Returned from library.get_song with');
+  Model.get_song(id, function(song){ 
+    console.log('Returned from Model.get_song with');
     console.log(song);
     this.res.writeHead(200, { 'Content-Type': 'application/json' });
     this.res.end(JSON.stringify(song));
@@ -160,8 +159,8 @@ var getSong = function(id){
 var getArtist = function(searchObj){
   console.log('Searching for artist');
   var res = this.res;
-  library.get_artist({}, function(results){ 
-    console.log('Returned from library.get_artist with');
+  Model.get_artist({}, function(results){ 
+    console.log('Returned from Model.get_artist with');
     console.log(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
@@ -172,18 +171,18 @@ var getArtist = function(searchObj){
 var getAlbums = function(search_obj){
   console.log('Searching for album');
   var res = this.res;
-  library.get_album(search_obj, function(results){ 
-    console.log('Returned from library.get_album with');
+  Model.get_album(search_obj, function(results){ 
+    console.log('Returned from Model.get_album with');
     console.log(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
   });
 };
 
-// Gets entire library data
+// Gets entire Model data
 var getLibrary = function(){
   this.res.writeHead(200, { 'Content-Type': 'application/json' });
-  this.res.end(JSON.stringify(library.get()));
+  this.res.end(JSON.stringify(Model.get()));
 };
 //
 //
@@ -281,7 +280,7 @@ var router = new director.http.Router({
 *   res - response
 */
 var serveStatic = function(req, res){
-  library.get_artists();
+  Model.get_artists();
   var uri = url.parse(req.url).pathname,
       filename = path.join(process.cwd() + '/client/', uri); // Assume any static files will be in the '/client' directory
   path.exists(filename, function(exists) {
@@ -329,4 +328,4 @@ http.createServer(function (req, res) {
   console.log('Served ' + req.url);
 }).listen(1337, '0.0.0.0');
 console.log('Server running at http://127.0.0.1:1337/');
-library.get_artists();
+Model.get_artists();
