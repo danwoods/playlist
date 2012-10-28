@@ -1,0 +1,57 @@
+/*
+ * catalog.css
+ *
+ * Styles related to the listing of available music
+ *
+ */
+
+section#catalog{
+  display: block;
+  width: 200px;
+  height: auto;
+  padding: 0.5em 0.5em 1px 0.5em;
+  margin: 0 auto;
+  background-color: #FAFAFA;
+  border-radius: 5px;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.3);
+  color: #555;
+}
+section#catalog ol{
+  margin: 0px;
+  padding: 0px;
+}
+section#catalog ol li{
+  font-size: 90%;
+  list-style: none;
+  cursor: pointer;
+}
+section#catalog ol li:not(.expanded) > ol {
+  display: none;
+}
+section#catalog li.expanded >  ol > li{
+  display: block;
+  width: 170px;
+  height: auto;
+  min-height: 2em;
+  padding: 0 1em;
+  margin: 0 0 0.5em 0;
+  overflow-x: hidden;
+  border-radius: 3px;
+  line-height: 2em;
+}
+section#catalog ol li:not(.song) > span.icon{
+  background: url(images/ui-icons_888888_256x240.png) no-repeat -35px -18px;
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+}
+section#catalog ol li.expanded:not(.song) > span.icon{
+  background-position: -67px -17px;
+}
+section#catalog ol li{
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  transition: all 1s ease;
+}

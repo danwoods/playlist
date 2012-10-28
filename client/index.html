@@ -20,7 +20,9 @@
 
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css"> 
+  <link rel="stylesheet" href="css/catalog.css"> 
+  <link rel="stylesheet" href="css/jquery-ui-1.9.1.custom.min.css"> 
 
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
 
@@ -37,11 +39,7 @@
 
   </header>
   <div role="main" id="main">
-    <ul>
-      <li><a href="#/author">#/author</a></li>
-      <li><a href="#/song/4">#/song/4</a></li>
-      <li><a href="#/books/view/1">#/books/view/1</a></li>
-    </ul>
+    <section id="catalog"></section>
   </div>
   <footer>
 
@@ -52,6 +50,8 @@
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-ui-1.9.1.custom.min.js"><\/script>')</script>
 
   <!-- My js. Will concat/minify later -->
   <script src="js/libs/director/director-1.1.3.js"></script>
@@ -62,13 +62,11 @@
   <script type="text/javascript" charset="utf-8">
 
     // Create ordered list
-    var makeOL = function(arr, onclickCallback){
-      var olElm = $('<ol class="'+arr[0].resource+'" />');
+    var makeOL = function(arr){
+      var elmClass =  arr[0].resource.toLowerCase(),
+          olElm = $('<ol class="'+elmClass+'s" />');
       $.each(arr, function(idx, obj){
-        liElm = $('<li id="'+obj.id+'" class="'+obj.resource+'">'+obj.name+'</li>');
-        if(onclickCallback){
-          $(liElm).click(function(){onclickCallback($(this), obj); return false;});
-        }
+        liElm = $('<li id="'+obj.id+'" class="'+elmClass+'"><span class="icon"></span><span>'+obj.name+'</span></li>');
         olElm.append(liElm);
       });
       return olElm;
@@ -76,8 +74,8 @@
    
     // Create player element
     var createPlayerElm = function(songObj){
-      var playerElm = false;
-      var html = '<div id="title"></div>';
+      var playerElm = false,
+          html = '<div id="title"></div>';
       console.log(Plates.bind(html, songObj));
       if(songObj){
         var audioElm = $('<audio controls autoplay />');
@@ -98,11 +96,8 @@
     var getSongs = function(elm, album_id, song_search_obj){
       $.getJSON('/album/'+album_id+'/song', function(data){
         var songArr =_.where(data.song, {album_id: elm.attr('id')});
-        elm.append(makeOL(songArr, function(elm, songObj){ 
-          console.log(elm);
-          console.log(songObj);
-          elm.append(createPlayerElm(songObj));
-        }));
+        console.log(songArr);
+        elm.append(makeOL(songArr)).addClass('expanded');
       });
     };
 
@@ -110,28 +105,39 @@
     var getAlbums = function(elm, artist_id, album_search_obj){
       $.getJSON('/artist/'+artist_id+'/album', function(data){
         var albumArr =_.where(data.album, {artist_id: artist_id});
-        elm.append(makeOL(albumArr, function(elm, albumObj, searchObj){
-          console.log(elm);
-          console.log(albumObj);
-          // The album id doesn't work as a straight up GET call with restful,
-          // so we have to reconstruct the id from it's name here
-          getSongs(elm, elm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
-        }));
+        console.log(albumArr);
+        elm.append(makeOL(albumArr)).addClass('expanded');
       });
     };
+    /**/
+    $('section#catalog').on('click', 'ol > li.artist > span', function(){
+      console.log('artist clicked');
+      if($(this).children().length === 0){
+        var artistElm = $(this).parent('.artist');
+        getAlbums(artistElm, artistElm.attr('id'));
+      }
+      return false;
+    });
+
+    $('section#catalog').on('click', 'ol > li.album > span', function(){
+      if($(this).children().length === 0){
+        var albumElm = $(this).parent('.album');
+        // The album id doesn't work as a straight up GET call with restful,
+        // so we have to reconstruct the id from it's name here
+        getSongs(albumElm, albumElm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
+      }
+      return false;
+    });
 
     // Playlist init
     var setupLibrary = function(){ 
       $.getJSON('/artist', function(data){
         var artistArr = data.artist;
         console.log(artistArr);
-        $('#main').append(makeOL(artistArr, function(elm, artistObj, searchObj){
-          console.log(elm);
-          console.log(artistObj);
-          getAlbums(elm, artistObj.id);
-        }));
+        $('section#catalog').append(makeOL(artistArr));
       });
     };
+
 
     var setupHomePage = function(){ 
       setupLibrary();
