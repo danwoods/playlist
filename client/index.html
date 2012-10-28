@@ -92,11 +92,10 @@
       return playerElm;
     };
 
-    // Get album data, create ordered list from it, and append it to a pasted in element
+    // Get song data, create ordered list from it, and append it to a pasted in element
     var getSongs = function(elm, album_id, song_search_obj){
       $.getJSON('/album/'+album_id+'/song', function(data){
         var songArr =_.where(data.song, {album_id: elm.attr('id')});
-        console.log(songArr);
         elm.append(makeOL(songArr)).addClass('expanded');
       });
     };
@@ -105,26 +104,40 @@
     var getAlbums = function(elm, artist_id, album_search_obj){
       $.getJSON('/artist/'+artist_id+'/album', function(data){
         var albumArr =_.where(data.album, {artist_id: artist_id});
-        console.log(albumArr);
         elm.append(makeOL(albumArr)).addClass('expanded');
       });
     };
-    /**/
+
     $('section#catalog').on('click', 'ol > li.artist > span', function(){
-      console.log('artist clicked');
-      if($(this).children().length === 0){
-        var artistElm = $(this).parent('.artist');
-        getAlbums(artistElm, artistElm.attr('id'));
+      var artistElm = $(this).parent('.artist');
+      if(!artistElm.hasClass('expanded')){
+        if(artistElm.children('ol').length === 0){
+          getAlbums(artistElm, artistElm.attr('id'));
+        }
+        else{
+          artistElm.addClass('expanded');
+        }
+      }
+      else{
+        artistElm.removeClass('expanded');
       }
       return false;
     });
 
     $('section#catalog').on('click', 'ol > li.album > span', function(){
-      if($(this).children().length === 0){
-        var albumElm = $(this).parent('.album');
-        // The album id doesn't work as a straight up GET call with restful,
-        // so we have to reconstruct the id from it's name here
-        getSongs(albumElm, albumElm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
+      var albumElm = $(this).parent('.album');
+      if(!albumElm.hasClass('expanded')){
+        if(albumElm.children('ol').length === 0){
+          // The album id doesn't work as a straight up GET call with restful,
+          // so we have to reconstruct the id from it's name here
+          getSongs(albumElm, albumElm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
+        }
+        else{
+          albumElm.addClass('expanded');
+        }
+      }
+      else{
+        albumElm.removeClass('expanded');
       }
       return false;
     });
