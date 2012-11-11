@@ -7,13 +7,14 @@ var makeOL = function(arr){
   var elmClass =  arr[0].resource.toLowerCase(),
       olElm = $('<ol class="'+elmClass+'s" />');
   $.each(arr, function(idx, obj){
-    liElm = $('<li id="'+obj.id+'" class="'+elmClass+'"><span class="icon"></span><span>'+obj.name+'</span></li>');
+    liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span>'+obj.name+'</span></li>');
     olElm.append(liElm);
   });
   return olElm;
 };
 
-// Get song data, create ordered list from it, and append it to a pasted in element
+/* "Getter" functions */
+// Get song data, create ordered list from it, and append it to a passed in element
 var getSongs = function(elm, album_id, song_search_obj){
   $.getJSON('/album/'+album_id+'/song', function(data){
     var songArr =_.where(data.song, {album_id: elm.attr('id')});
@@ -21,7 +22,7 @@ var getSongs = function(elm, album_id, song_search_obj){
   });
 };
 
-// Get album data, create ordered list from it, and append it to a pasted in element
+// Get album data, create ordered list from it, and append it to a passed in element
 var getAlbums = function(elm, artist_id, album_search_obj){
   $.getJSON('/artist/'+artist_id+'/album', function(data){
     var albumArr =_.where(data.album, {artist_id: artist_id});
@@ -68,7 +69,6 @@ $('section#catalog').on('click', 'ol > li.album > span', function(){
 var setupCatalog = function(){ 
   $.getJSON('/artist', function(data){
     var artistArr = data.artist;
-    console.log(artistArr);
     $('section#catalog').append(makeOL(artistArr));
   });
 };
