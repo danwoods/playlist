@@ -2,12 +2,23 @@
  * Catalog element functionality
  */
 
+// Setup drag functionality
+var dragStart = function(e){
+  e.dataTransfer.setData('text/html', 'test');
+  console.log('drag start');
+};
+var dragEnd = function(e) {
+  // this/e.target is the source node.
+  console.log('drag end');
+};
 // Create ordered list
 var makeOL = function(arr){
   var elmClass =  arr[0].resource.toLowerCase(),
       olElm = $('<ol class="'+elmClass+'s" />');
   $.each(arr, function(idx, obj){
     liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span>'+obj.name+'</span></li>');
+    liElm.get()[0].addEventListener('dragstart', dragStart, false);
+    //liElm.get()[0].addEventListener('dragend', dragEnd, false);
     olElm.append(liElm);
   });
   return olElm;

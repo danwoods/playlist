@@ -10,11 +10,12 @@ section#catalog{
   width: 200px;
   height: auto;
   padding: 0.5em 0.5em 1px 0.5em;
-  margin: 0 auto;
+  /*margin: 0 auto;*/
   background-color: #FAFAFA;
   border-radius: 5px;
   box-shadow: 0 3px 3px rgba(0,0,0,0.3);
   color: #555;
+  float: left;
 }
 section#catalog ol{
   margin: 0px;
