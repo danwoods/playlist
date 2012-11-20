@@ -4,8 +4,9 @@
 
 // Setup drag functionality
 var dragStart = function(e){
-  e.dataTransfer.setData('text/html', 'test');
+  e.dataTransfer.setData('text/plain', '{"id":"'+e.target.getAttribute("id")+'", "type":"'+e.target.className+'"}');
   console.log('drag start');
+  console.log(e.target);
 };
 var dragEnd = function(e) {
   // this/e.target is the source node.
@@ -18,7 +19,6 @@ var makeOL = function(arr){
   $.each(arr, function(idx, obj){
     liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span>'+obj.name+'</span></li>');
     liElm.get()[0].addEventListener('dragstart', dragStart, false);
-    //liElm.get()[0].addEventListener('dragend', dragEnd, false);
     olElm.append(liElm);
   });
   return olElm;
