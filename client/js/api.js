@@ -1,4 +1,4 @@
-// Playlist module
+// API module
 var API = function () {
 
   this.getArtists = function(requestObj, callback){
@@ -23,6 +23,10 @@ var API = function () {
     $.getJSON('/song', function(data){
       // Restful doesn't always send back the correct data
       cleanData = _.where(data.song, requestObj);
+      // If looking for a particular id, and single item found, return the single item instead of an array
+      if(requestObj.id && cleanData.length === 1){
+        cleanData = cleanData[0];
+      }
       if(callback){
         callback(cleanData);
       }

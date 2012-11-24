@@ -79,8 +79,12 @@
     var createPlayerElm = function(songObj){
       var playerElm = false,
           html = '<div id="title"></div>';
-      console.log(Plates.bind(html, songObj));
+      console.log(songObj);
       if(songObj){
+      console.log(songObj);
+      console.log(songObj.length);
+      console.log(songObj[0]);
+      console.log(songObj.urls.length);
         var audioElm = $('<audio controls autoplay />');
         for(source in songObj.urls){
           var songElm = $('<source src="'+songObj.urls[source].url+
@@ -88,7 +92,7 @@
           audioElm.append(songElm);
         }
         playerElm = $('<div class="player"><span>Title: '+
-                        songObj.title+
+                        songObj.name+
                       '<span><br /></div>').append(audioElm);
       }
 

@@ -1,6 +1,8 @@
 // Playlist module
 var Playlist = (function () {
 
+  var api = new API();
+
   /* UI */
   var dragEnter = function(e) {
     // this / e.target is the current hover target.
@@ -31,17 +33,16 @@ var Playlist = (function () {
   var addSong = function(id, idx){
     //if id
     if(id){
-    //get data
-    $.getJSON(id, function(data){
-      console.log(data);
-      $('document').ready(function(){
-        $('#main').remove('.player');
-        $('#main').append(createPlayerElm(data));
+      //get data
+      //$.getJSON(id, function(data){
+      api.getSongs({"id": id}, function(data){
+        console.log('data = ');
+        console.log(data);
+        $('document').ready(function(){
+          $('#main').remove('.player');
+          $('#main').append(createPlayerElm(data));
+        });
       });
-    });
-    //create element
-    //give it functionality
-    //add it to playlist
     }
   };
 
