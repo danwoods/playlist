@@ -280,7 +280,6 @@ var router = new director.http.Router({
 *   res - response
 */
 var serveStatic = function(req, res){
-  Model.get_artists();
   var uri = url.parse(req.url).pathname,
       filename = path.join(process.cwd() + '/client/', uri); // Assume any static files will be in the '/client' directory
   path.exists(filename, function(exists) {
@@ -310,7 +309,6 @@ var serveStatic = function(req, res){
 /*** Operations ***/
 // Recursively scan the files for the given directory, or use the one we're currently in
 scanFiles(process.argv[2] || '..');
-
 // Start Server
 http.createServer(function (req, res) {
   req.chunks = [];
@@ -319,6 +317,7 @@ http.createServer(function (req, res) {
   });
   req.url = decodeURI(req.url);
   router.dispatch(req, res, function (err) {
+Model.get_songs();
     if (err) {
       console.log(err);
       serveStatic(req, res);
@@ -328,4 +327,3 @@ http.createServer(function (req, res) {
   console.log('Served ' + req.url);
 }).listen(1337, '0.0.0.0');
 console.log('Server running at http://127.0.0.1:1337/');
-Model.get_artists();

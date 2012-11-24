@@ -23,7 +23,26 @@ var Playlist = (function () {
     }
     console.log('dropped'); 
     console.log(e.dataTransfer.getData('text/plain')); 
+    addSong(JSON.parse(e.dataTransfer.getData('text/plain')).id);
     return false;
+  };
+
+  // Add Song
+  var addSong = function(id, idx){
+    //if id
+    if(id){
+    //get data
+    $.getJSON(id, function(data){
+      console.log(data);
+      $('document').ready(function(){
+        $('#main').remove('.player');
+        $('#main').append(createPlayerElm(data));
+      });
+    });
+    //create element
+    //give it functionality
+    //add it to playlist
+    }
   };
 
   // Add event listeners and bindings
@@ -39,5 +58,6 @@ var Playlist = (function () {
   return Playlist;
 
 })();
+
 // Instansiate module
 var playlist = new Playlist();

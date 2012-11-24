@@ -2,6 +2,10 @@
  * Catalog element functionality
  */
 
+if(!window.api){
+  api = new API();
+}
+
 // Setup drag functionality
 var dragStart = function(e){
   e.dataTransfer.setData('text/plain', '{"id":"'+e.target.getAttribute("id")+'", "type":"'+e.target.className+'"}');
@@ -27,17 +31,15 @@ var makeOL = function(arr){
 /* "Getter" functions */
 // Get song data, create ordered list from it, and append it to a passed in element
 var getSongs = function(elm, album_id, song_search_obj){
-  $.getJSON('/album/'+album_id+'/song', function(data){
-    var songArr =_.where(data.song, {album_id: elm.attr('id')});
-    elm.append(makeOL(songArr)).addClass('expanded');
+  api.getSongs({"album_id": elm.attr('id')}, function(data){
+    elm.append(makeOL(data)).addClass('expanded');
   });
 };
 
 // Get album data, create ordered list from it, and append it to a passed in element
 var getAlbums = function(elm, artist_id, album_search_obj){
-  $.getJSON('/artist/'+artist_id+'/album', function(data){
-    var albumArr =_.where(data.album, {artist_id: artist_id});
-    elm.append(makeOL(albumArr)).addClass('expanded');
+  api.getAlbums({"artist_id": artist_id}, function(data){
+    elm.append(makeOL(data)).addClass('expanded');
   });
 };
 
@@ -78,7 +80,7 @@ $('section#catalog').on('click', 'ol > li.album > span', function(){
 
 // Catalog init
 var setupCatalog = function(){ 
-  $.getJSON('/artist', function(data){
+  api.getArtists({}, function(data){
     var artistArr = data.artist;
     $('section#catalog').append(makeOL(artistArr));
   });

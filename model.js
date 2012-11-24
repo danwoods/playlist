@@ -265,7 +265,13 @@ Model.get = function(){
 
 Model.get_artists = function(){
   Model.Artist.all(function(err, results){
-    log(['LN: 340::Artist = ', JSON.stringify(results, null, 2)]);
+    log(['LN:268::Artists = ', JSON.stringify(results, null, 2)]);
+  });
+};
+
+Model.get_songs = function(){
+  Model.Song.all(function(err, results){
+    log(['LN: 274::Songs = ', JSON.stringify(results, null, 2)]);
   });
 };
 
