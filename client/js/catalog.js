@@ -2,20 +2,18 @@
  * Catalog element functionality
  */
 var Catalog = function(){
-    
+  
+  // Create a local API instance
   var api = new API();
 
-  // Setup drag functionality
+  /* UI */
+  // Drag/drop functionality
   var dragStart = function(e){
     e.dataTransfer.setData('text/plain', '{"id":"'+e.target.getAttribute("id")+'", "type":"'+e.target.className+'"}');
     console.log('drag start');
-    console.log(e.target);
   };
-  var dragEnd = function(e) {
-    // this/e.target is the source node.
-    console.log('drag end');
-  };
-  // Create ordered list
+
+  // Create ordered list from array
   var makeOL = function(arr){
     var elmClass =  arr[0].resource.toLowerCase(),
         olElm = $('<ol class="'+elmClass+'s" />');
@@ -27,27 +25,12 @@ var Catalog = function(){
     return olElm;
   };
 
-  /* "Getter" functions */
-  // Get song data, create ordered list from it, and append it to a passed in element
-  var getSongs = function(elm, album_id, song_search_obj){
-    api.getSongs({"album_id": elm.attr('id')}, function(data){
-      elm.append(makeOL(data)).addClass('expanded');
-    });
-  };
-
-  // Get album data, create ordered list from it, and append it to a passed in element
-  var getAlbums = function(elm, artist_id, album_search_obj){
-    api.getAlbums({"artist_id": artist_id}, function(data){
-      elm.append(makeOL(data)).addClass('expanded');
-    });
-  };
-
-  // Bind click events
+  // Bind click events for artist
   $('section#catalog').on('click', 'ol > li.artist > span', function(){
     var artistElm = $(this).parent('.artist');
     if(!artistElm.hasClass('expanded')){
       if(artistElm.children('ol').length === 0){
-        getAlbums(artistElm, artistElm.attr('id'));
+        getAlbums(artistElm, {"artist_id": artistElm.attr('id')});
       }
       else{
         artistElm.addClass('expanded');
@@ -59,13 +42,12 @@ var Catalog = function(){
     return false;
   });
 
+  // Bind click events for albums
   $('section#catalog').on('click', 'ol > li.album > span', function(){
     var albumElm = $(this).parent('.album');
     if(!albumElm.hasClass('expanded')){
       if(albumElm.children('ol').length === 0){
-        // The album id doesn't work as a straight up GET call with restful,
-        // so we have to reconstruct the id from it's name here
-        getSongs(albumElm, albumElm.text().replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_'));
+        getSongs(albumElm, {"album_id": albumElm.attr('id')});
       }
       else{
         albumElm.addClass('expanded');
@@ -77,16 +59,32 @@ var Catalog = function(){
     return false;
   });
 
-  // Catalog init
-  var setupCatalog = function(){ 
-    api.getArtists({}, function(data){
-      var artistArr = data.artist;
-      $('section#catalog').append(makeOL(artistArr));
+  /* "Getter" functions */
+  // Get song data, create ordered list from it, and append it to a passed in element
+  var getSongs = function(elm, album_id, song_search_obj){
+    api.getSongs({"album_id": elm.attr('id')}, function(data){
+      elm.append(makeOL(data.song || data)).addClass('expanded');
     });
   };
 
+  // Get album data, create ordered list from it, and append it to a passed in element
+  var getAlbums = function(elm, album_search_obj){
+    api.getAlbums(album_search_obj, function(data){
+      elm.append(makeOL(data.album || data)).addClass('expanded');
+    });
+  };
+
+  // Get album data, create ordered list from it, and append it to a passed in element
+  var getArtists = function(elm, artist_search_obj){
+    api.getArtists(artist_search_obj, function(data){
+      elm.append(makeOL(data.artist || data)).addClass('expanded');
+    });
+  };
+
+  /* Init */
   $('document').ready(function(){
-    setupCatalog();
+    // Get all artists and append them to 'section#catalog'
+    getArtists($('section#catalog'));
   });
 };
 

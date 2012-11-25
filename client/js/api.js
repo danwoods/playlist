@@ -3,6 +3,10 @@ var API = function () {
 
   this.getArtists = function(requestObj, callback){
     $.getJSON('/artist', function(data){
+      if(requestObj){
+        data = _.where(data.artist, requestObj);
+      }
+      //console.log(data):
       if(callback){
         callback(data);
       }
@@ -23,7 +27,7 @@ var API = function () {
     $.getJSON('/song', function(data){
       // Restful doesn't always send back the correct data
       cleanData = _.where(data.song, requestObj);
-      // If looking for a particular id, and single item found, return the single item instead of an array
+      // If looking for a particular id, and single item found, return the single item instead of array
       if(requestObj.id && cleanData.length === 1){
         cleanData = cleanData[0];
       }

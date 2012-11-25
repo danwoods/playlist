@@ -33,8 +33,6 @@ var Playlist = (function () {
   var addSong = function(id, idx){
     //if id
     if(id){
-      //get data
-      //$.getJSON(id, function(data){
       api.getSongs({"id": id}, function(data){
         console.log('data = ');
         console.log(data);
