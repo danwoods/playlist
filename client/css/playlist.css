@@ -1,0 +1,19 @@
+
+/*
+ * playlist.css
+ *
+ * Styles related to the playlist
+ *
+ */
+
+section#playlist{
+  display: block;
+  width: 200px;
+  height: auto;
+  padding: 0.5em 0.5em 1px 0.5em;
+  background-color: #FAFAFA;
+  border-radius: 5px;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.3);
+  color: #555;
+  float: left;
+}
