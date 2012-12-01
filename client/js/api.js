@@ -13,28 +13,36 @@ var API = function () {
     });
   };
   this.getAlbums = function(requestObj, callback){
-    var cleanData = {};
     $.getJSON('/artist/'+requestObj.artist_id+'/album', function(data){
       // Restful doesn't always send back the correct data
-      cleanData = _.where(data.album, requestObj);
+      data = _.where(data.album, requestObj);
       if(callback){
-        callback(cleanData);
+        callback(data);
       }
     });
   };
   this.getSongs = function(requestObj, callback){
-    var cleanData = {};
-    $.getJSON('/song', function(data){
-      // Restful doesn't always send back the correct data
-      cleanData = _.where(data.song, requestObj);
-      // If looking for a particular id, and single item found, return the single item instead of array
-      if(requestObj.id && cleanData.length === 1){
-        cleanData = cleanData[0];
-      }
+    console.log(requestObj);
+    if(requestObj.id && localStorage.getItem(requestObj.id)){
+      data = JSON.parse(localStorage.getItem(requestObj.id)); 
       if(callback){
-        callback(cleanData);
+        callback(data);
       }
-    });
+    }
+    else{
+      $.getJSON('/song', function(data){
+        // Restful doesn't always send back the correct data
+        data = _.where(data.song, requestObj);
+        // If looking for a particular id, and single item found, return the single item instead of array
+        if(requestObj.id && data.length === 1){
+          data = data[0];
+          localStorage.setItem(requestObj.id, JSON.stringify(data));
+        }
+        if(callback){
+          callback(data);
+        }
+      });
+    }
   };
 
 };

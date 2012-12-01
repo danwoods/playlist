@@ -31,6 +31,15 @@ var Playlist = (function () {
 
   // Add Song
   var addSong = function(id, idx){
+    var songElm = $('<li />');
+    songElm.addClass('song');
+    songElm.text('new song');
+    $('section#playlist ol').append(songElm);
+    playSong(id);
+  };
+
+  // Play Song
+  var playSong = function(id){
     //if id
     if(id){
       api.getSongs({"id": id}, function(data){
