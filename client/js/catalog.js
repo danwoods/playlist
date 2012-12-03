@@ -9,7 +9,12 @@ var Catalog = function(){
   /* UI */
   // Drag/drop functionality
   var dragStart = function(e){
-    e.dataTransfer.setData('text/plain', '{"id":"'+e.target.getAttribute("id")+'", "type":"'+e.target.className+'"}');
+    var songObj = {
+      "id": e.target.getAttribute("id"),
+      "type": e.target.className,
+      "name": $(e.target).find(".name").text()
+    };
+    e.dataTransfer.setData('text/plain', JSON.stringify(songObj));
     console.log('drag start');
   };
 
@@ -18,7 +23,7 @@ var Catalog = function(){
     var elmClass =  arr[0].resource.toLowerCase(),
         olElm = $('<ol class="'+elmClass+'s" />');
     $.each(arr, function(idx, obj){
-      liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span>'+obj.name+'</span></li>');
+      liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span class="name">'+obj.name+'</span></li>');
       liElm.get()[0].addEventListener('dragstart', dragStart, false);
       olElm.append(liElm);
     });

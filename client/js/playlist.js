@@ -25,17 +25,28 @@ var Playlist = (function () {
     }
     console.log('dropped'); 
     console.log(e.dataTransfer.getData('text/plain')); 
-    addSong(JSON.parse(e.dataTransfer.getData('text/plain')).id);
+    addSong(JSON.parse(e.dataTransfer.getData('text/plain')));
     return false;
   };
 
+  // Add Song Placeholder
+  // Used to visually represent where a song will be in the playlist
+  var addPlaceholder = function(idx, removeOthers){
+    var placeholderElm = $('<li /');
+    placeholderElm.addClass('placeholder');
+    placeholderElm.text('Drop Song Here');
+    $('section#playlist ol').append(placeholderElm);
+  };
+
   // Add Song
-  var addSong = function(id, idx){
-    var songElm = $('<li />');
-    songElm.addClass('song');
-    songElm.text('new song');
-    $('section#playlist ol').append(songElm);
-    playSong(id);
+  var addSong = function(songObj, idx){
+    api.getSongs({"id": songObj.id}, function(data){
+      var songElm = $('<li />');
+      songElm.addClass('song');
+      songElm.text(songObj.name);
+      $('section#playlist ol').append(songElm);
+    });
+    playSong(songObj.id);
   };
 
   // Play Song
