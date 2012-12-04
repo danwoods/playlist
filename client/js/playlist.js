@@ -1,5 +1,5 @@
 // Playlist module
-var Playlist = (function () {
+var Playlist = function() {
 
   var api = new API();
 
@@ -57,11 +57,21 @@ var Playlist = (function () {
         console.log('data = ');
         console.log(data);
         $('document').ready(function(){
-          $('#main').remove('.player');
-          $('#main').append(createPlayerElm(data));
+          //$('#main').remove('.player');
+          //player.createPlayerElm(data);
         });
       });
     }
+  };
+
+  // Get data of next song to play
+  this.getNextSong = function(callback){
+    api.getSongs(null, function(data){
+      data = data.song[0];
+      if(callback){
+        callback(data);
+      }
+    });
   };
 
   // Add event listeners and bindings
@@ -69,14 +79,7 @@ var Playlist = (function () {
     $('section#playlist').get()[0].addEventListener('dragover', dragOver, false);
     $('section#playlist').get()[0].addEventListener('drop', drop, false);
   });
-
-  var Playlist = function(){};
-
-  Playlist.prototype = {};
-
-  return Playlist;
-
-})();
+};
 
 // Instansiate module
 var playlist = new Playlist();

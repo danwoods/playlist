@@ -44,6 +44,7 @@
     <section id="playlist">
       <ol dropzone="copy string:text/x-example"></ol>
     </section>
+    <section id="player"></section>
   </div>
   <footer>
 
@@ -64,33 +65,11 @@
   <script src="js/api.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/playlist.js"></script>
+  <script src="js/player.js"></script>
 
   <!-- My code, will be moved into seperate files later -->
   <script type="text/javascript" charset="utf-8"> 
   
-    // Create player element
-    var createPlayerElm = function(songObj){
-      var playerElm = false,
-          html = '<div id="title"></div>';
-      console.log(songObj);
-      if(songObj){
-      console.log(songObj);
-      console.log(songObj.length);
-      console.log(songObj[0]);
-      console.log(songObj.urls.length);
-        var audioElm = $('<audio controls autoplay />');
-        for(source in songObj.urls){
-          var songElm = $('<source src="'+songObj.urls[source].url+
-                          '" type="audio/'+songObj.urls[source].format+'" />');
-          audioElm.append(songElm);
-        }
-        playerElm = $('<div class="player"><span>Title: '+
-                        songObj.name+
-                      '<span><br /></div>').append(audioElm);
-      }
-
-      return playerElm;
-    };
 
 
     // Routing
