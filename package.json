@@ -1,10 +1,12 @@
 {
   "name": "playlist",
+  "author": "Dan Woodson <woodson.dan@gmail.com>",
+  "description": "audio client/server",
   "subdomain": "danwoods.playlist",
   "scripts": {
     "start": "playlist.js"
   },
-  "version": "0.0.0-7",
+  "version": "0.0.0-12",
   "engines": {
     "node": "0.8.x"
   },
