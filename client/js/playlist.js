@@ -1,5 +1,5 @@
 // Playlist module
-var Playlist = function() {
+var Playlist = function(elm) {
 
   var api = new API();
 
@@ -35,7 +35,7 @@ var Playlist = function() {
     var placeholderElm = $('<li /');
     placeholderElm.addClass('placeholder');
     placeholderElm.text('Drop Song Here');
-    $('section#playlist ol').append(placeholderElm);
+    $(elm + ' ol').append(placeholderElm);
   };
 
   // Add Song
@@ -44,24 +44,16 @@ var Playlist = function() {
       var songElm = $('<li />');
       songElm.addClass('song');
       songElm.text(songObj.name);
-      $('section#playlist ol').append(songElm);
+      $(elm + ' ol').append(songElm);
     });
-    playSong(songObj.id);
   };
 
-  // Play Song
-  var playSong = function(id){
-    //if id
-    if(id){
-      api.getSongs({"id": id}, function(data){
-        console.log('data = ');
-        console.log(data);
-        $('document').ready(function(){
-          //$('#main').remove('.player');
-          //player.createPlayerElm(data);
-        });
-      });
-    }
+  // Get all songs
+  this.getSongs = function(){
+    var songArr = [];
+
+    // Get song elements
+
   };
 
   // Get data of next song to play
@@ -74,12 +66,14 @@ var Playlist = function() {
     });
   };
 
-  // Add event listeners and bindings
+  // Add event listeners and bindings, and create any required elements
   $('document').ready(function(){
-    $('section#playlist').get()[0].addEventListener('dragover', dragOver, false);
-    $('section#playlist').get()[0].addEventListener('drop', drop, false);
+    $(elm).get()[0].addEventListener('dragover', dragOver, false);
+    $(elm).get()[0].addEventListener('drop', drop, false);
+    // Add a containner for the list elements
+    $(elm).append('<ol dropzone="copy string:text/x-example" />');
   });
 };
 
 // Instansiate module
-var playlist = new Playlist();
+var playlist = new Playlist('section#playlist');
