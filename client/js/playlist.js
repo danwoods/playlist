@@ -1,7 +1,8 @@
 // Playlist module
 var Playlist = function(elm) {
 
-  var api = new API();
+  var api = new API(),
+      self = this;
 
   /* UI */
   var dragEnter = function(e) {
@@ -43,6 +44,8 @@ var Playlist = function(elm) {
     api.getSongs({"id": songObj.id}, function(data){
       var songElm = $('<li />');
       songElm.addClass('song');
+      songElm.attr('id', _.uniqueId('pl-'));
+      songElm.attr('data-id', songObj.id);
       songElm.text(songObj.name);
       $(elm + ' ol').append(songElm);
     });
@@ -53,13 +56,29 @@ var Playlist = function(elm) {
     var songArr = [];
 
     // Get song elements
+    songArr = _.map($(elm).find('.song'), function(elm){
+                return {
+                         "song_id" : $(elm).attr('data-id'),
+                         "elm_id" : $(elm).attr('id'),
+                         "playing" : false
+                       };
+              });
 
+    return songArr;
   };
 
   // Get data of next song to play
   this.getNextSong = function(callback){
-    api.getSongs(null, function(data){
-      data = data.song[0];
+    var songArr = self.getSongs(),
+        idx = 0,
+        nextSong = songArr[0];
+    for(idx; idx < songArr.length; idx++){
+      if(songArr[idx].playing === true){
+        nextSong = songArr[idx+1];
+        break;
+      }
+    }
+    api.getSongs({"id":nextSong.song_id}, function(data){
       if(callback){
         callback(data);
       }
