@@ -7,16 +7,25 @@
     "start": "playlist.js"
   },
   "version": "0.0.0-12",
+  "preferGlobal": "true",
   "engines": {
     "node": "0.8.x"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danwoods/playlist"
+  },
+  "keywords": [
+    "audio",
+    "music",
+    "server"
+  ],
   "dependencies": {
-    "id3": "*",
-    "underscore": "*",
-    "path": "*",
-    "director": "*",
-    "restful": "*",
-    "resourceful": "*",
-    "plates": "*"
+    "id3": "0.0.2",
+    "underscore": "1.3.3",
+    "director": "1.1.3",
+    "restful": "0.4.3",
+    "resourceful": "0.3.2",
+    "plates": "0.4.7"
   }
 }
