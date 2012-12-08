@@ -17,3 +17,6 @@ section#playlist{
   color: #555;
   float: left;
 }
+section#playlist ol li.song{
+  list-style: none;
+}
