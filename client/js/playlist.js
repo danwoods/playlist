@@ -1,6 +1,7 @@
 // Playlist module
 var Playlist = function(elm) {
-
+  
+  // Variables
   var api = new API(),
       self = this;
 
@@ -41,12 +42,15 @@ var Playlist = function(elm) {
 
   // Add Song
   var addSong = function(songObj, idx){
+    // Get data of song to add
     api.getSongs({"id": songObj.id}, function(data){
+      // Setup song element
       var songElm = $('<li />');
       songElm.addClass('song');
       songElm.attr('id', _.uniqueId('pl-'));
       songElm.attr('data-id', songObj.id);
       songElm.text(songObj.name);
+      // Add song to playlist
       $(elm + ' ol').append(songElm);
     });
   };
@@ -57,10 +61,11 @@ var Playlist = function(elm) {
 
     // Get song elements
     songArr = _.map($(elm).find('.song'), function(elm){
+                var $elm = $(elm);  // Get reference to avoid re-creating object
                 return {
-                         "song_id" : $(elm).attr('data-id'),
-                         "elm_id" : $(elm).attr('id'),
-                         "playing" : false
+                         "song_id"  : $elm.attr('data-id'),
+                         "elm_id"   : $elm.attr('id'),
+                         "playing"  : $elm.hasClass('playing')
                        };
               });
 
@@ -69,16 +74,25 @@ var Playlist = function(elm) {
 
   // Get data of next song to play
   this.getNextSong = function(callback){
-    var songArr = self.getSongs(),
-        idx = 0,
-        nextSong = songArr[0];
-    for(idx; idx < songArr.length; idx++){
+    // Variables
+    var songArr = self.getSongs(),  // Get all songs in playlist
+        idx = 0,                    // Index
+        nextSong = songArr[0];      // Default next song is the first song
+
+    // Loop through all the songs, looking for one with a 'playing' class.
+    // If the current song has the 'playing' class, set nextSong to the 
+    // following song, and stop the loop.
+    for(idx; idx < songArr.length-1; idx++){
       if(songArr[idx].playing === true){
         nextSong = songArr[idx+1];
         break;
       }
     }
+    // Get additional data for nextSong
     api.getSongs({"id":nextSong.song_id}, function(data){
+      // Copy over elm id so that the player can mark it as 'playing'
+      data.elm_id = nextSong.elm_id;
+      // Return
       if(callback){
         callback(data);
       }
