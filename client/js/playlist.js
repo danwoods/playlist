@@ -82,6 +82,8 @@ var Playlist = function(elm) {
     // Loop through all the songs, looking for one with a 'playing' class.
     // If the current song has the 'playing' class, set nextSong to the 
     // following song, and stop the loop.
+    console.log('songArr = ');
+    console.log(songArr);
     for(idx; idx < songArr.length-1; idx++){
       if(songArr[idx].playing === true){
         nextSong = songArr[idx+1];
@@ -89,13 +91,52 @@ var Playlist = function(elm) {
       }
     }
     // Get additional data for nextSong
-    api.getSongs({"id":nextSong.song_id}, function(data){
+    api.getSongs({"id":nextSong.song_id}, function(song_data){
       // Copy over elm id so that the player can mark it as 'playing'
-      data.elm_id = nextSong.elm_id;
-      // Return
-      if(callback){
-        callback(data);
+      song_data.elm_id = nextSong.elm_id;
+      api.getAlbums({"id":song_data.album_id}, function(album_data){
+        song_data.album = album_data;
+        api.getArtists({"id":song_data.album.artist_id}, function(artist_data){
+          song_data.artist = artist_data; 
+          // Return
+          if(callback){
+            callback(song_data);
+          }
+        });
+      });
+    });
+  };
+  
+  // Get data of previous song to play
+  this.getPrevSong = function(callback){
+    // Variables
+    var songArr = self.getSongs(),  // Get all songs in playlist
+        idx = 1,                    // Index
+        prevSong = songArr[0];      // Default previous song is the first song
+
+    // Loop through all the songs, looking for one with a 'playing' class.
+    // If the current song has the 'playing' class, set nextSong to the 
+    // following song, and stop the loop.
+    for(idx; idx < songArr.length; idx++){
+      if(songArr[idx].playing === true){
+        prevSong = songArr[idx-1];
+        break;
       }
+    }
+    // Get additional data for prevSong
+    api.getSongs({"id":prevSong.song_id}, function(song_data){
+      // Copy over elm id so that the player can mark it as 'playing'
+      song_data.elm_id = prevSong.elm_id;
+      api.getAlbums({"id":song_data.album_id}, function(album_data){
+        song_data.album = album_data;
+        api.getArtists({"id":song_data.album.artist_id}, function(artist_data){
+          song_data.artist = artist_data; 
+          // Return
+          if(callback){
+            callback(song_data);
+          }
+        });
+      });
     });
   };
 

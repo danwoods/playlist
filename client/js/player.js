@@ -1,8 +1,9 @@
 // Player functionality
-var Player = function(elmSel){
+var Player = function(elm){
 
   // Variables
   var self = this;
+  self.elm = elm;
 
     // Play song. If song passed in, play that. Otherwise, request next song 
     // from playlist and play that.
@@ -27,6 +28,12 @@ var Player = function(elmSel){
           $('audio').append(sourceElm);
         }
 
+        // Update player display
+        var titleElm = $(self.elm).find('.title');
+        titleElm.find('.song').text(song.name);
+        titleElm.find('.album').text(song.album.name);
+        titleElm.find('.artist').text(song.artist.name);
+
         // Restart audio
         document.getElementsByTagName('audio')[0].pause();
         document.getElementsByTagName('audio')[0].load();
@@ -38,20 +45,51 @@ var Player = function(elmSel){
       }
     };
 
-    // Create player element
-    var createPlayerElm = function(){
-      var containerElm = $('<div />');
-      var audioElm = $('<audio controls autoplay style="display:none;"/>');
-      var controlsElm = $('<div class="controls" />');
-      var playBtn = $('<button>Play</button>').bind('click', function(){self.play()});
-      controlsElm.append(playBtn)
-                 .append('<button>Next</button>');
-      return containerElm.append(audioElm).append(controlsElm);
+    // Play the previous track (defaults to first track)
+    this.playPrev = function(){
+      playlist.getPrevSong(function(song){
+        self.play(song);
+      });
     };
 
+    // Play the next track (defaults to first track)
+    this.playNext = function(){
+      playlist.getNextSong(function(song){
+        self.play(song);
+      });
+    };
+
+    // Create player element
+    var createPlayerElm = function(){
+      // Create elements
+      var containerElm = $('<div />'),
+          audioElm = $('<audio controls autoplay style="display:none;"/>'),
+          titleElm = $('<div class="title" />'),
+          songNameElm = $('<span class="song" />'),
+          albumNameElm = $('<span class="album" />'),
+          artistNameElm = $('<span class="artist" />'),
+          controlsElm = $('<div class="controls" />'),
+          playBtn = $('<button title="play" class="play icon"></button>').bind('click', function(){self.play();}),
+          prevBtn = $('<button title="previous" class="prev icon"></button>').bind('click', function(){self.playPrev();}),
+          nextBtn = $('<button title="next" class="next icon"></button>').bind('click', function(){self.playNext();});
+      // Add title elements
+      titleElm.append(songNameElm)
+              .append(albumNameElm)
+              .append(artistNameElm);
+      // Add control elements
+      controlsElm.append(prevBtn)
+                 .append(playBtn)
+                 .append(nextBtn);
+      // Add all elements to container
+      return containerElm.append(titleElm)
+                         .append(audioElm)
+                         .append(controlsElm);
+    };
+
+    // Init
     var init = function(){
       var playerElm = createPlayerElm();
-      $(elmSel).append(playerElm);
+      $(self.elm).append(playerElm);
     };
 
     init();

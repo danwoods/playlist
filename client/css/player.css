@@ -1,0 +1,48 @@
+/*
+ * player.css
+ *
+ * Styles related to the player
+ *
+ */
+/* Container */
+section#player{
+  display: block;
+  width: 200px;
+  height: auto;
+  padding: 0.5em 0.5em 1px 0.5em;
+  background-color: #E6E6E5;
+  border-radius: 5px;
+  box-shadow: 0 3px 3px rgba(0,0,0,0.3);
+  color: #555;
+  float: left;
+  clear: both;
+  margin-top: 15px;
+}
+
+/* Title */
+section#player div.title{
+  font-size: 12px;
+}
+
+/* Controls */
+section#player div.controls{
+  width: 55px;
+  margin-left: auto;
+  margin-right: auto;
+}
+section#player div.controls button.icon{
+  border: none;
+  background-color: #E6E6E5;
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+}
+section#player div.controls button.play{
+  background: url(images/ui-icons_454545_256x240.png) no-repeat -3px -162px;
+}
+section#player div.controls button.prev{
+  background: url(images/ui-icons_454545_256x240.png) no-repeat -83px -162px;
+}
+section#player div.controls button.next{
+  background: url(images/ui-icons_454545_256x240.png) no-repeat -66px -162px;
+}
