@@ -19,3 +19,9 @@ section#playlist{
 section#playlist ol li.song{
   list-style: none;
 }
+section#playlist ol li.song.dodge-top{
+  margin-top: 25px;
+}
+section#playlist ol li.song.dodge-bottom{
+  margin-bottom: 25px;
+}

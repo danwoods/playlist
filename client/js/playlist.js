@@ -40,16 +40,66 @@ var Playlist = function(elm) {
     $(elm + ' ol').append(placeholderElm);
   };
 
+  // Create Song Element
+  var createSongElm = function(songObj){ 
+    // Song element
+    var songElm = $('<li />');  // song element
+
+    // Dodge functionality
+    var dragOver = function(e){
+      var x = e.pageX - $(e.target).offset().left,
+          y = e.pageY - $(e.target).offset().top;
+
+      // Prevent default behavior
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+
+      // Remove any existing dodge classes from the element
+      $(e.target).removeClass('dodge-top');
+      $(e.target).removeClass('dodge-bottom');
+
+      // Add appropriate dodge class
+      if(y > 0){
+        $(e.target).addClass('dodge-bottom');
+      }
+      else{
+        $(e.target).addClass('dodge-top');
+      }
+      return false;
+    };
+    var dragLeave = function(e) {
+      // Remove any existing dodge classes from the playlist
+      $(elm + ' .song').removeClass('dodge-top');
+      $(elm + ' .song').removeClass('dodge-bottom');
+    };
+
+    // Setup song element attributes
+    songElm.addClass('song');
+    songElm.attr('id', _.uniqueId('pl-'));
+    songElm.attr('data-id', songObj.id);
+    songElm.text(songObj.name);
+
+    // Add event handlers
+    songElm.get()[0].addEventListener('dragover', dragOver, false);
+    songElm.get()[0].addEventListener('dragleave', dragLeave, false);
+
+    // Return song Element
+    return songElm;
+  };
+
   // Add Song
   var addSong = function(songObj, idx){
     // Get data of song to add
     api.getSongs({"id": songObj.id}, function(data){
-      // Setup song element
-      var songElm = $('<li />');
-      songElm.addClass('song');
-      songElm.attr('id', _.uniqueId('pl-'));
-      songElm.attr('data-id', songObj.id);
-      songElm.text(songObj.name);
+
+      // Remove any existing dodge classes from the playlist
+      $(elm + ' .song').removeClass('dodge-top');
+      $(elm + ' .song').removeClass('dodge-bottom');
+
+      // Create song element
+      var songElm = createSongElm(data);
+
       // Add song to playlist
       $(elm + ' ol').append(songElm);
     });
@@ -82,8 +132,6 @@ var Playlist = function(elm) {
     // Loop through all the songs, looking for one with a 'playing' class.
     // If the current song has the 'playing' class, set nextSong to the 
     // following song, and stop the loop.
-    console.log('songArr = ');
-    console.log(songArr);
     for(idx; idx < songArr.length-1; idx++){
       if(songArr[idx].playing === true){
         nextSong = songArr[idx+1];
