@@ -1,0 +1,278 @@
+<!DOCTYPE html>  <html> <head>   <title>model.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               model.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Module/Container for a library of music data
+<strong>model.js</strong> acts as the model layer of playlist.js.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">,</span>
+    <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;underscore&quot;</span><span class="p">),</span>
+    <span class="nx">resourceful</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;resourceful&quot;</span><span class="p">);</span>
+
+<span class="cm">/*** Setup Schema ***/</span>
+<span class="nx">resourceful</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;memory&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Create resources</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span> <span class="o">=</span> <span class="nx">resourceful</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;artist&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">Album</span> <span class="o">=</span> <span class="nx">resourceful</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;album&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">parent</span><span class="p">(</span><span class="s1">&#39;artist&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">Song</span> <span class="o">=</span> <span class="nx">resourceful</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;song&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="s1">&#39;artist&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="s1">&#39;album&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">array</span><span class="p">(</span><span class="s1">&#39;urls&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">number</span><span class="p">(</span><span class="s1">&#39;track&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">number</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">parent</span><span class="p">(</span><span class="s1">&#39;album&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="cm">/*** Utility functions ***/</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Logs error messages in unified format</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">msgs</span><span class="p">){</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;\n&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&#39;</span><span class="p">);</span>
+  <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">msg</span> <span class="k">in</span> <span class="nx">msgs</span><span class="p">){</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">msgs</span><span class="p">[</span><span class="nx">msg</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;\n&#39;</span><span class="p">);</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Makes sure id is compatable with restful's api</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">sanitize_id</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">){</span>
+  <span class="k">return</span> <span class="nx">id</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/,/g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/([^._a-zA-Z0-9-]+)/g</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="cm">/*** Resource functions ***/</span> 
+
+<span class="cm">/* Function: add_artist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If artists does not exist in library, adds artist to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   artist_name - name of artist</span>
+<span class="cm"> *   callback - function(err, artist) to execute when artists is found or created</span>
+<span class="cm">*/</span>
+<span class="kd">var</span> <span class="nx">add_artist</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">artist_name</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">search_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">artist_name</span><span class="p">};</span>
+  <span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 118::Error in add_artist.find&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 124::add_artist.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Creating artist&#39;</span><span class="p">]);</span>
+      <span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="nx">sanitize_id</span><span class="p">(</span><span class="nx">artist_name</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="nx">artist_name</span><span class="p">},</span> <span class="nx">callback</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span> 
+      <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 97::Error in add_artist.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Multiple artists already exist by that name&#39;</span><span class="p">]);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: add_album</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If album does not exist in library, adds album to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *    artist - artist resource</span>
+<span class="cm"> *    callback - function(err, album) to execute when album is found or created</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">add_album</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">artist</span><span class="p">,</span> <span class="nx">album_name</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">search_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">album_name</span><span class="p">,</span> <span class="s2">&quot;artist_id&quot;</span><span class="o">:</span> <span class="nx">artist</span><span class="p">.</span><span class="nx">name</span><span class="p">};</span>
+  <span class="nx">Model</span><span class="p">.</span><span class="nx">Album</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 154::Error in add_album.find&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 156::add_album.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Creating album&#39;</span><span class="p">,</span> <span class="s1">&#39;artist = &#39;</span><span class="p">,</span> <span class="nx">artist</span><span class="p">]);</span>
+      <span class="nx">artist</span><span class="p">.</span><span class="nx">createAlbum</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">sanitize_id</span><span class="p">(</span><span class="nx">album_name</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">album_name</span><span class="p">},</span> <span class="nx">callback</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 179::Error in add_album.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Multiple albums already exist by that name&#39;</span><span class="p">]);</span>
+    <span class="p">}</span>
+  <span class="p">});</span> 
+<span class="p">};</span>
+
+<span class="cm">/* Function: add_song</span>
+<span class="cm"> *</span>
+<span class="cm"> *  If album does not exist in library, adds album to library</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *   album_obj - {</span>
+<span class="cm"> *    artist - name of artist</span>
+<span class="cm"> *    album -  name of album</span>
+<span class="cm"> *   }</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">add_song</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">){</span>
+  <span class="nx">add_artist</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">.</span><span class="nx">artist</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">artist</span><span class="p">){</span>
+    <span class="nx">add_album</span><span class="p">(</span><span class="nx">artist</span><span class="p">,</span> <span class="nx">song_obj</span><span class="p">.</span><span class="nx">album</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">album</span><span class="p">){</span> 
+      <span class="kd">var</span> <span class="nx">search_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">song_obj</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/ /g</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">),</span> <span class="s2">&quot;album_id&quot;</span><span class="o">:</span> <span class="nx">album</span><span class="p">.</span><span class="nx">name</span><span class="p">};</span>
+      <span class="nx">Model</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+          <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 193::Error in song_album.find&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+          <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 156::add_song.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Creating song&#39;</span><span class="p">]);</span>
+          <span class="nx">album</span><span class="p">.</span><span class="nx">createSong</span><span class="p">({</span>
+                            <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">sanitize_id</span><span class="p">(</span><span class="nx">song_obj</span><span class="p">.</span><span class="nx">name</span><span class="p">),</span>
+                            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">song_obj</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span>
+                            <span class="s2">&quot;urls&quot;</span><span class="o">:</span><span class="nx">song_obj</span><span class="p">.</span><span class="nx">urls</span>
+                          <span class="p">},</span>
+                          <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">song</span><span class="p">){</span>
+                            <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span> 
+                              <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN:  113:: Error in add_song.create:&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+                            <span class="p">}</span>
+                            <span class="k">else</span><span class="p">{</span>
+                              <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN:  116:: Added song:&#39;</span><span class="p">,</span> <span class="nx">song</span><span class="p">]);</span>
+                            <span class="p">}</span>
+                          <span class="p">}</span>
+          <span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+          <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+            <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span><span class="p">{</span>
+          <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 179::Error in add_album.find&#39;</span><span class="p">,</span> <span class="s1">&#39;Multiple albums already exist by that name&#39;</span><span class="p">]);</span>
+        <span class="p">}</span>
+      <span class="p">});</span> 
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+
+<span class="cm">/* Function: get_song</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Gets song and executes callback, if provided</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *    song_id: _id of requested song</span>
+<span class="cm"> *    callback - function to execute when artists is found or created</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get_song</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">song_id</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="nx">Model</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">song_id</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+      <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;Error in get_song&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: get_artist</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Gets artist(s) and executes callback, if provided</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *    search_obj: object of search parameters</span>
+<span class="cm"> *    callback - function to execute when artists is found or created</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get_artist</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">){</span>
+    <span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+          <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span><span class="p">{</span>
+        <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;Error in get_artist.Model.Artist_find&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+  <span class="k">else</span><span class="p">{</span>
+    <span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+          <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span><span class="p">{</span>
+        <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;Error in get_artist.Model.Artist_all&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+      <span class="p">}</span>
+      
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: get_album</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Gets album(s) and executes callback, if provided</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Parameters:</span>
+<span class="cm"> *    search_obj: object of search parameters</span>
+<span class="cm"> *    callback - function to execute when artists is found or created</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get_album</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">){</span>
+    <span class="nx">Model</span><span class="p">.</span><span class="nx">Album</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+          <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span><span class="p">{</span>
+        <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;Error in get_album.Model.Album_find&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+  <span class="k">else</span><span class="p">{</span>
+    <span class="nx">Model</span><span class="p">.</span><span class="nx">Album</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+          <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span><span class="p">{</span>
+        <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;Error in get_album.Model.Album_all&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">]);</span>
+      <span class="p">}</span>
+      
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: get</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Overwriting of console.log(), returns an indented, stringified version on obj</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   the library</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="k">return</span> <span class="nx">obj</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get_artists</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="nx">Model</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN:268::Artists = &#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]);</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">get_songs</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="nx">Model</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="nx">log</span><span class="p">([</span><span class="s1">&#39;LN: 274::Songs = &#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]);</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="cm">/* Function: inspect</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Overwriting of console.log(), returns an indented, stringified version on obj</span>
+<span class="cm"> *</span>
+<span class="cm"> *  Returns:</span>
+<span class="cm"> *   the library</span>
+<span class="cm"> */</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">inspect</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({},</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
