@@ -74,11 +74,11 @@ var Playlist = function(elm) {
       $(elm + ' .song').removeClass('dodge-bottom');
     };
 
-    // Setup song element attributes
+    // Setup song element attributes and child elements
     songElm.addClass('song');
     songElm.attr('id', _.uniqueId('pl-'));
     songElm.attr('data-id', songObj.id);
-    songElm.text(songObj.name);
+    songElm.append('<span class="song-name">'+songObj.name+'</span>');
 
     // Add event handlers
     songElm.get()[0].addEventListener('dragover', dragOver, false);

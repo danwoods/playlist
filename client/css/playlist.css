@@ -16,12 +16,28 @@ section#playlist{
   color: #555;
   float: left;
 }
+section#playlist ol{
+  padding: 0px;
+}
 section#playlist ol li.song{
   list-style: none;
 }
 section#playlist ol li.song.dodge-top{
   margin-top: 25px;
+  -webkit-transition: all .5s ease;
+  -moz-transition: all .5s ease;
+  -ms-transition: all .5s ease;
+  -o-transition: all .5s ease;
+  transition: all .5s ease;
 }
 section#playlist ol li.song.dodge-bottom{
   margin-bottom: 25px;
+  -webkit-transition: all .5s ease;
+  -moz-transition: all .5s ease;
+  -ms-transition: all .5s ease;
+  -o-transition: all .5s ease;
+  transition: all .5s ease;
+}
+section#playlist ol li.song span.song-name{
+  margin-left: 5px;
 }
