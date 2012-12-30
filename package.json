@@ -6,7 +6,7 @@
   "scripts": {
     "start": "playlist.js"
   },
-  "version": "0.0.0-22",
+  "version": "0.0.0-23",
   "preferGlobal": "true",
   "engines": {
     "node": "0.8.x"
