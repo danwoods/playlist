@@ -59,3 +59,11 @@ section#catalog ol li:not(.song) > span.icon{
 section#catalog ol li.expanded:not(.song) > span.icon{
   background-position: -67px -17px;
 }
+section#catalog ol li > span.name{
+  display: inline-block;
+  width: 130px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-left: 12px;
+}
