@@ -40,6 +40,9 @@ section#player div.controls button.icon{
 section#player div.controls button.play{
   background: url(images/ui-icons_454545_256x240.png) no-repeat -3px -162px;
 }
+section#player.playing div.controls button.play{
+  background: url(images/ui-icons_454545_256x240.png) no-repeat -19px -162px;
+}
 section#player div.controls button.prev{
   background: url(images/ui-icons_454545_256x240.png) no-repeat -83px -162px;
 }
