@@ -10,20 +10,19 @@ var Catalog = function(){
   // Drag/drop functionality
   var dragStart = function(e){
     var songObj = {
-      "id": e.target.getAttribute("id"),
-      "type": e.target.className,
+      "id": e.target.getAttribute("data-id"),
+      "type": e.target.getAttribute("data-type"),
       "name": $(e.target).find(".name").text()
     };
     e.dataTransfer.setData('text/plain', JSON.stringify(songObj));
-    console.log('drag start');
   };
 
   // Create ordered list from array
   var makeOL = function(arr){
-    var elmClass =  arr[0].resource.toLowerCase(),
-        olElm = $('<ol class="'+elmClass+'s" />');
+    var itemType = arr[0].resource.toLowerCase(),
+        olElm = $('<ol class="'+itemType+'s" />');
     $.each(arr, function(idx, obj){
-      liElm = $('<li id="'+obj.id+'" class="'+elmClass+'" draggable="true"><span class="icon"></span><span class="name">'+obj.name+'</span></li>');
+      var liElm = $('<li id="'+obj.id+'" class="'+itemType+'" data-id="'+obj.id+'" data-type="'+itemType+'" draggable="true"><span class="icon"></span><span class="name">'+obj.name+'</span></li>');
       liElm.get()[0].addEventListener('dragstart', dragStart, false);
       olElm.append(liElm);
     });
