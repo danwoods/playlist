@@ -1,12 +1,18 @@
 /*
  * Catalog element functionality
  */
-var Catalog = function(){
+var Catalog = function(elm){
   
-  // Create a local API instance
-  var api = new API();
+  // Local Variables
+  var self = this,
+      api = new API();
 
-  /* UI */
+  // And their attributes
+  self.elm = elm;
+  self.$elm = jQuery(elm);
+
+  // UI
+  // ==
   // Drag/drop functionality
   var dragStart = function(e){
     var songObj = {
@@ -30,7 +36,7 @@ var Catalog = function(){
   };
 
   // Bind click events for artist
-  $('section#catalog').on('click', 'ol > li.artist > span', function(){
+  self.$elm.on('click', 'ol > li.artist > span', function(){
     var artistElm = $(this).parent('.artist');
     if(!artistElm.hasClass('expanded')){
       if(artistElm.children('ol').length === 0){
@@ -47,7 +53,7 @@ var Catalog = function(){
   });
 
   // Bind click events for albums
-  $('section#catalog').on('click', 'ol > li.album > span', function(){
+  self.$elm.on('click', 'ol > li.album > span', function(){
     var albumElm = $(this).parent('.album');
     if(!albumElm.hasClass('expanded')){
       if(albumElm.children('ol').length === 0){
@@ -63,7 +69,8 @@ var Catalog = function(){
     return false;
   });
 
-  /* "Getter" functions */
+  // "Getter" functions
+  // ==================
   // Get song data, create ordered list from it, and append it to a passed in element
   var getSongs = function(elm, album_id, song_search_obj){
     api.getSongs({"album_id": elm.attr('id')}, function(data){
@@ -85,11 +92,10 @@ var Catalog = function(){
     });
   };
 
-  /* Init */
+  // Init
+  // ====
   $('document').ready(function(){
     // Get all artists and append them to 'section#catalog'
-    getArtists($('section#catalog'));
+    getArtists(self.$elm);
   });
 };
-
-var catalog = new Catalog();
