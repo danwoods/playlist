@@ -1,6 +1,9 @@
 // API module
 var API = function () {
 
+  // Get reference to a global 'this'
+  var self = this;
+
   // Default api call, used by all the wrapper functions
   var defaultCall = function(url, requestObj, type, callback){ 
     // Check in localStorage first
@@ -42,6 +45,25 @@ var API = function () {
   };
   this.getSongs = function(requestObj, callback){
     defaultCall('/song', requestObj, 'song', callback);
+  };
+
+  // Build full object, song to artist
+  this.buildFull = function(song_id, callback){
+    var retObj = {};
+
+    self.getSongs({'id':song_id}, function(songObj){
+      retObj = songObj;
+      self.getAlbums({'id':retObj.album_id}, function(albumObj){
+        retObj.album = albumObj;
+        self.getArtists({'id':retObj.album.artist_id}, function(artistObj){
+          retObj.album.artist = artistObj;
+          if(callback){
+            callback(retObj);
+          }
+        });
+      });
+    });
+
   };
 
 };
