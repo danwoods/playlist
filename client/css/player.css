@@ -4,6 +4,12 @@
  * Styles related to the player
  *
  */
+
+/* These settings are for the element's position on the page, not the actual element itself */
+section#player{
+  margin-left: 495px;
+}
+
 /* Container */
 section#player{
   display: block;

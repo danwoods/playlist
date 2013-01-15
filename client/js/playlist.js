@@ -75,6 +75,7 @@ var Playlist = function(elm) {
       songElm.append('<span class="song-name">'+songObj.name+'</span>');
       songElm.append('<span class="song-album">'+songObj.album.name+'</span>');
       songElm.append('<span class="song-artist">'+songObj.album.artist.name+'</span>');
+      songElm.append('<span class="song-time">'+songObj.length+'</span>');
 
       // Add event handlers
       songElm.get()[0].addEventListener('dragover', dragOver, false);
@@ -213,13 +214,20 @@ var Playlist = function(elm) {
     });
   };
 
-  // Add event listeners and bindings, and create any required elements
-  $('document').ready(function(){
-    $(elm).get()[0].addEventListener('dragover', dragOver, false);
-    $(elm).get()[0].addEventListener('drop', drop, false);
-    // Add a containner for the list elements
-    $(elm).append('<ol dropzone="copy string:text/x-example" />');
-  });
+  // Init functionality
+  var init = function(){
+    // Add event listeners and bindings, and create any required elements
+    $('document').ready(function(){
+      $(elm).get()[0].addEventListener('dragover', dragOver, false);
+      $(elm).get()[0].addEventListener('drop', drop, false);
+      // Add a containner for the list elements
+      $(elm).append('<ol dropzone="copy string:text/x-example" />');
+    });
+  };
+
+  // Init instance
+  init();
+
 };
 
 // Instansiate module

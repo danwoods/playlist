@@ -13,20 +13,25 @@ section#playlist{
 /* Settings for the element */
 section#playlist{
   display: block;
-  width: 400px;
+  width: 550px;
+  min-height: 450px;
   height: auto;
-  padding: 0.5em 0.5em 1px 0.5em;
+  /*padding: 0.5em 0.5em 1px 0.5em;*/
   background-color: #FAFAFA;
   border-radius: 5px;
   box-shadow: 0 3px 3px rgba(0,0,0,0.3);
   color: #555;
   float: left;
 }
-section#playlist ol{
+section#playlist > ol{
   padding: 0px;
 }
-section#playlist ol li.song{
+section#playlist > ol > li.song{
   list-style: none;
+  font-size: 12px;
+}
+section#playlist > ol > li:nth-child(odd) {
+  background-color: #e6e6e5;
 }
 section#playlist ol li.song.dodge-top{
   margin-top: 25px;
@@ -44,6 +49,13 @@ section#playlist ol li.song.dodge-bottom{
   -o-transition: all .25s ease;
   transition: all .25s ease;
 }
-section#playlist ol li.song span.song-name{
+section#playlist ol li.song span{
   margin-left: 5px;
+  display: inline-block;
+}
+section#playlist ol li.song span.song-name{
+  width: 75px;
+}
+section#playlist ol li.song span.song-album{
+  width: 125px;
 }
