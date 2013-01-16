@@ -52,10 +52,16 @@ section#playlist ol li.song.dodge-bottom{
 section#playlist ol li.song span{
   margin-left: 5px;
   display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 section#playlist ol li.song span.song-name{
-  width: 75px;
+  width: 25%;
 }
 section#playlist ol li.song span.song-album{
-  width: 125px;
+  width: 30%;
+}
+section#playlist ol li.song span.song-artist{
+  width: 25%;
 }
