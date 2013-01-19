@@ -1,12 +1,17 @@
 // Module/Container for a library of music data
 // **model.js** acts as the model layer of playlist.js.
 
-var Model = exports,
-    _ = require("underscore"),
+var Model       = exports,
+    _           = require("underscore"),
+    log         = require('winston');
     resourceful = require("resourceful");
 
 /*** Setup Schema ***/
 resourceful.use('memory');
+
+// Setup logger
+log.remove(log.transports.Console);
+log.add(log.transports.Console, {colorize: true});
 
 // Create resources
 Model.Artist = resourceful.define('artist', function(){
@@ -30,15 +35,6 @@ Model.Song = resourceful.define('song', function(){
 
 /*** Utility functions ***/
 
-// Logs error messages in unified format
-var log = function(msgs){
-  console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-  for(var msg in msgs){
-    console.log(msgs[msg]);
-  }
-  console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n');
-};
-
 // Makes sure id is compatable with restful's api
 var sanitize_id = function(id){
   return id.replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_');
@@ -58,10 +54,10 @@ var add_artist = function(artist_name, callback){
   var search_obj = {"name": artist_name};
   Model.Artist.find(search_obj, function(err, results){
     if(err){
-      log(['LN: 118::Error in add_artist.find', err]);
+      log.info(['LN: 118::Error in add_artist.find', err]);
     }
     else if(results.length == 0){
-      log(['LN: 124::add_artist.find', 'Creating artist']);
+      log.info(['LN: 124::add_artist.find', 'Creating artist']);
       Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
@@ -70,7 +66,7 @@ var add_artist = function(artist_name, callback){
       }
     }
     else{
-      log(['LN: 97::Error in add_artist.find', 'Multiple artists already exist by that name']);
+      log.info(['LN: 97::Error in add_artist.find', 'Multiple artists already exist by that name']);
     }
   });
 };
@@ -88,10 +84,10 @@ var add_album = function(artist, album_name, callback){
   var search_obj = {"id": album_name, "artist_id": artist.name};
   Model.Album.find(search_obj, function(err, results){
     if(err){
-      log(['LN: 154::Error in add_album.find', err]);
+      log.info(['LN: 154::Error in add_album.find', err]);
     }
     else if(results.length == 0){
-      log(['LN: 156::add_album.find', 'Creating album', 'artist = ', artist]);
+      log.info(['LN: 156::add_album.find', 'Creating album', 'artist = ', artist]);
       artist.createAlbum({"id": sanitize_id(album_name), "name": album_name}, callback);
     }
     else if(results.length == 1){
@@ -100,7 +96,7 @@ var add_album = function(artist, album_name, callback){
       }
     }
     else{
-      log(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
+      log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
     }
   }); 
 };
@@ -122,10 +118,10 @@ Model.add_song = function(song_obj){
       var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
       Model.Song.find(search_obj, function(err, results){
         if(err){
-          log(['LN: 193::Error in song_album.find', err]);
+          log.info(['LN: 193::Error in song_album.find', err]);
         }
         else if(results.length == 0){
-          log(['LN: 156::add_song.find', 'Creating song']);
+          log.info(['LN: 156::add_song.find', 'Creating song']);
           album.createSong({
                             "id": sanitize_id(song_obj.name),
                             "name": song_obj.name,
@@ -133,10 +129,10 @@ Model.add_song = function(song_obj){
                           },
                           function(err, song){
                             if(err){ 
-                              log(['LN:  113:: Error in add_song.create:', err]);
+                              log.info(['LN:  113:: Error in add_song.create:', err]);
                             }
                             else{
-                              log(['LN:  116:: Added song:', song]);
+                              log.info(['LN:  116:: Added song:', song]);
                             }
                           }
           );
@@ -147,7 +143,7 @@ Model.add_song = function(song_obj){
           }
         }
         else{
-          log(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
+          log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
         }
       }); 
     });
@@ -172,7 +168,7 @@ Model.get_song = function(song_id, callback){
       }
     }
     else{
-      log(['Error in get_song', err]);
+      log.info(['Error in get_song', err]);
     }
   });
 };
@@ -195,7 +191,7 @@ Model.get_artist = function(search_obj, callback){
         }
       }
       else{
-        log(['Error in get_artist.Model.Artist_find', err]);
+        log.info(['Error in get_artist.Model.Artist_find', err]);
       }
     });
   }
@@ -207,7 +203,7 @@ Model.get_artist = function(search_obj, callback){
         }
       }
       else{
-        log(['Error in get_artist.Model.Artist_all', err]);
+        log.info(['Error in get_artist.Model.Artist_all', err]);
       }
       
     });
@@ -232,7 +228,7 @@ Model.get_album = function(search_obj, callback){
         }
       }
       else{
-        log(['Error in get_album.Model.Album_find', err]);
+        log.info(['Error in get_album.Model.Album_find', err]);
       }
     });
   }
@@ -244,7 +240,7 @@ Model.get_album = function(search_obj, callback){
         }
       }
       else{
-        log(['Error in get_album.Model.Album_all', err]);
+        log.info(['Error in get_album.Model.Album_all', err]);
       }
       
     });
@@ -264,15 +260,11 @@ Model.get = function(){
 }
 
 Model.get_artists = function(){
-  Model.Artist.all(function(err, results){
-    log(['LN:268::Artists = ', JSON.stringify(results, null, 2)]);
-  });
+  Model.Artist.all(function(err, results){});
 };
 
 Model.get_songs = function(){
-  Model.Song.all(function(err, results){
-    log(['LN: 274::Songs = ', JSON.stringify(results, null, 2)]);
-  });
+  Model.Song.all(function(err, results){});
 };
 
 /* Function: inspect
