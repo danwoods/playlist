@@ -12,19 +12,24 @@ var fs      = require('fs'),
     path    = require('path'),
     director= require('director'),
     restful = require('restful'),
-    plates  = require('plates');
+    log     = require('winston');
 
 var mimeTypes = {
                 "html": "text/html",
                 "jpeg": "image/jpeg",
-                "jpg": "image/jpeg",
-                "png": "image/png",
-                "js": "text/javascript",
-                "mp3": "audio/mpeg",
-                "ogg": "audio/ogg",
-                "css": "text/css",
-                "ico": "image/vnd.microsoft.icon"
+                "jpg" : "image/jpeg",
+                "png" : "image/png",
+                "js"  : "text/javascript",
+                "mp3" : "audio/mpeg",
+                "ogg" : "audio/ogg",
+                "css" : "text/css",
+                "ico" : "image/vnd.microsoft.icon"
                 };
+
+// Setup logger
+log.remove(log.transports.Console);
+log.add(log.transports.Console, {colorize: true});
+
 
 /*** Functions ***/
 
@@ -114,7 +119,6 @@ var lookForOtherFormats = function(given_filename, formats){
 *   currentPath - path to traverse
 */
 var scanFiles = function (currentPath) {
-  //console.log('Starting new scan at: '+currentPath);
   // Variables
   var files = fs.readdirSync(currentPath),  // the current path
       id3Obj = {};                          // id3 data
@@ -146,10 +150,10 @@ var scanFiles = function (currentPath) {
 /*** Routing ***/
 // Get single song data
 var getSong = function(id){
-  console.log('Searching for song with id: '+id);
+  log.info('Searching for song with id: '+id);
   Model.get_song(id, function(song){ 
-    console.log('Returned from Model.get_song with');
-    console.log(song);
+    log.info('Returned from Model.get_song with');
+    log.info(song);
     this.res.writeHead(200, { 'Content-Type': 'application/json' });
     this.res.end(JSON.stringify(song));
   });
@@ -157,11 +161,11 @@ var getSong = function(id){
 
 // Get artist(s) data
 var getArtist = function(searchObj){
-  console.log('Searching for artist');
+  log.info('Searching for artist');
   var res = this.res;
   Model.get_artist({}, function(results){ 
-    console.log('Returned from Model.get_artist with');
-    console.log(results);
+    log.info('Returned from Model.get_artist with');
+    log.info(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
   });
@@ -169,11 +173,11 @@ var getArtist = function(searchObj){
 
 // Get album data
 var getAlbums = function(search_obj){
-  console.log('Searching for album');
+  log.info('Searching for album');
   var res = this.res;
   Model.get_album(search_obj, function(results){ 
-    console.log('Returned from Model.get_album with');
-    console.log(results);
+    log.info('Returned from Model.get_album with');
+    log.info(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
   });
@@ -228,7 +232,7 @@ var router = new director.http.Router({
   },
   '/.+\.mp3$': {
     get: function(){
-      console.log('trying to access '+url.parse(this.req.url).pathname); 
+      log.info('trying to access '+url.parse(this.req.url).pathname); 
       var uri = url.parse(this.req.url).pathname;
       var filePath = path.resolve(process.cwd(), uri);
       var stat = fs.statSync(filePath);
@@ -247,7 +251,7 @@ var router = new director.http.Router({
   },
   '/.+\.ogg$': {
     get: function(){
-      console.log('trying to access '+url.parse(this.req.url).pathname); 
+      log.info('trying to access '+url.parse(this.req.url).pathname); 
       var uri = url.parse(this.req.url).pathname;
       var filePath = path.resolve(process.cwd(), uri);
       var stat = fs.statSync(filePath);
@@ -265,7 +269,7 @@ var router = new director.http.Router({
     }
   },
   '/:filename':{
-    get: function(filename){console.log(filename)}
+    get: function(filename){log.info(filename)}
   }
 
 });
@@ -285,7 +289,7 @@ var serveStatic = function(req, res){
   path.exists(filename, function(exists) {
     if(!exists) {
       // this works for mp3s but makes the page really slow to load otherwise
-      console.log("path does not exist: " + filename);
+      log.warn("path does not exist: " + filename);
       var filePath = path.resolve(process.cwd(), uri);
       var stat = fs.statSync(filePath);
 
@@ -317,13 +321,13 @@ http.createServer(function (req, res) {
   });
   req.url = decodeURI(req.url);
   router.dispatch(req, res, function (err) {
-Model.get_songs();
-    if (err) {
-      console.log(err);
-      serveStatic(req, res);
-      return;
-    }
+    Model.get_songs();
+      if (err) {
+        log.error(err);
+        serveStatic(req, res);
+        return;
+      }
   });
-  console.log('Served ' + req.url);
+  log.info('Served ' + req.url);
 }).listen(1337, '0.0.0.0');
-console.log('Server running at http://127.0.0.1:1337/');
+log.info('Server running at http://127.0.0.1:1337/');
