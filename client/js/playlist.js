@@ -20,18 +20,35 @@ var Playlist = function(elm) {
             
     return false;
   };
+
+  // Handle song/album/artist dropping
   var drop = function(e) {
     // this / e.target is current target element.
     if (e.stopPropagation) {
       e.stopPropagation(); // stops the browser from redirecting.
     }
+    
+    var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
-    // Add song to playlist
-    var songObj = JSON.parse(e.dataTransfer.getData('text/plain'));
-    api.buildFull(songObj.id, function(data){
-      addSong(data);
-    });
-
+    // Processw dropped object
+    if(droppedObj.type === 'song'){
+      // Add song to playlist
+      api.buildSong(droppedObj.id, function(data){
+        addSong(data);
+      });
+    }
+    else if(droppedObj.type === 'album'){
+      // Add songs to playlist
+      api.buildSongsFromAlbum(droppedObj.id, function(data){
+        for(var idx = 0; idx < data.length; idx++){
+          addSong(data[idx]);
+        }
+      });
+    }
+    else if(droppedObj.type === 'artist'){
+    
+    }
+    
     // Return false
     return false;
   };

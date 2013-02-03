@@ -47,10 +47,9 @@ var API = function () {
     defaultCall('/song', requestObj, 'song', callback);
   };
 
-  // Build full object, song to artist
-  this.buildFull = function(song_id, callback){
+  // Build full song object from song_id
+  this.buildSong = function(song_id, callback){
     var retObj = {};
-
     self.getSongs({'id':song_id}, function(songObj){
       retObj = songObj;
       self.getAlbums({'id':retObj.album_id}, function(albumObj){
@@ -63,7 +62,24 @@ var API = function () {
         });
       });
     });
+  };
 
+  // Build full song object array from album_id
+  this.buildSongsFromAlbum = function(album_id, callback){
+    var songObjTmpl = {},
+        retArr      = [];
+    self.getAlbums({'id':album_id}, function(albumObj){
+      songObjTmpl.album = albumObj;
+      self.getArtists({'id':albumObj.artist_id}, function(artistObj){
+        songObjTmpl.album.artist = artistObj;
+        self.getSongs({'album_id': songObjTmpl.album.id}, function(songArr){
+          if(callback){
+            callback(_.map(songArr, function(songObj){return _.defaults(songObj, songObjTmpl);}));
+          }
+        });
+      });
+
+    });
   };
 
 };
