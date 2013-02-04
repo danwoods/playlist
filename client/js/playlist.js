@@ -46,7 +46,12 @@ var Playlist = function(elm) {
       });
     }
     else if(droppedObj.type === 'artist'){
-    
+      // Add songs to playlist
+      api.buildSongsFromArtist(droppedObj.id, function(data){
+        for(var idx = 0; idx < data.length; idx++){
+          addSong(data[idx]);
+        }
+      }); 
     }
     
     // Return false

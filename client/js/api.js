@@ -66,8 +66,7 @@ var API = function () {
 
   // Build full song object array from album_id
   this.buildSongsFromAlbum = function(album_id, callback){
-    var songObjTmpl = {},
-        retArr      = [];
+    var songObjTmpl = {};
     self.getAlbums({'id':album_id}, function(albumObj){
       songObjTmpl.album = albumObj;
       self.getArtists({'id':albumObj.artist_id}, function(artistObj){
@@ -78,7 +77,32 @@ var API = function () {
           }
         });
       });
-
+    });
+  };
+  
+  // Build full song object array from artist_id
+  this.buildSongsFromArtist = function(artist_id, callback){
+    var artistObj   = {},
+        songObjTmpl = {},
+        totalSongs  = 0,
+        retArr      = [];
+    self.getArtists({'id':artist_id}, function(artistObj){
+      artistObj = artistObj;
+      self.getAlbums({'artist_id':artistObj.id}, function(albumArr){
+        totalSongs = _.map(albumArr, function(albumObj){return albumObj.song_ids.length}).length;
+        for (var i = 0; i < albumArr.length; i++) {
+          songObjTmpl.album = albumArr[i];
+          songObjTmpl.album.artist = artistObj;
+          defaultCall('/album/'+songObjTmpl.album.name.replace(/ /g, '_')+'/song', null, null, function(data){
+            retArr = retArr.concat(_.flatten(_.map(data.song, function(songObj){return _.defaults(songObj, songObjTmpl);})));
+            if(retArr.length >= totalSongs){
+              if(callback){
+                callback(retArr);
+              }
+            }
+          });
+        };
+      });
     });
   };
 
