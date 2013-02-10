@@ -65,6 +65,6 @@ section#playlist ol li.song span.song-album{
 section#playlist ol li.song span.song-artist{
   width: 25%;
 }
-[data-blankslate]:after{
+[data-blankslate]:empty:after{
   content: attr(data-blankslate);
 }
