@@ -11,6 +11,7 @@ var Playlist = function(elm) {
   };
   var dragLeave = function(e) {
     // this / e.target is previous target element.
+    //e.target.classList.remove('dodge');
   };
   var dragOver = function(e){
     if (e.preventDefault) {
@@ -28,6 +29,7 @@ var Playlist = function(elm) {
       e.stopPropagation(); // stops the browser from redirecting.
     }
     
+    console.log('dropped on '+e.target.classList);
     var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
     // Processw dropped object
@@ -61,29 +63,32 @@ var Playlist = function(elm) {
   // Create Song Element
   var createSongElm = function(songObj){ 
 
+  var dragEnter = function(e) {
+    // this / e.target is the current hover target.
+    // Add class to <li> element
+    var $elm = $(e.target);
+
+    console.log('entering '+e.target.classList);
+    if(!$elm.hasClass('song')){
+      $elm.parents('.song').addClass('dodge');
+    }
+    else{
+      $elm.addClass('dodge');
+    }
+  };
+  var dragLeave = function(e) {
+    // this / e.target is previous target element.
+    var $elm = $(e.target);
+
+    if(!$elm.hasClass('song')){
+      $elm.parents('.song').removeClass('dodge');
+    }
+    else{
+      $elm.removeClass('dodge');
+    }
+  };
     // Dodge functionality
     var dragOver = function(e){
-      // Variables
-      var y = e.pageY - $(e.target).offset().top; // Position of object being drug to target
-
-      // Prevent default behavior
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-
-      // Clear all other dodge classes and add appropriate dodge class to target element
-      var tippingPoint = $(e.target).height()/2;
-      if(y > tippingPoint){
-        $(elm + ' .song').removeClass('dodge-top');
-        $(elm + ' .song').removeClass('dodge-bottom');
-        $(e.target).addClass('dodge-bottom');
-      }
-      else{
-        $(elm + ' .song').removeClass('dodge-top');
-        $(elm + ' .song').removeClass('dodge-bottom');
-        $(e.target).addClass('dodge-top');
-      }
-      return false;
     };
 
     // Create actual html element
@@ -100,7 +105,16 @@ var Playlist = function(elm) {
       songElm.append('<span class="song-time">'+songObj.length+'</span>');
 
       // Add event handlers
-      songElm.get()[0].addEventListener('dragover', dragOver, false);
+      songElm.get()[0].addEventListener('dragover', dragOver, true);
+      songElm.get()[0].addEventListener('dragenter', dragEnter, true);
+      songElm.get()[0].addEventListener('dragleave', dragLeave, true);
+      songElm.get()[0].addEventListener('drop', function(e){
+        var $elm = $(e.target);
+        if(!$elm.hasClass('song')){
+          $elm.parents('.song').trigger('drop', e);
+        }
+        
+      }, true);
 
       // Return song element
       return songElm;
@@ -126,14 +140,14 @@ var Playlist = function(elm) {
 
       // Find the last song that dodged
       $(elm + ' .song').each(function(){
-        if($(this).hasClass('dodge-top') || $(this).hasClass('dodge-bottom')){
+        if($(this).hasClass('dodge')){
           pivotElm = $(this);
           return false;
         }
       });
 
       // Place new song based on pivot element's dodge class
-      if($(pivotElm).hasClass('dodge-top')){    
+      if($(pivotElm).hasClass('dodge')){    
         // Add song before pivot element
         songElm.insertBefore(pivotElm);
       }
@@ -148,8 +162,7 @@ var Playlist = function(elm) {
     }
     
     // Remove any existing dodge classes from the playlist
-    $(elm + ' .song').removeClass('dodge-top');
-    $(elm + ' .song').removeClass('dodge-bottom');
+    $(elm + ' .song').removeClass('dodge');
 
   };
 
