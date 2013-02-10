@@ -243,7 +243,7 @@ var Playlist = function(elm) {
       $(elm).get()[0].addEventListener('dragover', dragOver, false);
       $(elm).get()[0].addEventListener('drop', drop, false);
       // Add a containner for the list elements
-      $(elm).append('<ol dropzone="copy string:text/x-example" />');
+      $(elm).append('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
     });
   };
 
