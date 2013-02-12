@@ -99,12 +99,18 @@ var lookForOtherFormats = function(given_filename, formats){
 
   // Loop through formats and check for matching files
   for(format in formats){
-    curStat = fs.lstatSync(filename + '.' + formats[format]);
-    if(curStat.isFile()){
-      retArr.push({
-                    "url":path.resolve(process.cwd(), filename + '.'+formats[format]), 
-                    "format":formats[format]
-                  });
+    // If a file with the specified format exists
+    if(fs.existsSync(filename + '.' + formats[format])){
+      // Get it's information
+      curStat = fs.lstatSync(filename + '.' + formats[format]);
+      // If it's really a file
+      if(curStat.isFile()){
+        // add it's url and format to the return array
+        retArr.push({
+                      "url":path.resolve(process.cwd(), filename + '.'+formats[format]), 
+                      "format":formats[format]
+                    });
+      }
     }
   }
 
@@ -136,8 +142,11 @@ var scanFiles = function (currentPath) {
       id3Obj.urls = [];
       id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":"mpeg"});
       id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, ['ogg']));
-      // Add the song
-      Model.add_song(id3Obj);
+      // For now, only add files which have both formats, to improve cross brrowser comaptability
+      if(id3Obj.urls.length > 1){
+        // Add the song
+        Model.add_song(id3Obj);
+      }
     }
     // Else if the file is actually a directory
     else if (stats.isDirectory()) {
@@ -284,29 +293,31 @@ var router = new director.http.Router({
 *   res - response
 */
 var serveStatic = function(req, res){
-  var uri = url.parse(req.url).pathname,
-      filename = path.join(process.cwd() + '/client/', uri); // Assume any static files will be in the '/client' directory
-  path.exists(filename, function(exists) {
-    if(!exists) {
-      // this works for mp3s but makes the page really slow to load otherwise
-      log.warn("path does not exist: " + filename);
-      var filePath = path.resolve(process.cwd(), uri);
-      var stat = fs.statSync(filePath);
+  // Variables
+  var uri = decodeURI(url.parse(req.url).pathname),
+      clientFileTypeArr = ['js', 'css', 'html', 'ico', 'png', 'jpg', 'jpeg', 'gif'],
+      audioFileTypeArr = ['mp3', 'ogg', 'flac'],
+      clientPathStr = process.cwd() + '/client/',
+      isClientFileType = (clientFileTypeArr.indexOf(uri.split('.').pop()) > -1),
+      isAudioFileType = (audioFileTypeArr.indexOf(uri.split('.').pop()) > -1),
+      filename = '';
 
-      res.writeHead(200, {
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': stat.size
-      });
-
-      var readStream = fs.createReadStream(filePath);
-      readStream.pipe(res);
-      return;
+  // Only try to serve/access files which are either client or audio files
+  if(isClientFileType || isAudioFileType){
+    // Create filename
+    filename = (isClientFileType) ? path.join(clientPathStr, uri) : uri; 
+    // If requested file exist
+    if(!fs.existsSync(filename)){
+      log.error("playlist.js::serveStatic, looking for non-existing file '"+filename+"'");
     }
-    var mimeType = mimeTypes[path.extname(filename).split(".")[1]];
-    res.writeHead(200, mimeType);
-    var fileStream = fs.createReadStream(filename);
-    fileStream.pipe(res);
-  }); //end path.exists
+    else{
+      var mimeType = mimeTypes[path.extname(filename).split(".")[1]];
+      res.writeHead(200, mimeType);
+      var fileStream = fs.createReadStream(filename);
+      fileStream.pipe(res);
+      log.info("playlist.js::serveStatic, served static file '"+filename+"'");
+    }
+  }
 
 };
 
@@ -321,13 +332,11 @@ http.createServer(function (req, res) {
   });
   req.url = decodeURI(req.url);
   router.dispatch(req, res, function (err) {
-    Model.get_songs();
-      if (err) {
-        log.error(err);
-        serveStatic(req, res);
-        return;
-      }
+    if (err) {
+      serveStatic(req, res);
+      return;
+    }
   });
-  log.info('Served ' + req.url);
+  //log.info('Served ' + req.url);
 }).listen(1337, '0.0.0.0');
 log.info('Server running at http://127.0.0.1:1337/');

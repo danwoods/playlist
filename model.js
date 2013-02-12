@@ -37,7 +37,14 @@ Model.Song = resourceful.define('song', function(){
 
 // Makes sure id is compatable with restful's api
 var sanitize_id = function(id){
-  return id.replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_');
+  var retStr = '';
+  if(id){
+    retStr = id.replace(/,/g, '').replace(/([^._a-zA-Z0-9-]+)/g, '_');
+  }
+  else{
+    log.warn('model.js::sanitize_id, trying to sanitize a null id');
+  }
+  return retStr;
 };
 
 /*** Resource functions ***/ 
@@ -57,7 +64,6 @@ var add_artist = function(artist_name, callback){
       log.info(['LN: 118::Error in add_artist.find', err]);
     }
     else if(results.length == 0){
-      log.info(['LN: 124::add_artist.find', 'Creating artist']);
       Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
@@ -113,41 +119,53 @@ var add_album = function(artist, album_name, callback){
  *
  */
 Model.add_song = function(song_obj){
-  add_artist(song_obj.artist, function(err, artist){
-    add_album(artist, song_obj.album, function(err, album){ 
-      var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
-      Model.Song.find(search_obj, function(err, results){
+  // First make sure we have what we need to work with
+  if(song_obj.artist && song_obj.album && song_obj.name){
+    add_artist(song_obj.artist, function(err, artist){
+      if(err){
+        log.error('model.js::add_artist, '+JSON.stringify(err, null, 2));
+      }
+      add_album(artist, song_obj.album, function(err, album){ 
         if(err){
-          log.info(['LN: 193::Error in song_album.find', err]);
+          log.error('model.js::add_album, '+JSON.stringify(err, null, 2));
         }
-        else if(results.length == 0){
-          log.info(['LN: 156::add_song.find', 'Creating song']);
-          album.createSong({
-                            "id": sanitize_id(song_obj.name),
-                            "name": song_obj.name,
-                            "urls":song_obj.urls
-                          },
-                          function(err, song){
-                            if(err){ 
-                              log.info(['LN:  113:: Error in add_song.create:', err]);
-                            }
-                            else{
-                              log.info(['LN:  116:: Added song:', song]);
-                            }
-                          }
-          );
-        }
-        else if(results.length == 1){
-          if(callback){
-            callback(results[0]);
+        var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
+        Model.Song.find(search_obj, function(err, results){
+          if(err){
+            log.info(['LN: 193::Error in song_album.find', err]);
           }
-        }
-        else{
-          log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
-        }
-      }); 
+          else if(results.length == 0){
+            log.info(['LN: 156::add_song.find', 'Creating song']);
+            album.createSong({
+                              "id"  : sanitize_id(song_obj.name),
+                              "name": song_obj.name,
+                              "urls":song_obj.urls
+                            },
+                            function(err, song){
+                              if(err){ 
+                                log.info(['LN:  113:: Error in add_song.create:', err]);
+                              }
+                              else{
+                                log.info(['LN:  116:: Added song:', song]);
+                              }
+                            }
+            );
+          }
+          else if(results.length == 1){
+            if(callback){
+              callback(results[0]);
+            }
+          }
+          else{
+            log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
+          }
+        }); 
+      });
     });
-  });
+  }
+  else{
+    log.warn('model.js::add_song, trying to add a song with missing data. song_obj = '+JSON.stringify(song_obj, null, 2));
+  }
 };
 
 
