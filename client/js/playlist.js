@@ -29,7 +29,6 @@ var Playlist = function(elm) {
       e.stopPropagation(); // stops the browser from redirecting.
     }
     
-    console.log('dropped on '+e.target.classList);
     var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
     // Processw dropped object
@@ -65,10 +64,11 @@ var Playlist = function(elm) {
 
   var dragEnter = function(e) {
     // this / e.target is the current hover target.
+    // Clear any existing 'dodge' classes
+    $('.song').removeClass('dodge');
     // Add class to <li> element
     var $elm = $(e.target);
 
-    console.log('entering '+e.target.classList);
     if(!$elm.hasClass('song')){
       $elm.parents('.song').addClass('dodge');
     }
@@ -87,9 +87,9 @@ var Playlist = function(elm) {
       $elm.removeClass('dodge');
     }
   };
-    // Dodge functionality
-    var dragOver = function(e){
-    };
+  var drop = function(e){
+    $(elm).trigger('drop', e); 
+  };
 
     // Create actual html element
     var createStructure = function(){ 
@@ -105,16 +105,9 @@ var Playlist = function(elm) {
       songElm.append('<span class="song-time">'+songObj.length+'</span>');
 
       // Add event handlers
-      songElm.get()[0].addEventListener('dragover', dragOver, true);
       songElm.get()[0].addEventListener('dragenter', dragEnter, true);
       songElm.get()[0].addEventListener('dragleave', dragLeave, true);
-      songElm.get()[0].addEventListener('drop', function(e){
-        var $elm = $(e.target);
-        if(!$elm.hasClass('song')){
-          $elm.parents('.song').trigger('drop', e);
-        }
-        
-      }, true);
+      songElm.get()[0].addEventListener('drop', drop, true);
 
       // Return song element
       return songElm;

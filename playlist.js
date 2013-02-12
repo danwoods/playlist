@@ -67,7 +67,7 @@ var parseFile = function(file){
     // If they weren't, parse the ID3 file to try and extract the data
     else{
       id3Obj.parse();
-      retObj.name   = id3Obj.get('title');
+      retObj.name    = id3Obj.get('title');
       retObj.artist  = id3Obj.get('artist');
       retObj.album   = id3Obj.get('album');
       retObj.year    = id3Obj.get('year');
