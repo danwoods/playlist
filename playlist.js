@@ -192,104 +192,15 @@ var getAlbums = function(search_obj){
   });
 };
 
-// Gets entire Model data
-var getLibrary = function(){
-  this.res.writeHead(200, { 'Content-Type': 'application/json' });
-  this.res.end(JSON.stringify(Model.get()));
-};
-//
-//
-// define a routing table.
-//
-//
-var router = restful.createRouter([Model.Artist, Model.Album, Model.Song]);
-
-/*
-var router = new director.http.Router({
-'/': {
-  get: function(){
-    this.res.writeHead(200, {'Content-Type': 'text/html'});
-    var fileStream = fs.createReadStream('client/index.html');
-    fileStream.pipe(this.res);
-    }
-  },
-  '/artists': {
-    '/':{
-      get: getArtist
-    }
-  },
-  '/song': {
-    '/:id': {
-      get: getSong
-    }
-  },
-  '/.+\.css$': {
-    get: function(){
-      var uri = url.parse(this.req.url).pathname;
-      this.res.writeHead(200, {'Content-Type': 'text/css'});
-      var fileStream = fs.createReadStream('client'+uri);
-      fileStream.pipe(this.res);
-    }
-  },
-  '/.+\.js$': {
-    get: function(){
-      var uri = url.parse(this.req.url).pathname;
-      this.res.writeHead(200, {'Content-Type': 'text/css'});
-      var fileStream = fs.createReadStream('client'+uri);
-      fileStream.pipe(this.res);
-    }
-  },
-  '/.+\.mp3$': {
-    get: function(){
-      log.info('trying to access '+url.parse(this.req.url).pathname); 
-      var uri = url.parse(this.req.url).pathname;
-      var filePath = path.resolve(process.cwd(), uri);
-      var stat = fs.statSync(filePath);
-
-      this.res.writeHead(200, {
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': stat.size
-      });
-
-      var readStream = fs.createReadStream(filePath);
-      // We replaced all the event handlers with a simple call to util.pump()
-      util.pump(readStream, this.res);
-      
-      return;
-    }
-  },
-  '/.+\.ogg$': {
-    get: function(){
-      log.info('trying to access '+url.parse(this.req.url).pathname); 
-      var uri = url.parse(this.req.url).pathname;
-      var filePath = path.resolve(process.cwd(), uri);
-      var stat = fs.statSync(filePath);
-
-      this.res.writeHead(200, {
-        'Content-Type': 'audio/ogg',
-        'Content-Length': stat.size
-      });
-
-      var readStream = fs.createReadStream(filePath);
-      
-      readStream.pipe(this.res);
-      
-      return;
-    }
-  },
-  '/:filename':{
-    get: function(filename){log.info(filename)}
-  }
-
-});
-*/
+// Create router
+var router = restful.createRouter([Model.Artist, Model.Album, Model.Song], { explore: false });
 
 /* Function: serveStatic
 *
 *  Serves static files (css, mp3). Called when the default api routing has an error.
 *
 *  Parameters:
-*   req - request,
+*   req - request
 *   res - response
 */
 var serveStatic = function(req, res){
@@ -324,19 +235,26 @@ var serveStatic = function(req, res){
 /*** Operations ***/
 // Recursively scan the files for the given directory, or use the one we're currently in
 scanFiles(process.argv[2] || '..');
+
 // Start Server
 http.createServer(function (req, res) {
-  req.chunks = [];
-  req.on('data', function (chunk) {
-    req.chunks.push(chunk.toString());
-  });
-  req.url = decodeURI(req.url);
-  router.dispatch(req, res, function (err) {
-    if (err) {
-      serveStatic(req, res);
-      return;
-    }
-  });
-  //log.info('Served ' + req.url);
+  // Make '/' point to index.html
+  if(req.url === '/'){
+    req.url = req.url + 'index.html';
+    serveStatic(req, res);
+  }
+  else{
+    req.chunks = [];
+    req.on('data', function (chunk) {
+      req.chunks.push(chunk.toString());
+    });
+    req.url = decodeURI(req.url);
+    router.dispatch(req, res, function (err) {
+      if (err) {
+        serveStatic(req, res);
+        return;
+      }
+    });
+  }
 }).listen(1337, '0.0.0.0');
-log.info('Server running at http://127.0.0.1:1337/');
+log.info('playlist.js::server running at http://127.0.0.1:1337/');
