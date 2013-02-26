@@ -62,34 +62,34 @@ var Playlist = function(elm) {
   // Create Song Element
   var createSongElm = function(songObj){ 
 
-  var dragEnter = function(e) {
-    // this / e.target is the current hover target.
-    // Clear any existing 'dodge' classes
-    $('.song').removeClass('dodge');
-    // Add class to <li> element
-    var $elm = $(e.target);
+    var dragEnter = function(e) {
+      // this / e.target is the current hover target.
+      // Clear any existing 'dodge' classes
+      $('.song').removeClass('dodge');
+      // Add class to <li> element
+      var $elm = $(e.target);
 
-    if(!$elm.hasClass('song')){
-      $elm.parents('.song').addClass('dodge');
-    }
-    else{
-      $elm.addClass('dodge');
-    }
-  };
-  var dragLeave = function(e) {
-    // this / e.target is previous target element.
-    var $elm = $(e.target);
+      if(!$elm.hasClass('song')){
+        $elm.parents('.song').addClass('dodge');
+      }
+      else{
+        $elm.addClass('dodge');
+      }
+    };
+    var dragLeave = function(e) {
+      // this / e.target is previous target element.
+      var $elm = $(e.target);
 
-    if(!$elm.hasClass('song')){
-      $elm.parents('.song').removeClass('dodge');
-    }
-    else{
-      $elm.removeClass('dodge');
-    }
-  };
-  var drop = function(e){
-    $(elm).trigger('drop', e); 
-  };
+      if(!$elm.hasClass('song')){
+        $elm.parents('.song').removeClass('dodge');
+      }
+      else{
+        $elm.removeClass('dodge');
+      }
+    };
+    var drop = function(e){
+      $(elm).trigger('drop', e); 
+    };
 
     // Create actual html element
     var createStructure = function(){ 
@@ -99,10 +99,10 @@ var Playlist = function(elm) {
       songElm.addClass('song');
       songElm.attr('id', _.uniqueId('pl-'));
       songElm.attr('data-id', songObj.id);
-      songElm.append('<span class="song-name">'+songObj.name+'</span>');
-      songElm.append('<span class="song-album">'+songObj.album.name+'</span>');
-      songElm.append('<span class="song-artist">'+songObj.album.artist.name+'</span>');
-      songElm.append('<span class="song-time">'+songObj.length+'</span>');
+      songElm.append('<span class="song-name">'+(songObj.name || 'unknown song name')+'</span>');
+      songElm.append('<span class="song-album">'+(songObj.album.name || 'unknown album')+'</span>');
+      songElm.append('<span class="song-artist">'+(songObj.album.artist.name || 'unknown artist')+'</span>');
+      songElm.append('<span class="song-time">'+(songObj.length || 'unknown length')+'</span>');
 
       // Add event handlers
       songElm.get()[0].addEventListener('dragenter', dragEnter, true);
