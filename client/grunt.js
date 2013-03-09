@@ -8,7 +8,7 @@ module.exports = function(grunt) {
               '<%= grunt.template.today("yyyy-mm-dd") %> */'
     },
     lint: {
-      all: ['grunt.js', 'js/catalog.js']
+      all: ['grunt.js', 'api.js', 'js/catalog.js', 'js/playlist.js']
     },
     jshint: {
       option: {
@@ -68,13 +68,13 @@ module.exports = function(grunt) {
         "passfail"      : false,    // Stop on first error.
         "white"         : false,    // Check against strict whitespace and indentation rules.
         "maxerr"        : 100,      // Maximum errors before stopping.
-        "predef"        : ["API"],  // API should be predefined
+        "predef"        : ["API", "_"],  // API should be predefined
         "indent"        : 2         // Specify indentation spacing
       }
     },
     min: {
       scripts: {
-        src: ['<banner>', 'js/catalog.js'],
+        src: ['<banner>', 'js/api.js', 'js/catalog.js', 'js/playlist.js'],
         dest: 'js/scripts.js'
       }
     }

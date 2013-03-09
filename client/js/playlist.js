@@ -5,14 +5,7 @@ var Playlist = function(elm) {
   var api = new API(),
       self = this;
 
-  /* UI */
-  var dragEnter = function(e) {
-    // this / e.target is the current hover target.
-  };
-  var dragLeave = function(e) {
-    // this / e.target is previous target element.
-    //e.target.classList.remove('dodge');
-  };
+  // ####Function handler for dragover
   var dragOver = function(e){
     if (e.preventDefault) {
       e.preventDefault();
@@ -22,7 +15,7 @@ var Playlist = function(elm) {
     return false;
   };
 
-  // Handle song/album/artist dropping
+  // ####Function handler for drop
   var drop = function(e) {
     // this / e.target is current target element.
     if (e.stopPropagation) {
@@ -52,21 +45,27 @@ var Playlist = function(elm) {
         for(var idx = 0; idx < data.length; idx++){
           addSong(data[idx]);
         }
-      }); 
+      });
     }
-    
+
     // Return false
     return false;
   };
 
-  // Create Song Element
+  // ###Function: createSongElm(songObj)
+  //  Given a song object, creates and returns a playlist ready song HTML element  
+  // **params**:  
+  //  `songObj` a fully fledged song object  
+  // **returns**:  
+  //  A playlist ready, HTML element representation of the song
   var createSongElm = function(songObj){ 
 
+    // ####Function handler for dragenter
     var dragEnter = function(e) {
       // this / e.target is the current hover target.
       // Clear any existing 'dodge' classes
       $('.song').removeClass('dodge');
-      // Add class to <li> element
+      // Add class to li element
       var $elm = $(e.target);
 
       if(!$elm.hasClass('song')){
@@ -76,6 +75,7 @@ var Playlist = function(elm) {
         $elm.addClass('dodge');
       }
     };
+    // ####Function handler for dragleave
     var dragLeave = function(e) {
       // this / e.target is previous target element.
       var $elm = $(e.target);
@@ -87,22 +87,28 @@ var Playlist = function(elm) {
         $elm.removeClass('dodge');
       }
     };
+    // ####Function handler for drop
     var drop = function(e){
       $(elm).trigger('drop', e); 
     };
 
-    // Create actual html element
+    // ####Creates HTML element
     var createStructure = function(){ 
-      // Song element
-      var songElm = $('<li />');  // song element
+      // Variables
+      var songElm = $('<li />'),                                            // Song element
+          songName = (songObj.name || 'unknown song name'),                 // Song name
+          songAlbumName = (songObj.album.name || 'unknown album'),          // Song album name
+          songArtistName = (songObj.album.artist.name || 'unknown artist'), // Song artist name
+          songLength = (songObj.length || 'unknown length');                // Song length
+
       // Setup song element attributes and child elements
       songElm.addClass('song');
       songElm.attr('id', _.uniqueId('pl-'));
       songElm.attr('data-id', songObj.id);
-      songElm.append('<span class="song-name">'+(songObj.name || 'unknown song name')+'</span>');
-      songElm.append('<span class="song-album">'+(songObj.album.name || 'unknown album')+'</span>');
-      songElm.append('<span class="song-artist">'+(songObj.album.artist.name || 'unknown artist')+'</span>');
-      songElm.append('<span class="song-time">'+(songObj.length || 'unknown length')+'</span>');
+      songElm.append('<span class="song-name" title="'+songName+'">'+songName+'</span>');
+      songElm.append('<span class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
+      songElm.append('<span class="song-artist" title="'+songArtistName+'">'+songArtistName+'</span>');
+      songElm.append('<span class="song-time" title="'+songLength+'">'+songLength+'</span>');
 
       // Add event handlers
       songElm.get()[0].addEventListener('dragenter', dragEnter, true);
@@ -119,18 +125,20 @@ var Playlist = function(elm) {
     return songElm;
   };
 
-  // Add Song
-  var addSong = function(songObj, idx){
+  // ###Function: addSong(songObj)  
+  //  Creates a playlist element from the passed in `songObj` and adds it to the playlist  
+  // **params**:  
+  //  `songObj` a fully fledged song object  
+  var addSong = function(songObj){
 
-    // Create song element
-    var songElm = createSongElm(songObj);
+    // Variables
+    var songElm = createSongElm(songObj), // Song element
+        pivotElm;                         // The element preceding/following the element to add
     
     // If playlist already has songs, decide where to place the new song
     if($(elm + ' .song').length){
-      
-      // Variables
-      var pivotElm = $(elm + ' .song')[0];  // The element the new song precedes/succeds; defaults to first song
-
+      // Set pivot element
+      pivotElm = $(elm + ' .song')[0];  // The element the new song precedes/succeds; defaults to first song
       // Find the last song that dodged
       $(elm + ' .song').each(function(){
         if($(this).hasClass('dodge')){
@@ -138,14 +146,13 @@ var Playlist = function(elm) {
           return false;
         }
       });
-
-      // Place new song based on pivot element's dodge class
+      // Place new song based on pivot element's dodge class  
+      // If pivot element has a class of 'dodge' add song before pivot element
       if($(pivotElm).hasClass('dodge')){    
-        // Add song before pivot element
         songElm.insertBefore(pivotElm);
       }
+      // Else, default to adding song after pivot element
       else{
-        // Add song after pivot element
         songElm.insertAfter(pivotElm);
       }
     }
@@ -159,7 +166,10 @@ var Playlist = function(elm) {
 
   };
 
-  // Get all songs
+  // ###Function: getSongs()  
+  //  Returns an array of all the songs in the playlist  
+  // **returns**:  
+  //  An array of songs in the form `[{"song_id": [SONG ID::Str], "elm_id": [ELEMENT ID::Str], "playing": [IS SONG PLAYING?::Bool]}, {...}, ... ]`  
   this.getSongs = function(){
     var songArr = [];
 
@@ -176,7 +186,10 @@ var Playlist = function(elm) {
     return songArr;
   };
 
-  // Get data of next song to play
+  // ###Function: getNextSong(callback)  
+  //  Passes the next song in the playlist to the callback function  
+  // **params**:  
+  //  A callback function which is passed a fully fleged song object
   this.getNextSong = function(callback){
     // Variables
     var songArr = self.getSongs(),  // Get all songs in playlist
@@ -209,7 +222,10 @@ var Playlist = function(elm) {
     });
   };
   
-  // Get data of previous song to play
+  // ###Function: getPrevSong(callback)  
+  //  Passes the previous song in the playlist to the callback function  
+  // **params**:  
+  //  A callback function which is passed a fully fleged song object
   this.getPrevSong = function(callback){
     // Variables
     var songArr = self.getSongs(),  // Get all songs in playlist
@@ -242,7 +258,7 @@ var Playlist = function(elm) {
     });
   };
 
-  // Init functionality
+  // ####Init functionality
   var init = function(){
     // Add event listeners and bindings, and create any required elements
     $('document').ready(function(){
@@ -257,6 +273,3 @@ var Playlist = function(elm) {
   init();
 
 };
-
-// Instansiate module
-var playlist = new Playlist('section#playlist');
