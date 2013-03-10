@@ -61,9 +61,12 @@ var add_artist = function(artist_name, callback){
   var search_obj = {"name": artist_name};
   Model.Artist.find(search_obj, function(err, results){
     if(err){
-      log.info(['LN: 118::Error in add_artist.find', err]);
+      if(callback){
+        callback('model.js::add_artist, Error when searching for artist "' + artist_name + '", error: '+ err);
+      }
     }
     else if(results.length == 0){
+      log.info('model.js::add_artist, Creating artist: ' + artist_name);
       Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
@@ -72,7 +75,10 @@ var add_artist = function(artist_name, callback){
       }
     }
     else{
-      log.info(['LN: 97::Error in add_artist.find', 'Multiple artists already exist by that name']);
+      // Call callback with error
+      if(callback){
+        callback('model.js::add_artist, Multiple artists already exist named: ' + artist_name);
+      }
     }
   });
 };
@@ -90,19 +96,29 @@ var add_album = function(artist, album_name, callback){
   var search_obj = {"id": album_name, "artist_id": artist.name};
   Model.Album.find(search_obj, function(err, results){
     if(err){
-      log.info(['LN: 154::Error in add_album.find', err]);
+      if(callback){
+        callback('model.js::add_album, Error when searching for album "' + album_name + '", error: '+ err);
+      }
     }
+    // If no albums found
     else if(results.length == 0){
-      log.info(['LN: 156::add_album.find', 'Creating album', 'artist = ', artist]);
+      // Create album, and pass off callback
+      log.info('model.js::add_album, Creating album: ' + album_name);
       artist.createAlbum({"id": sanitize_id(album_name), "name": album_name}, callback);
     }
-    else if(results.length == 1){
+    // If album found
+    else if(results.length === 1){
+      // Call callback with album
       if(callback){
         callback(null, results[0]);
       }
     }
+    // If more than one album found
     else{
-      log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
+      // Call callback with error
+      if(callback){
+        callback('model.js::add_album, Multiple albums already exist named: ' + album_name);
+      }
     }
   }); 
 };
@@ -123,19 +139,19 @@ Model.add_song = function(song_obj){
   if(song_obj.artist && song_obj.album && song_obj.name){
     add_artist(song_obj.artist, function(err, artist){
       if(err){
-        log.error('model.js::add_artist, '+JSON.stringify(err, null, 2));
+        log.error('model.js::add_song, Error adding artist "' + song_obj.artist + '", error: ' + JSON.stringify(err, null, 2));
       }
       add_album(artist, song_obj.album, function(err, album){ 
         if(err){
-          log.error('model.js::add_album, '+JSON.stringify(err, null, 2));
+          log.error('model.js::add_song, Error adding album "' + song_obj.album + '", error: ' + JSON.stringify(err, null, 2));
         }
         var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
         Model.Song.find(search_obj, function(err, results){
           if(err){
-            log.info(['LN: 193::Error in song_album.find', err]);
+            log.error('model.js::add_song, Error finding song "' + song_obj.name + '", error: ' + JSON.stringify(err, null, 2));
           }
           else if(results.length == 0){
-            log.info(['LN: 156::add_song.find', 'Creating song']);
+            log.info('model.js::add_song, Creating song: ' + song_obj.name);
             album.createSong({
                               "id"  : sanitize_id(song_obj.name),
                               "name": song_obj.name,
@@ -143,10 +159,7 @@ Model.add_song = function(song_obj){
                             },
                             function(err, song){
                               if(err){ 
-                                log.info(['LN:  113:: Error in add_song.create:', err]);
-                              }
-                              else{
-                                log.info(['LN:  116:: Added song:', song]);
+                                log.error('model.js::add_song, Error adding song "' + song_obj.name + '", error: ' + JSON.stringify(err, null, 2));
                               }
                             }
             );
