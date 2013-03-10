@@ -197,7 +197,7 @@ Model.get_song = function(song_id, callback){
  *
  *  Parameters:
  *    search_obj: object of search parameters
- *    callback - function to execute when artists is found or created
+ *    callback: function to execute when artists is found or created
  *
  */
 Model.get_artist = function(search_obj, callback){
@@ -234,7 +234,7 @@ Model.get_artist = function(search_obj, callback){
  *
  *  Parameters:
  *    search_obj: object of search parameters
- *    callback - function to execute when artists is found or created
+ *    callback: function to execute when artists is found or created
  *
  */
 Model.get_album = function(search_obj, callback){
@@ -264,34 +264,3 @@ Model.get_album = function(search_obj, callback){
     });
   }
 };
-
-/* Function: get
- *
- *  Overwriting of console.log(), returns an indented, stringified version on obj
- *
- *  Returns:
- *   the library
- */
-Model.get = function(){
-  var obj = {};
-  return obj;
-}
-
-Model.get_artists = function(){
-  Model.Artist.all(function(err, results){});
-};
-
-Model.get_songs = function(){
-  Model.Song.all(function(err, results){});
-};
-
-/* Function: inspect
- *
- *  Overwriting of console.log(), returns an indented, stringified version on obj
- *
- *  Returns:
- *   the library
- */
-Model.inspect = function(){
-  return JSON.stringify({}, null, 2);
-}
