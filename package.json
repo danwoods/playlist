@@ -28,5 +28,10 @@
     "resourceful": "0.3.2",
     "plates": "0.4.7",
     "winston": "~0.6.2"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "vows": "~0.7.0",
+    "grunt-vows": "~0.4.0"
   }
 }

@@ -49,7 +49,7 @@ var sanitize_id = function(id){
 
 /*** Resource functions ***/ 
 
-/* Function: add_artist
+/* Function: artistFindOrCreate
  *
  *  If artists does not exist in library, adds artist to library
  *
@@ -57,16 +57,16 @@ var sanitize_id = function(id){
  *   artist_name - name of artist
  *   callback - function(err, artist) to execute when artists is found or created
 */
-var add_artist = function(artist_name, callback){
+var artistFindOrCreate = function(artist_name, callback){
   var search_obj = {"name": artist_name};
   Model.Artist.find(search_obj, function(err, results){
     if(err){
       if(callback){
-        callback('model.js::add_artist, Error when searching for artist "' + artist_name + '", error: '+ err);
+        callback('model.js::artistFindOrCreate, Error when searching for artist "' + artist_name + '", error: '+ err);
       }
     }
     else if(results.length == 0){
-      log.info('model.js::add_artist, Creating artist: ' + artist_name);
+      log.info('model.js::artistFindOrCreate, Creating artist: ' + artist_name);
       Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
@@ -77,13 +77,13 @@ var add_artist = function(artist_name, callback){
     else{
       // Call callback with error
       if(callback){
-        callback('model.js::add_artist, Multiple artists already exist named: ' + artist_name);
+        callback('model.js::artistFindOrCreate, Multiple artists already exist named: ' + artist_name);
       }
     }
   });
 };
 
-/* Function: add_album
+/* Function: albumFindOrCreate
  *
  *  If album does not exist in library, adds album to library
  *
@@ -92,18 +92,18 @@ var add_artist = function(artist_name, callback){
  *    callback - function(err, album) to execute when album is found or created
  *
  */
-var add_album = function(artist, album_name, callback){
+var albumFindOrCreate = function(artist, album_name, callback){
   var search_obj = {"id": album_name, "artist_id": artist.name};
   Model.Album.find(search_obj, function(err, results){
     if(err){
       if(callback){
-        callback('model.js::add_album, Error when searching for album "' + album_name + '", error: '+ err);
+        callback('model.js::albumFindOrCreate, Error when searching for album "' + album_name + '", error: '+ err);
       }
     }
     // If no albums found
     else if(results.length == 0){
       // Create album, and pass off callback
-      log.info('model.js::add_album, Creating album: ' + album_name);
+      log.info('model.js::albumFindOrCreate, Creating album: ' + album_name);
       artist.createAlbum({"id": sanitize_id(album_name), "name": album_name}, callback);
     }
     // If album found
@@ -117,7 +117,7 @@ var add_album = function(artist, album_name, callback){
     else{
       // Call callback with error
       if(callback){
-        callback('model.js::add_album, Multiple albums already exist named: ' + album_name);
+        callback('model.js::albumFindOrCreate, Multiple albums already exist named: ' + album_name);
       }
     }
   }); 
@@ -134,14 +134,17 @@ var add_album = function(artist, album_name, callback){
  *   }
  *
  */
-Model.add_song = function(song_obj){
-  // First make sure we have what we need to work with
+Model.add_song = function(song_obj, callback){
+  var funcInitialCallback = callback;
+
+  // Avoid 'undefined's
   if(song_obj.artist && song_obj.album && song_obj.name){
-    add_artist(song_obj.artist, function(err, artist){
+    // Call artistFindOrCreate to create the song's artist (or retrieve, if it exist)
+    artistFindOrCreate(song_obj.artist, function(err, artist){
       if(err){
         log.error('model.js::add_song, Error adding artist "' + song_obj.artist + '", error: ' + JSON.stringify(err, null, 2));
       }
-      add_album(artist, song_obj.album, function(err, album){ 
+      albumFindOrCreate(artist, song_obj.album, function(err, album){ 
         if(err){
           log.error('model.js::add_song, Error adding album "' + song_obj.album + '", error: ' + JSON.stringify(err, null, 2));
         }
@@ -161,6 +164,12 @@ Model.add_song = function(song_obj){
                               if(err){ 
                                 log.error('model.js::add_song, Error adding song "' + song_obj.name + '", error: ' + JSON.stringify(err, null, 2));
                               }
+                              if(callback){
+                                callback(err, song);
+                              }
+                              if(funcInitialCallback){
+                                funcInitialCallback(err, song);
+                              }
                             }
             );
           }
@@ -170,7 +179,7 @@ Model.add_song = function(song_obj){
             }
           }
           else{
-            log.info(['LN: 179::Error in add_album.find', 'Multiple albums already exist by that name']);
+            log.info(['LN: 179::Error in albumFindOrCreate.find', 'Multiple albums already exist by that name']);
           }
         }); 
       });
