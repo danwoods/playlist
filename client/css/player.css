@@ -7,13 +7,13 @@
 
 /* These settings are for the element's position on the page, not the actual element itself */
 section#player{
-  margin-left: 495px;
+  margin-left: 375px;
 }
 
 /* Container */
 section#player{
   display: block;
-  width: 200px;
+  width: 450px;
   height: auto;
   padding: 0.5em 0.5em 1px 0.5em;
   background-color: #E6E6E5;
@@ -28,6 +28,17 @@ section#player{
 /* Title */
 section#player div.title{
   font-size: 12px;
+  margin: 0 auto;
+  text-align: center;
+}
+section#player div.title span:after{
+  content: '---';
+  display: inline-block;
+  padding: 0 5px;
+  width: auto;
+}
+section#player div.title span:last-child:after{
+  display: none;
 }
 
 /* Controls */

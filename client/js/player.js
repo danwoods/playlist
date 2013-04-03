@@ -68,6 +68,9 @@ var Player = function(elm){
       $('#'+song.elm_id).siblings('.song').removeClass('playing');
       $('#'+song.elm_id).addClass('playing');
 
+      // Update page title
+      $('head title').text('Playlist - '+song.name);
+
       // Update player object
       self.paused = false;
     }
@@ -104,10 +107,11 @@ var Player = function(elm){
     // Create elements
     var containerElm = $('<div />'),
         audioElm = $('<audio controls autoplay style="display:none;"/>'),
+        styleElm = $('<style scoped="scoped">span{display:none}</style>');
         titleElm = $('<div class="title" />'),
-        songNameElm = $('<span class="song" />'),
-        albumNameElm = $('<span class="album" />'),
-        artistNameElm = $('<span class="artist" />'),
+        songNameElm = $('<span class="song" />').append(styleElm),
+        albumNameElm = $('<span class="album" />').append(styleElm),
+        artistNameElm = $('<span class="artist" />').append(styleElm),
         controlsElm = $('<div class="controls" />'),
         playBtn = $('<button title="play" class="play icon"></button>').bind('click', function(){self.play();}),
         prevBtn = $('<button title="previous" class="prev icon"></button>').bind('click', function(){self.playPrev();}),
