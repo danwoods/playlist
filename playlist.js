@@ -2,34 +2,32 @@
 
 // **playlist.js** is the main function/app/whatever you want to call it. It sets up the app and controls it.
 
-var fs      = require('fs'),
-    ID3     = require('id3'),
-    Model = require('./model'),
-    _       = require('underscore'),
-    util    = require('util'),
-    url     = require('url'),
-    http    = require('http'),
-    path    = require('path'),
-    director= require('director'),
-    restful = require('restful'),
-    log     = require('winston');
-
-var mimeTypes = {
-                "html": "text/html",
-                "jpeg": "image/jpeg",
-                "jpg" : "image/jpeg",
-                "png" : "image/png",
-                "js"  : "text/javascript",
-                "mp3" : "audio/mpeg",
-                "ogg" : "audio/ogg",
-                "css" : "text/css",
-                "ico" : "image/vnd.microsoft.icon"
+var fs        = require('fs'),
+    ID3       = require('id3'),
+    Model     = require('./model'),
+    _         = require('underscore'),
+    util      = require('util'),
+    url       = require('url'),
+    http      = require('http'),
+    path      = require('path'),
+    director  = require('director'),
+    restful   = require('restful'),
+    log       = require('winston'),
+    mimeTypes = {
+                  "html": "text/html",
+                  "jpeg": "image/jpeg",
+                  "jpg" : "image/jpeg",
+                  "png" : "image/png",
+                  "js"  : "text/javascript",
+                  "mp3" : "audio/mpeg",
+                  "ogg" : "audio/ogg",
+                  "css" : "text/css",
+                  "ico" : "image/vnd.microsoft.icon"
                 };
 
 // Setup logger
 log.remove(log.transports.Console);
 log.add(log.transports.Console, {colorize: true});
-
 
 /*** Functions ***/
 
@@ -107,7 +105,7 @@ var lookForOtherFormats = function(given_filename, formats){
       if(curStat.isFile()){
         // add it's url and format to the return array
         retArr.push({
-                      "url":path.resolve(process.cwd(), filename + '.'+formats[format]), 
+                      "url"   :path.resolve(process.cwd(), filename + '.'+formats[format]), 
                       "format":formats[format]
                     });
       }
@@ -205,13 +203,13 @@ var router = restful.createRouter([Model.Artist, Model.Album, Model.Song], { exp
 */
 var serveStatic = function(req, res){
   // Variables
-  var uri = decodeURI(url.parse(req.url).pathname),
+  var uri               = decodeURI(url.parse(req.url).pathname),
       clientFileTypeArr = ['js', 'css', 'html', 'ico', 'png', 'jpg', 'jpeg', 'gif'],
-      audioFileTypeArr = ['mp3', 'ogg', 'flac'],
-      clientPathStr = process.cwd() + '/client/',
-      isClientFileType = (clientFileTypeArr.indexOf(uri.split('.').pop()) > -1),
-      isAudioFileType = (audioFileTypeArr.indexOf(uri.split('.').pop()) > -1),
-      filename = '';
+      audioFileTypeArr  = ['mp3', 'ogg', 'flac'],
+      clientPathStr     = process.cwd() + '/client/',
+      isClientFileType  = (clientFileTypeArr.indexOf(uri.split('.').pop()) > -1),
+      isAudioFileType   = (audioFileTypeArr.indexOf(uri.split('.').pop()) > -1),
+      filename          = '';
 
   // Only try to serve/access files which are either client or audio files
   if(isClientFileType || isAudioFileType){
@@ -222,11 +220,13 @@ var serveStatic = function(req, res){
       log.error("playlist.js::serveStatic, looking for non-existing file '"+filename+"'");
     }
     else{
+      // Get and set the content type for tyhe response
       var mimeType = mimeTypes[path.extname(filename).split(".")[1]];
-      res.writeHead(200, mimeType);
+      res.writeHead(200, {'Content-Type':mimeType});
+      // Create and send the filestream
       var fileStream = fs.createReadStream(filename);
       fileStream.pipe(res);
-      log.info("playlist.js::serveStatic, served static file '"+filename+"'");
+      log.info("playlist.js::serveStatic, served static file '"+filename+"' with mime-type '"+mimeType+"'");
     }
   }
 
