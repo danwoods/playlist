@@ -4,34 +4,15 @@
 var Model       = exports,
     _           = require("underscore"),
     log         = require('winston');
-    resourceful = require("resourceful");
-
-/*** Setup Schema ***/
-resourceful.use('memory');
+    restful     = require("restful"),
+    db          = require('./schema');
 
 // Setup logger
 log.remove(log.transports.Console);
 log.add(log.transports.Console, {colorize: true});
 
-// Create resources
-Model.Artist = resourceful.define('artist', function(){
-  this.string('name');
-});
-
-Model.Album = resourceful.define('album', function(){
-  this.string('name');
-  this.parent('artist');
-});
-
-Model.Song = resourceful.define('song', function(){
-  this.string('name');
-  this.string('artist');
-  this.string('album');
-  this.array('urls');
-  this.number('track');
-  this.number('year');
-  this.parent('album');
-});
+// Setup router
+Model.router = restful.createRouter([db.Artist, db.Album, db.Song], { explore: false });
 
 /*** Utility functions ***/
 
@@ -59,7 +40,7 @@ var sanitize_id = function(id){
 */
 var artistFindOrCreate = function(artist_name, callback){
   var search_obj = {"name": artist_name};
-  Model.Artist.find(search_obj, function(err, results){
+  db.Artist.find(search_obj, function(err, results){
     if(err){
       if(callback){
         callback('model.js::artistFindOrCreate, Error when searching for artist "' + artist_name + '", error: '+ err);
@@ -67,7 +48,7 @@ var artistFindOrCreate = function(artist_name, callback){
     }
     else if(results.length == 0){
       log.info('model.js::artistFindOrCreate, Creating artist: ' + artist_name);
-      Model.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
+      db.Artist.create({"id":sanitize_id(artist_name), "name":artist_name}, callback);
     }
     else if(results.length == 1){ 
       if(callback){
@@ -94,7 +75,7 @@ var artistFindOrCreate = function(artist_name, callback){
  */
 var albumFindOrCreate = function(artist, album_name, callback){
   var search_obj = {"id": album_name, "artist_id": artist.name};
-  Model.Album.find(search_obj, function(err, results){
+  db.Album.find(search_obj, function(err, results){
     if(err){
       if(callback){
         callback('model.js::albumFindOrCreate, Error when searching for album "' + album_name + '", error: '+ err);
@@ -149,7 +130,7 @@ Model.add_song = function(song_obj, callback){
           log.error('model.js::add_song, Error adding album "' + song_obj.album + '", error: ' + JSON.stringify(err, null, 2));
         }
         var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
-        Model.Song.find(search_obj, function(err, results){
+        db.Song.find(search_obj, function(err, results){
           if(err){
             log.error('model.js::add_song, Error finding song "' + song_obj.name + '", error: ' + JSON.stringify(err, null, 2));
           }
@@ -201,7 +182,7 @@ Model.add_song = function(song_obj, callback){
  *
  */
 Model.get_song = function(song_id, callback){
-  Model.Song.get(song_id, function(err, result){
+  db.Song.get(song_id, function(err, result){
     if(!err){
       if(callback){
         callback(result);
@@ -224,26 +205,26 @@ Model.get_song = function(song_id, callback){
  */
 Model.get_artist = function(search_obj, callback){
   if(search_obj){
-    Model.Artist.find(search_obj, function(err, results){
+    db.Artist.find(search_obj, function(err, results){
       if(!err){
         if(callback){
           callback(results);
         }
       }
       else{
-        log.info(['Error in get_artist.Model.Artist_find', err]);
+        log.info(['Error in get_artist.db.Artist_find', err]);
       }
     });
   }
   else{
-    Model.Artist.all(function(err, results){
+    db.Artist.all(function(err, results){
       if(!err){
         if(callback){
           callback(results);
         }
       }
       else{
-        log.info(['Error in get_artist.Model.Artist_all', err]);
+        log.info(['Error in get_artist.db.Artist_all', err]);
       }
       
     });
@@ -261,26 +242,26 @@ Model.get_artist = function(search_obj, callback){
  */
 Model.get_album = function(search_obj, callback){
   if(search_obj){
-    Model.Album.find(search_obj, function(err, results){
+    db.Album.find(search_obj, function(err, results){
       if(!err){
         if(callback){
           callback(results);
         }
       }
       else{
-        log.info(['Error in get_album.Model.Album_find', err]);
+        log.info(['Error in get_album.db.Album_find', err]);
       }
     });
   }
   else{
-    Model.Album.all(function(err, results){
+    db.Album.all(function(err, results){
       if(!err){
         if(callback){
           callback(results);
         }
       }
       else{
-        log.info(['Error in get_album.Model.Album_all', err]);
+        log.info(['Error in get_album.db.Album_all', err]);
       }
       
     });

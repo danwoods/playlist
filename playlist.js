@@ -10,9 +10,8 @@ var fs        = require('fs'),
     url       = require('url'),
     http      = require('http'),
     path      = require('path'),
-    director  = require('director'),
-    restful   = require('restful'),
     log       = require('winston'),
+    router    = Model.router,
     mimeTypes = {
                   "html": "text/html",
                   "jpeg": "image/jpeg",
@@ -189,9 +188,6 @@ var getAlbums = function(search_obj){
     res.end(JSON.stringify(results));
   });
 };
-
-// Create router
-var router = restful.createRouter([Model.Artist, Model.Album, Model.Song], { explore: false });
 
 /* Function: serveStatic
 *
