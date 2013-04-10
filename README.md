@@ -12,7 +12,7 @@ where [target_directory] is the directory of the audio files. If no [target_dire
 
 Motivation
 ==========
-Mainly to play with node and html5 :)
+Mainly to play with node and html5 :) I'm also trying to use as few libraries as possible on the client side, to keep the code as lean and fast as possible.
 
 Demo
 ====
