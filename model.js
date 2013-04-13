@@ -104,20 +104,28 @@ var albumFindOrCreate = function(artist, album_name, callback){
   }); 
 };
 
-/* Function: add_song
+/*  Function: add_song
  *
- *  If album does not exist in library, adds album to library
+ *    If song does not exist in library, add song to library (creates artist and album if they don't exist)
  *
- *  Parameters:
- *   album_obj - {
- *    artist - name of artist
- *    album -  name of album
- *   }
+ *    Parameters:
+ *      song_obj - {
+ *        "name"    : String,
+ *        "artist"  : String,
+ *        "album"   : String,
+ *        "year"    : String,
+ *        "comment" : String,
+ *        "track"   : String,
+ *        "genre"   : String,
+ *        "urls"    : [ {"url": String, "format": String} ]
+ *      }
+ *      callback - function(err, songObj){}
  *
  */
 Model.add_song = function(song_obj, callback){
   var funcInitialCallback = callback;
-
+log.info('adding song');
+log.info(JSON.stringify(song_obj, null, 2));
   // Avoid 'undefined's
   if(song_obj.artist && song_obj.album && song_obj.name){
     // Call artistFindOrCreate to create the song's artist (or retrieve, if it exist)
