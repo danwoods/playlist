@@ -124,8 +124,6 @@ var albumFindOrCreate = function(artist, album_name, callback){
  */
 Model.add_song = function(song_obj, callback){
   var funcInitialCallback = callback;
-log.info('adding song');
-log.info(JSON.stringify(song_obj, null, 2));
   // Avoid 'undefined's
   if(song_obj.artist && song_obj.album && song_obj.name){
     // Call artistFindOrCreate to create the song's artist (or retrieve, if it exist)
