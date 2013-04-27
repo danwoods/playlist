@@ -29,7 +29,6 @@ log.remove(log.transports.Console);
 log.add(log.transports.Console, {colorize: true});
 
 /*** Functions ***/
-
 /* Function: parseFile
  *
  *  Parses file for ID3 tags
@@ -142,7 +141,12 @@ var scanFiles = function (currentPath) {
       // For now, only add files which have both formats, to improve cross brrowser comaptability
       if(id3Obj.urls.length > 1){
         // Add the song
-        Model.add_song(id3Obj);
+        Model.add_song(id3Obj, function(err, songObj){
+          // Just check for error
+          if(err){
+            log.error('playlist.js::add_song, error when creating song. Error:\n'+JSON.stringify(err,null,2)+'\nsong:\n'+JSON.stringify(id3Obj,null,2));
+          }
+        });
       }
     }
     // Else if the file is actually a directory
