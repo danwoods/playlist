@@ -10,7 +10,7 @@ var fs        = require('fs'),
     url       = require('url'),
     http      = require('http'),
     path      = require('path'),
-    log       = require('winston'),
+    log       = require('./log').logger,
     router    = Model.router,
     mimeTypes = {
                   "html": "text/html",
@@ -23,10 +23,6 @@ var fs        = require('fs'),
                   "css" : "text/css",
                   "ico" : "image/vnd.microsoft.icon"
                 };
-
-// Setup logger
-log.remove(log.transports.Console);
-log.add(log.transports.Console, {colorize: true});
 
 /*** Functions ***/
 /* Function: parseFile

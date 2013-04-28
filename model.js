@@ -1,22 +1,31 @@
 // Module/Container for a library of music data
 // **model.js** acts as the model layer of playlist.js.
 
-var Model       = exports,
-    _           = require("underscore"),
-    log         = require('winston');
+var _           = require("underscore"),
+    log         = require('./log').logger,
     restful     = require("restful"),
     db          = require('./schema');
 
-// Setup logger
-log.remove(log.transports.Console);
-log.add(log.transports.Console, {colorize: true});
+///////////////////////////////////////
+// #Configuration/Setup#
+///////////////////////////////////////
 
 // Setup router
-Model.router = restful.createRouter([db.Artist, db.Album, db.Song], { explore: false });
+exports.router = restful.createRouter([db.Artist, db.Album, db.Song], { explore: false });
 
-/*** Utility functions ***/
+///////////////////////////////////////
+// #Functions#
+///////////////////////////////////////
 
-// Makes sure id is compatable with restful's api
+// ##Private##
+
+// ###Function: sanitize_id(id)
+//    Makes sure id is compatable with restful's api
+// **params**:
+//    `id`: [string]
+// **returns**:
+//    A modified `id`, with commas and any othe non-alphanumeric characters,
+//    replaced with underscores
 var sanitize_id = function(id){
   var retStr = '';
   if(id){
@@ -104,6 +113,8 @@ var albumFindOrCreate = function(artist, album_name, callback){
   }); 
 };
 
+// ##Public##
+
 /*  Function: add_song
  *
  *    If song does not exist in library, add song to library (creates artist and album if they don't exist)
@@ -122,7 +133,7 @@ var albumFindOrCreate = function(artist, album_name, callback){
  *      callback - function(err, songObj){}
  *
  */
-Model.add_song = function(song_obj, callback){
+exports.add_song = function(song_obj, callback){
   var funcInitialCallback = callback;
   // Avoid 'undefined's
   if(song_obj.artist && song_obj.album && song_obj.name){
@@ -187,7 +198,7 @@ Model.add_song = function(song_obj, callback){
  *    callback - function to execute when artists is found or created
  *
  */
-Model.get_song = function(song_id, callback){
+exports.get_song = function(song_id, callback){
   db.Song.get(song_id, function(err, result){
     if(!err){
       if(callback){
@@ -209,7 +220,7 @@ Model.get_song = function(song_id, callback){
  *    callback: function to execute when artists is found or created
  *
  */
-Model.get_artist = function(search_obj, callback){
+exports.get_artist = function(search_obj, callback){
   if(search_obj){
     db.Artist.find(search_obj, function(err, results){
       if(!err){
@@ -246,7 +257,7 @@ Model.get_artist = function(search_obj, callback){
  *    callback: function to execute when artists is found or created
  *
  */
-Model.get_album = function(search_obj, callback){
+exports.get_album = function(search_obj, callback){
   if(search_obj){
     db.Album.find(search_obj, function(err, results){
       if(!err){
