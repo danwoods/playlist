@@ -137,7 +137,7 @@ var scanFiles = function (currentPath) {
       // For now, only add files which have both formats, to improve cross brrowser comaptability
       if(id3Obj.urls.length > 1){
         // Add the song
-        Model.add_song(id3Obj, function(err, songObj){
+        Model.song.add(id3Obj, function(err, songObj){
           // Just check for error
           if(err){
             log.error('playlist.js::add_song, error when creating song. Error:\n'+JSON.stringify(err,null,2)+'\nsong:\n'+JSON.stringify(id3Obj,null,2));
@@ -157,8 +157,8 @@ var scanFiles = function (currentPath) {
 // Get single song data
 var getSong = function(id){
   log.info('Searching for song with id: '+id);
-  Model.get_song(id, function(song){ 
-    log.info('Returned from Model.get_song with');
+  Model.song.get(id, function(song){ 
+    log.info('Returned from Model.song.get with');
     log.info(song);
     this.res.writeHead(200, { 'Content-Type': 'application/json' });
     this.res.end(JSON.stringify(song));
@@ -169,8 +169,8 @@ var getSong = function(id){
 var getArtist = function(searchObj){
   log.info('Searching for artist');
   var res = this.res;
-  Model.get_artist({}, function(results){ 
-    log.info('Returned from Model.get_artist with');
+  Model.artist.get({}, function(results){ 
+    log.info('Returned from Model.artist.get with');
     log.info(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
@@ -181,8 +181,8 @@ var getArtist = function(searchObj){
 var getAlbums = function(search_obj){
   log.info('Searching for album');
   var res = this.res;
-  Model.get_album(search_obj, function(results){ 
-    log.info('Returned from Model.get_album with');
+  Model.album.get(search_obj, function(results){ 
+    log.info('Returned from Model.album.get with');
     log.info(results);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(results));
