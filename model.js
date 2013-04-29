@@ -9,11 +9,11 @@
 //      - [artistFindOrCreate](#section-8)
 //      - [albumFindOrCreate](#section-9)
 //  + [public](#section-16)
-//      + [artist](#section-17)
+//      + [Artist](#section-17)
 //          - [get](#section-18)
-//      + [album](#section-20)
+//      + [Album](#section-20)
 //          - [get](#section-21)
-//      + [song](#section-22)
+//      + [Song](#section-22)
 //          - [add](#section-23)
 //          - [get](#section-24)
 
@@ -125,11 +125,11 @@ var albumFindOrCreate = function(artist, album_name, callback){
 // ##Public##
 
 
-// ###Object: artist
+// ###Object: Artist
 //    Contains functionality for working with artist resources  
 // **functions**:  
 //    `get`: [function(search_obj, callback)]  
-exports.artist = {
+exports.Artist = {
   // ###Function: get(search_obj, callback)
   //    Retrieves artist(s) from the database  
   // **params**:  
@@ -164,11 +164,11 @@ exports.artist = {
   }
 };
 
-// ###Object: album
+// ###Object: Album
 //    Contains functionality for working with album resources  
 // **functions**:  
 //    `get`: [function(search_obj, callback)]  
-exports.album = {
+exports.Album = {
   // ###Function: get(search_obj, callback)
   //    Retrieves albums(s) from the database  
   // **params**:  
@@ -203,12 +203,12 @@ exports.album = {
   }
 };
 
-// ###Object: song
+// ###Object: Song
 //    Contains functionality for working with song resources  
 // **functions**:  
 //    `get`: [function(song_id, callback)],  
 //    `add`: [function(song_obj, callback)]
-exports.song = {
+exports.Song = {
   // ###Function: get(song_id, callback)
   //    Retrieves song from the database  
   // **params**:  
@@ -254,7 +254,7 @@ exports.song = {
         }
         albumFindOrCreate(artist, song_obj.album, function(err, album){ 
           if(err){
-            log.error('model.js::add_song, Error adding album "' + song_obj.album + '", error: ' + JSON.stringify(err, null, 2));
+            log.error('model.js::add_song, Error adding album "' + song_obj.album + '", error: ' + err);
           }
           var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
           db.Song.find(search_obj, function(err, results){
