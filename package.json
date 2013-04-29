@@ -31,6 +31,7 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "vows": "~0.7.0",
-    "grunt-vows": "~0.4.0"
+    "grunt-vows": "~0.4.0",
+    "grunt-docco": "~0.2.0"
   }
 }

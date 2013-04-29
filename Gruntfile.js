@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
   // Project configuration.
+  grunt.loadNpmTasks("grunt-docco");
   grunt.loadNpmTasks("grunt-vows");
   grunt.initConfig({
     pkg: '<json:package.json>',
@@ -19,8 +20,16 @@ module.exports = function(grunt) {
         },
         src: ["test/*.js"]
       }
+    },
+    docco: {
+      all: {
+        src: ['model.js', 'playlist.js'],
+        options: {
+          output: 'docs/'
+        }
+      } 
     }
   });
   // Default task
-  grunt.registerTask('default', 'vows');
+  grunt.registerTask('default', ['vows', 'docco']);
 };
