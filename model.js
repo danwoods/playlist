@@ -8,14 +8,15 @@
 //      - [idSanitize](#section-7)
 //      - [artistFindOrCreate](#section-8)
 //      - [albumFindOrCreate](#section-9)
-//  + [public](#section-16)
-//      + [Artist](#section-17)
-//          - [get](#section-18)
+//      - [songFindOrCreate](#section-16)
+//  + [public](#section-17)
+//      + [Artist](#section-18)
+//          - [get](#section-19)
 //      + [Album](#section-20)
 //          - [get](#section-21)
 //      + [Song](#section-22)
 //          - [add](#section-23)
-//          - [get](#section-24)
+//          - [get](#section-26)
 
 var _           = require("underscore"),
     log         = require('./log').logger,
@@ -144,7 +145,6 @@ var songFindOrCreate = function(album, song_obj, callback){
 
 // ##Public##
 
-
 // ###Object: Artist
 //    Contains functionality for working with artist resources  
 // **functions**:  
@@ -221,21 +221,6 @@ exports.Album = {
 //    `get`: [function(song_id, callback)],  
 //    `add`: [function(song_obj, callback)]
 exports.Song = {
-  // ###Function: get(song_id, callback)
-  //    Retrieves song from the database  
-  // **params**:  
-  //    `song_id`: [string],  
-  //    `callback`: [function(song)]
-  get : function(song_id, callback){
-    db.Song.get(song_id, function(err, result){
-      if(!err){
-        callback(result);
-      }
-      else{
-        log.info(['Error in get_song', err]);
-      }
-    });
-  },
   // ###Function: add(songObj, callback)  
   //    If song does not exist in library, add song to library.
   //    Creates artist and album if they don't exist.  
@@ -277,5 +262,20 @@ exports.Song = {
     else{
       log.warn('Model.Song.add, trying to add a song with missing data. songObj = '+JSON.stringify(songObj, null, 2));
     }
+  },
+  // ###Function: get(song_id, callback)
+  //    Retrieves song from the database  
+  // **params**:  
+  //    `song_id`: [string],  
+  //    `callback`: [function(song)]
+  get : function(song_id, callback){
+    db.Song.get(song_id, function(err, result){
+      if(!err){
+        callback(result);
+      }
+      else{
+        log.info(['Error in get_song', err]);
+      }
+    });
   }
 };
