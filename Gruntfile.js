@@ -15,7 +15,7 @@ module.exports = function(grunt) {
           verbose : true,
           silent  : false,
           colors  : true,
-          isolate : false,
+          isolate : true,
           coverage: "json"
         },
         src: ["test/*.js"]

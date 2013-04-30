@@ -26,10 +26,25 @@ vows.describe('Add Song').addBatch({
   'When a song is added': {
     'No errors are created':{
       topic: function(){ 
-        Model.add_song(songTestObj, this.callback);
+        Model.Song.add(songTestObj, this.callback);
       },
-      'Model.add_song returns no errors': function (err, song) {
+      'No errors are created': function (err, song) {
         assert.equal(err, null);
+      },
+      'The song is created': function (err, song) {
+        Model.Song.get(song.id, function(result){
+          assert.deepEqual(song, result);
+        });
+      },
+      'The song\'s album is created': function (err, song) {
+        Model.Album.get({"name":songTestObj.album}, function(results){
+          assert.equal(1, results.length);
+        });
+      },
+      'The song\'s artist is created': function (err, song) {
+        Model.Artist.get({"name":songTestObj.artist}, function(results){
+          assert.equal(1, results.length);
+        });
       }
     }
   }

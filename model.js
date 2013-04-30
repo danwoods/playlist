@@ -6,7 +6,6 @@
  *    * down to 80 character lines
  *    * pass all validation
  *    * reduce code
- *    * at least one more test
  *    * comment code
  *    * have Jen proof-read documentation
  *    * have someone review some part of the code
@@ -172,7 +171,7 @@ exports.Artist = {
   //    `callback`: [function(results)]
   get : function(searchObj, callback){
     if(searchObj){
-      db.Artist.find(search_obj, function(err, results){
+      db.Artist.find(searchObj, function(err, results){
         if(!err){
           callback(results);
         }
@@ -283,8 +282,8 @@ exports.Song = {
   // **params**:  
   //    `songId`: [string],  
   //    `callback`: [function(song)]
-  get : function(song_id, callback){
-    db.Song.get(song_id, function(err, result){
+  get : function(songId, callback){
+    db.Song.get(songId, function(err, result){
       if(!err){
         callback(result);
       }

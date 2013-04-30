@@ -6,7 +6,6 @@
 <span class="cm"> *    * down to 80 character lines</span>
 <span class="cm"> *    * pass all validation</span>
 <span class="cm"> *    * reduce code</span>
-<span class="cm"> *    * at least one more test</span>
 <span class="cm"> *    * comment code</span>
 <span class="cm"> *    * have Jen proof-read documentation</span>
 <span class="cm"> *    * have someone review some part of the code</span>
@@ -131,7 +130,7 @@
    <code>searchObj</code>: [{artist attributes}] <em>may be empty/null to request all artist</em>, <br />
    <code>callback</code>: [function(results)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">get</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
     <span class="k">if</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">){</span>
-      <span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">search_obj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+      <span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
           <span class="nx">callback</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
         <span class="p">}</span>
@@ -231,8 +230,8 @@ artist or retrieve it, if it exist</p>             </td>             <td class="
 <p>Retrieves song from the database <br />
 <strong>params</strong>: <br />
    <code>songId</code>: [string], <br />
-   <code>callback</code>: [function(song)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">get</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">song_id</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
-    <span class="nx">db</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">song_id</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">){</span>
+   <code>callback</code>: [function(song)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">get</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">songId</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">songId</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">){</span>
       <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">){</span>
         <span class="nx">callback</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
       <span class="p">}</span>
