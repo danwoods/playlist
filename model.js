@@ -1,3 +1,18 @@
+/*  TODO:
+ *    + all callbacks should accept an error as the first element
+ *    * create actual errors
+ *    * more detailed header explaination
+ *    * all 'get' funnctions should behave the same (could this code be abstracted?)
+ *    * down to 80 character lines
+ *    * pass all validation
+ *    * reduce code
+ *    * at least one more test
+ *    * comment code
+ *    * have Jen proof-read documentation
+ *    * have someone review some part of the code
+ *
+ * */
+
 // Module/Container for a library of music data
 // **model.js** acts as the model layer of playlist.js.
 
@@ -148,15 +163,15 @@ var songFindOrCreate = function(album, song_obj, callback){
 // ###Object: Artist
 //    Contains functionality for working with artist resources  
 // **functions**:  
-//    `get`: [function(search_obj, callback)]  
+//    `get`: [function(searchObj, callback)]  
 exports.Artist = {
-  // ###Function: get(search_obj, callback)
+  // ###Function: get(searchObj, callback)
   //    Retrieves artist(s) from the database  
   // **params**:  
-  //    `search_obj`: [{artist attributes}] *may be empty/null to request all artist*,  
+  //    `searchObj`: [{artist attributes}] *may be empty/null to request all artist*,  
   //    `callback`: [function(results)]
-  get : function(search_obj, callback){
-    if(search_obj){
+  get : function(searchObj, callback){
+    if(searchObj){
       db.Artist.find(search_obj, function(err, results){
         if(!err){
           callback(results);
@@ -183,16 +198,16 @@ exports.Artist = {
 // ###Object: Album
 //    Contains functionality for working with album resources  
 // **functions**:  
-//    `get`: [function(search_obj, callback)]  
+//    `get`: [function(searchObj, callback)]  
 exports.Album = {
-  // ###Function: get(search_obj, callback)
+  // ###Function: get(searchObj, callback)
   //    Retrieves albums(s) from the database  
   // **params**:  
-  //    `search_obj`: [{album attributes}] *may be empty/null to request all albums*,  
+  //    `searchObj`: [{album attributes}] *may be empty/null to request all albums*,  
   //    `callback`: [function(results)]
-  get : function(search_obj, callback){
-    if(search_obj){
-      db.Album.find(search_obj, function(err, results){
+  get : function(searchObj, callback){
+    if(searchObj){
+      db.Album.find(searchObj, function(err, results){
         if(!err){
           callback(results);
         }
@@ -218,8 +233,8 @@ exports.Album = {
 // ###Object: Song
 //    Contains functionality for working with song resources  
 // **functions**:  
-//    `get`: [function(song_id, callback)],  
-//    `add`: [function(song_obj, callback)]
+//    `add`: [function(songObj, callback)],  
+//    `get`: [function(songId, callback)]  
 exports.Song = {
   // ###Function: add(songObj, callback)  
   //    If song does not exist in library, add song to library.
@@ -263,10 +278,10 @@ exports.Song = {
       log.warn('Model.Song.add, trying to add a song with missing data. songObj = '+JSON.stringify(songObj, null, 2));
     }
   },
-  // ###Function: get(song_id, callback)
+  // ###Function: get(songId, callback)
   //    Retrieves song from the database  
   // **params**:  
-  //    `song_id`: [string],  
+  //    `songId`: [string],  
   //    `callback`: [function(song)]
   get : function(song_id, callback){
     db.Song.get(song_id, function(err, result){
