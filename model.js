@@ -75,16 +75,18 @@ var idSanitize = function(id){
 //    `artist_name`: [string],  
 //    `callback`: [function(err, artist)]
 var artistFindOrCreate = function(artist_name, callback){
-  var search_obj = {"name": artist_name};
-  db.Artist.find(search_obj, function(err, results){
+  var searchObj = {"name": artist_name},
+      createObj = {"name":artist_name};
+  db.Artist.find(searchObj, function(err, results){
     if(err){
       callback(err);
     }
-    else if(results.length == 0){
-      log.info('model.js::artistFindOrCreate, Creating artist: ' + artist_name);
-      db.Artist.create({"id":idSanitize(artist_name), "name":artist_name}, callback);
+    else if(results.length === 0){
+      createObj.id = idSanitize(artist_name);
+      log.info('model.js::Creating artist: ' + createObj.name);
+      db.Artist.create(createObj, callback);
     }
-    else if(results.length == 1){ 
+    else if(results.length === 1){ 
       callback(null, results[0]);
     }
     else{
@@ -101,16 +103,18 @@ var artistFindOrCreate = function(artist_name, callback){
 //    `album_name`: [string],  
 //    `callback`: [function(err, album)]
 var albumFindOrCreate = function(artist, album_name, callback){
-  var search_obj = {"id": album_name, "artist_id": artist.name};
-  db.Album.find(search_obj, function(err, results){
+  var searchObj = {"id": album_name, "artist_id": artist.name},
+      createObj = {"name": album_name};
+  db.Album.find(searchObj, function(err, results){
     if(err){
       callback(err);
     }
     // If no albums found
     else if(results.length == 0){
       // Create album, and pass off callback
-      log.info('model.js::albumFindOrCreate, Creating album: ' + album_name);
-      artist.createAlbum({"id": idSanitize(album_name), "name": album_name}, callback);
+      createObj.id = idSanitize(album_name);
+      log.info('model.js::Creating album: ' + album_name);
+      artist.createAlbum(createObj, callback);
     }
     // If album found
     else if(results.length === 1){
@@ -125,34 +129,30 @@ var albumFindOrCreate = function(artist, album_name, callback){
   }); 
 };
 
-// ###Function: songFindOrCreate(album, song_name, callback)
-//    Searches for an album based on `album_name`; 
-//    if album not found, album is created  
+// ###Function: songFindOrCreate(album, songObj, callback)
+//    Searches for a song based on album name/id and song name/id; 
+//    if song not found, song is created  
 // **params**:  
 //    `album`: [resource],  
 //    `song_obj`: [obj],  
 //    `callback`: [function(err, album)]
-var songFindOrCreate = function(album, song_obj, callback){
-  var search_obj = {"id": song_obj.name.replace(/ /g, '_'), "album_id": album.name};
-  db.Song.find(search_obj, function(err, results){
+var songFindOrCreate = function(album, songObj, callback){
+  var searchObj = {"id": songObj.name.replace(/ /g, '_'), "album_id": album.name},
+      createObj = {"name": songObj.name, "urls": songObj.urls};
+  db.Song.find(searchObj, function(err, results){
     if(err){
       callback(err);
     }
     else if(results.length == 0){
-      log.info('model.js::songFindOrCreate, Creating song: ' + song_obj.name);
-      album.createSong({
-                        "id"  : idSanitize(song_obj.name),
-                        "name": song_obj.name,
-                        "urls": song_obj.urls
-                      },
-                      callback
-      );
+      createObj.id = idSanitize(songObj.name);
+      log.info('model.js::Creating song: ' + songObj.name);
+      album.createSong(createObj, callback);
     }
     else if(results.length == 1){
       callback(null, results[0]);
     }
     else{
-      log.info(['LN: 179::Error in albumFindOrCreate.find', 'Multiple albums already exist by that name']);
+      log.info('model.js::songFindOrCreate, Multiple songs already exist named: ' + songObj.name);
     }
   }); 
 };
