@@ -1,8 +1,6 @@
 /*  TODO:
- *    + all callbacks should accept an error as the first element
  *    * create actual errors
  *    * more detailed header explaination
- *    * all 'get' funnctions should behave the same (could this code be abstracted?)
  *    * down to 80 character lines
  *    * pass all validation
  *    * reduce code
@@ -12,8 +10,9 @@
  *
  * */
 
-// Module/Container for a library of music data
-// **model.js** acts as the model layer of playlist.js.
+// Module/Container for a library of music data  
+// **model.js** acts as the model layer of playlist.js. It exports the router 
+// for the resourceful database and exposes needed database functionality
 
 // #Contents
 // 1. [Configuration/Setup](#section-3)
@@ -23,14 +22,14 @@
 //      - [artistFindOrCreate](#section-8)
 //      - [albumFindOrCreate](#section-9)
 //      - [songFindOrCreate](#section-16)
-//  + [public](#section-17)
-//      + [Artist](#section-18)
-//          - [get](#section-19)
-//      + [Album](#section-20)
-//          - [get](#section-21)
-//      + [Song](#section-22)
-//          - [add](#section-23)
-//          - [get](#section-26)
+//  + [public](#section-18)
+//      + [Artist](#section-19)
+//          - [find](#section-20)
+//      + [Album](#section-21)
+//          - [find](#section-22)
+//      + [Song](#section-23)
+//          - [add](#section-24)
+//          - [get](#section-25)
 
 var _           = require("underscore"),
     log         = require('./log').logger,
@@ -72,11 +71,11 @@ var idSanitize = function(id){
 //    Searches for an artist based on `artist_name`; 
 //    if artist not found, artist is created  
 // **params**:  
-//    `artist_name`: [string],  
-//    `callback`: [function(err, artist)]
+//    `artist_name` : [string],  
+//    `callback`    : [function(err, artist)]
 var artistFindOrCreate = function(artist_name, callback){
   var searchObj = {"name": artist_name},
-      createObj = {"name":artist_name};
+      createObj = {"name": artist_name};
   db.Artist.find(searchObj, function(err, results){
     if(err){
       callback(err);
@@ -95,15 +94,15 @@ var artistFindOrCreate = function(artist_name, callback){
   });
 };
 
-// ###Function: albumFindOrCreate(artist, album_name, callback)
+// ###Function: albumFindOrCreate(artistRs, album_name, callback)
 //    Searches for an album based on `album_name`; 
 //    if album not found, album is created  
 // **params**:  
-//    `artist`: [resource],  
+//    `artistRs`  : [resource],  
 //    `album_name`: [string],  
-//    `callback`: [function(err, album)]
-var albumFindOrCreate = function(artist, album_name, callback){
-  var searchObj = {"id": album_name, "artist_id": artist.name},
+//    `callback`  : [function(err, album)]
+var albumFindOrCreate = function(artistRs, album_name, callback){
+  var searchObj = {"id": album_name, "artist_id": artistRs.name},
       createObj = {"name": album_name};
   db.Album.find(searchObj, function(err, results){
     if(err){
@@ -113,8 +112,8 @@ var albumFindOrCreate = function(artist, album_name, callback){
     else if(results.length == 0){
       // Create album, and pass off callback
       createObj.id = idSanitize(album_name);
-      log.info('model.js::Creating album: ' + album_name);
-      artist.createAlbum(createObj, callback);
+      log.info('model.js::Creating album: ' + createObj.name);
+      artistRs.createAlbum(createObj, callback);
     }
     // If album found
     else if(results.length === 1){
@@ -129,15 +128,15 @@ var albumFindOrCreate = function(artist, album_name, callback){
   }); 
 };
 
-// ###Function: songFindOrCreate(album, songObj, callback)
+// ###Function: songFindOrCreate(albumRs, songObj, callback)
 //    Searches for a song based on album name/id and song name/id; 
 //    if song not found, song is created  
 // **params**:  
-//    `album`: [resource],  
+//    `albumRs` : [resource],  
 //    `song_obj`: [obj],  
 //    `callback`: [function(err, album)]
-var songFindOrCreate = function(album, songObj, callback){
-  var searchObj = {"id": songObj.name.replace(/ /g, '_'), "album_id": album.name},
+var songFindOrCreate = function(albumRs, songObj, callback){
+  var searchObj = {"id": songObj.name.replace(/ /g, '_'), "album_id": albumRs.name},
       createObj = {"name": songObj.name, "urls": songObj.urls};
   db.Song.find(searchObj, function(err, results){
     if(err){
@@ -145,8 +144,8 @@ var songFindOrCreate = function(album, songObj, callback){
     }
     else if(results.length == 0){
       createObj.id = idSanitize(songObj.name);
-      log.info('model.js::Creating song: ' + songObj.name);
-      album.createSong(createObj, callback);
+      log.info('model.js::Creating song: ' + createObj.name);
+      albumRs.createSong(createObj, callback);
     }
     else if(results.length == 1){
       callback(null, results[0]);
@@ -162,70 +161,37 @@ var songFindOrCreate = function(album, songObj, callback){
 // ###Object: Artist
 //    Contains functionality for working with artist resources  
 // **functions**:  
-//    `get`: [function(searchObj, callback)]  
+//    `find`: [function(searchObj, callback)]  
 exports.Artist = {
-  // ###Function: get(searchObj, callback)
+  // ###Function: find(searchObj, callback)
   //    Retrieves artist(s) from the database  
   // **params**:  
   //    `searchObj`: [{artist attributes}] *may be empty/null to request all artist*,  
   //    `callback`: [function(results)]
-  get : function(searchObj, callback){
-    if(searchObj){
-      db.Artist.find(searchObj, function(err, results){
-        if(!err){
-          callback(results);
-        }
-        else{
-          log.info(['Error in get_artist.db.Artist_find', err]);
-        }
-      });
-    }
-    else{
-      db.Artist.all(function(err, results){
-        if(!err){
-          callback(results);
-        }
-        else{
-          log.info(['Error in get_artist.db.Artist_all', err]);
-        }
-        
-      });
-    }
+  find : function(searchObj, callback){
+    db.Artist.find(searchObj || {}, function(err, results){
+      if(!err){
+        callback(results);
+      }
+      else{
+        log.info(['Error in get_artist.db.Artist_find', err]);
+      }
+    });
   }
 };
 
 // ###Object: Album
 //    Contains functionality for working with album resources  
 // **functions**:  
-//    `get`: [function(searchObj, callback)]  
+//    `find`: [function(searchObj, callback)]  
 exports.Album = {
-  // ###Function: get(searchObj, callback)
+  // ###Function: find(searchObj, callback)
   //    Retrieves albums(s) from the database  
   // **params**:  
   //    `searchObj`: [{album attributes}] *may be empty/null to request all albums*,  
   //    `callback`: [function(results)]
-  get : function(searchObj, callback){
-    if(searchObj){
-      db.Album.find(searchObj, function(err, results){
-        if(!err){
-          callback(results);
-        }
-        else{
-          log.info(['Error in album.get.db.Album_find', err]);
-        }
-      });
-    }
-    else{
-      db.Album.all(function(err, results){
-        if(!err){
-          callback(results);
-        }
-        else{
-          log.info(['Error in album.get.db.Album_all', err]);
-        }
-        
-      });
-    }
+  find : function(searchObj, callback){
+    db.Album.find(searchObj || {}, callback);
   }
 };
 
@@ -251,7 +217,7 @@ exports.Song = {
   //          `urls`    : [ [{`url`: [string], `format` : [string]},] ]  
   //        }  
   //    ],  
-  //    `callback`: [function(err, songObj)]
+  //    `callback`: [function(err, songRs)]
   add : function(songObj, callback){
     // Avoid 'undefined's
     if(songObj.artist && songObj.album && songObj.name){
@@ -278,18 +244,11 @@ exports.Song = {
     }
   },
   // ###Function: get(songId, callback)
-  //    Retrieves song from the database  
+  //    Retrieves song from the database.  
   // **params**:  
   //    `songId`: [string],  
-  //    `callback`: [function(song)]
+  //    `callback`: [function(err, songRs)]
   get : function(songId, callback){
-    db.Song.get(songId, function(err, result){
-      if(!err){
-        callback(result);
-      }
-      else{
-        log.info(['Error in get_song', err]);
-      }
-    });
+    db.Song.get(songId, callback);
   }
 };

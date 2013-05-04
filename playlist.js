@@ -153,42 +153,6 @@ var scanFiles = function (currentPath) {
   }
 };
 
-/*** Routing ***/
-// Get single song data
-var getSong = function(id){
-  log.info('Searching for song with id: '+id);
-  Model.Song.get(id, function(song){ 
-    log.info('Returned from Model.Song.get with');
-    log.info(song);
-    this.res.writeHead(200, { 'Content-Type': 'application/json' });
-    this.res.end(JSON.stringify(song));
-  });
-};
-
-// Get artist(s) data
-var getArtist = function(searchObj){
-  log.info('Searching for artist');
-  var res = this.res;
-  Model.Artist.get({}, function(results){ 
-    log.info('Returned from Model.Artist.get with');
-    log.info(results);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(results));
-  });
-};
-
-// Get album data
-var getAlbums = function(search_obj){
-  log.info('Searching for album');
-  var res = this.res;
-  Model.Album.get(search_obj, function(results){ 
-    log.info('Returned from Model.Album.get with');
-    log.info(results);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(results));
-  });
-};
-
 /* Function: serveStatic
 *
 *  Serves static files (css, mp3). Called when the default api routing has an error.

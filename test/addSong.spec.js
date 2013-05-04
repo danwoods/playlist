@@ -2,23 +2,23 @@ var Model = require('../model.js'),
     vows = require('vows'),
     assert = require('assert'),
     songTestObj = { 
-                    name: ' testSong',
-                    artist: 'testArtist',
-                    album: 'testAlbum',
-                    year: null,
-                    comment: null,
-                    track: null,
-                    genre: null,
-                    urls: [
-                            { 
-                              url: '/testMP3.mp3',
-                              format: 'mpeg'
-                            },
-                            {
-                              url: '/testOGG.ogg',
-                              format: 'ogg'
-                            }
-                          ]
+                    name    : ' testSong',
+                    artist  : 'testArtist',
+                    album   : 'testAlbum',
+                    year    : null,
+                    comment : null,
+                    track   : null,
+                    genre   : null,
+                    urls    : [
+                                {
+                                  url: '/testMP3.mp3',
+                                  format: 'mpeg'
+                                },
+                                {
+                                  url: '/testOGG.ogg',
+                                  format: 'ogg'
+                                }
+                              ]
                   };
 
 // Test add
@@ -28,24 +28,24 @@ vows.describe('Add Song').addBatch({
       topic: function(){ 
         Model.Song.add(songTestObj, this.callback);
       },
-      'No errors are created': function (err, song) {
+      'No errors are created': function (err, songRs) {
         assert.equal(err, null);
       },
-      'The song is created': function (err, song) {
-        Model.Song.get(song.id, function(result){
-          assert.deepEqual(song, result);
+      'The song is created': function (err, songRs) {
+        Model.Song.get(songRs.id, function(err, result){
+          assert.deepEqual(songRs, result);
         });
       },
-      'The song\'s album is created': function (err, song) {
-        Model.Album.get({"name":songTestObj.album}, function(results){
+      'The song\'s album is created': function (err, songRs) {
+        Model.Album.find({"name":songTestObj.album}, function(err, results){
           assert.equal(1, results.length);
         });
       },
-      'The song\'s artist is created': function (err, song) {
-        Model.Artist.get({"name":songTestObj.artist}, function(results){
+      'The song\'s artist is created': function (err, songRs) {
+        Model.Artist.find({"name":songTestObj.artist}, function(results){
           assert.equal(1, results.length);
         });
       }
     }
   }
-}).exportTo(module); // Run it
+}).exportTo(module);
