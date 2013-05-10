@@ -1,6 +1,5 @@
 /*  TODO:
  *    * create actual errors
- *    * more detailed header explaination
  *    * down to 80 character lines
  *    * pass all validation
  *    * reduce code
@@ -11,8 +10,9 @@
  * */
 
 // Module/Container for a library of music data  
-// **model.js** acts as the model layer of playlist.js. It exports the router 
-// for the resourceful database and exposes needed database functionality
+// **model.js** acts as the model layer of playlist.js. It exports 
+// the router for the resourceful database and acts as an interface 
+// for it while adding needed functionality.
 
 // #Contents
 // 1. [Configuration/Setup](#section-3)
@@ -67,6 +67,28 @@ var idSanitize = function(id){
   return retStr;
 };
 
+var rsFindOrCreate = function(rsType, searchObj, createFunc, callback){
+  rsType.find(searchObj, function(err, results){
+    if(err){
+      callback(err);
+    }
+    // If no albums found
+    else if(results.length == 0){
+      createFunc();
+    }
+    // If album found
+    else if(results.length === 1){
+      // Call callback with resource 
+      callback(null, results[0]);
+    }
+    // If more than one album found
+    else{
+      // Call callback with error
+      callback('model.js::findOrCreate, Multiple objects already exist');
+    }
+  }); 
+};
+
 // ###Function: artistFindOrCreate(artist_name, callback)
 //    Searches for an artist based on `artist_name`; 
 //    if artist not found, artist is created  
@@ -75,23 +97,13 @@ var idSanitize = function(id){
 //    `callback`    : [function(err, artist)]
 var artistFindOrCreate = function(artist_name, callback){
   var searchObj = {"name": artist_name},
-      createObj = {"name": artist_name};
-  db.Artist.find(searchObj, function(err, results){
-    if(err){
-      callback(err);
-    }
-    else if(results.length === 0){
-      createObj.id = idSanitize(artist_name);
-      log.info('model.js::Creating artist: ' + createObj.name);
-      db.Artist.create(createObj, callback);
-    }
-    else if(results.length === 1){ 
-      callback(null, results[0]);
-    }
-    else{
-      callback('model.js::artistFindOrCreate, Multiple artists already exist named: ' + artist_name);
-    }
-  });
+      createObj = {"id": idSanitize(artist_name), "name": artist_name},
+      resource = db.Artist,
+      createFunc = function(){
+        log.info('model.js::Creating artist: ' + createObj.name);
+        db.Artist.create(createObj, callback);
+      };
+  rsFindOrCreate(resource, searchObj, createFunc, callback);
 };
 
 // ###Function: albumFindOrCreate(artistRs, album_name, callback)
@@ -102,30 +114,14 @@ var artistFindOrCreate = function(artist_name, callback){
 //    `album_name`: [string],  
 //    `callback`  : [function(err, album)]
 var albumFindOrCreate = function(artistRs, album_name, callback){
-  var searchObj = {"id": album_name, "artist_id": artistRs.name},
-      createObj = {"name": album_name};
-  db.Album.find(searchObj, function(err, results){
-    if(err){
-      callback(err);
-    }
-    // If no albums found
-    else if(results.length == 0){
-      // Create album, and pass off callback
-      createObj.id = idSanitize(album_name);
-      log.info('model.js::Creating album: ' + createObj.name);
-      artistRs.createAlbum(createObj, callback);
-    }
-    // If album found
-    else if(results.length === 1){
-      // Call callback with album
-      callback(null, results[0]);
-    }
-    // If more than one album found
-    else{
-      // Call callback with error
-      callback('model.js::albumFindOrCreate, Multiple albums already exist named: ' + album_name);
-    }
-  }); 
+  var resource = db.Album,
+      searchObj = {"id": album_name, "artist_id": artistRs.name},
+      createObj = {"id": idSanitize(album_name), "name": album_name}, 
+      createFunc = function(){
+        log.info('model.js::Creating album: ' + createObj.name);
+        artistRs.createAlbum(createObj, callback);
+      };
+  rsFindOrCreate(resource, searchObj, createFunc, callback);
 };
 
 // ###Function: songFindOrCreate(albumRs, songObj, callback)
@@ -137,23 +133,13 @@ var albumFindOrCreate = function(artistRs, album_name, callback){
 //    `callback`: [function(err, album)]
 var songFindOrCreate = function(albumRs, songObj, callback){
   var searchObj = {"id": songObj.name.replace(/ /g, '_'), "album_id": albumRs.name},
-      createObj = {"name": songObj.name, "urls": songObj.urls};
-  db.Song.find(searchObj, function(err, results){
-    if(err){
-      callback(err);
-    }
-    else if(results.length == 0){
-      createObj.id = idSanitize(songObj.name);
-      log.info('model.js::Creating song: ' + createObj.name);
-      albumRs.createSong(createObj, callback);
-    }
-    else if(results.length == 1){
-      callback(null, results[0]);
-    }
-    else{
-      log.info('model.js::songFindOrCreate, Multiple songs already exist named: ' + songObj.name);
-    }
-  }); 
+      createObj = {"id":idSanitize(songObj.name), "name": songObj.name, "urls": songObj.urls},
+      resource = db.Song,
+      createFunc = function(){
+        log.info('model.js::Creating song: ' + createObj.name);
+        albumRs.createSong(createObj, callback);
+      };
+  rsFindOrCreate(resource, searchObj, createFunc, callback);
 };
 
 // ##Public##
