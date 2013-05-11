@@ -2,6 +2,8 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.loadNpmTasks("grunt-docco");
   grunt.loadNpmTasks("grunt-vows");
+  grunt.loadNpmTasks("grunt-contrib-jshint");
+
   grunt.initConfig({
     pkg: '<json:package.json>',
     meta: {
@@ -28,8 +30,22 @@ module.exports = function(grunt) {
           output: 'docs/'
         }
       } 
+    },
+    jshint: {
+      options: {
+        curly:  true,
+        eqeqeq: true,
+        eqnull: true,
+        forin:  true,
+        indent: 2,
+        node:   true,
+        noempty:true,
+        undef:  true,
+        unused: true,
+      },
+      all: ['model.js']
     }
   });
   // Default task
-  grunt.registerTask('default', ['vows', 'docco']);
+  grunt.registerTask('default', ['vows', 'docco', 'jshint']);
 };

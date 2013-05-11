@@ -2,12 +2,12 @@ var Model = require('../model.js'),
     vows = require('vows'),
     assert = require('assert'),
     songTestObj = { 
-                    name    : ' testSong',
-                    artist  : 'testArtist',
-                    album   : 'testAlbum',
-                    year    : null,
+                    name    : 'test Song',
+                    artist  : 'test Artist',
+                    album   : 'test Album',
+                    year    : 1981,
                     comment : null,
-                    track   : null,
+                    track   : 1,
                     genre   : null,
                     urls    : [
                                 {

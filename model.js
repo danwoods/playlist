@@ -1,12 +1,9 @@
 /*  TODO:
  *    * down to 80 character lines
- *    * pass all validation
- *    * reduce code
  *    * comment code
  *    * have Jen proof-read documentation
  *    * have someone review some part of the code
  *    * song foc id?
- *
  * */
 
 // Module/Container for a library of music data  
@@ -19,8 +16,9 @@
 // 2. [Funtions/Objects](#section-5)
 //  + [private](#section-6)
 //      - [idSanitize](#section-7)
-//      - [artistFindOrCreate](#section-8)
-//      - [albumFindOrCreate](#section-9)
+//      - [rsFindOrCreate](#section-8)
+//      - [artistFindOrCreate](#section-9)
+//      - [albumFindOrCreate](#section-10)
 //      - [songFindOrCreate](#section-16)
 //  + [public](#section-18)
 //      + [Artist](#section-19)
@@ -31,8 +29,7 @@
 //          - [add](#section-24)
 //          - [get](#section-25)
 
-var _           = require("underscore"),
-    log         = require('./log').logger,
+var log         = require('./log').logger,
     restful     = require("restful"),
     db          = require('./schema');
 
@@ -67,14 +64,22 @@ var idSanitize = function(id){
   return retStr;
 };
 
-/*XXX Shouldn't this be 'get'? XXX*/
+// ###Function: rsFindOrCreate(rsType, searchObj, createFunc, callback)
+//    Searches for a resource based on `searchObj`. 
+//    If resource not found, createObj is created. If multiple resources 
+//    found, err is returned.
+// **params**:  
+//    `rsType` : [resource type, ie: `db.Artist`],  
+//    `searchObj` : [{resource type attributes}],  
+//    `createFunc` : [function()],  
+//    `callback`    : [function(err, artist)]
 var rsFindOrCreate = function(rsType, searchObj, createFunc, callback){
   rsType.find(searchObj, function(err, results){
     if(err){
       callback(err);
     }
     // If no albums found
-    else if(results.length == 0){
+    else if(results.length === 0){
       createFunc();
     }
     // If album found
@@ -85,7 +90,7 @@ var rsFindOrCreate = function(rsType, searchObj, createFunc, callback){
     // If more than one album found
     else{
       // Call callback with error
-      callback(new Error('model.js::findOrCreate, Multiple objects already exist'));
+      callback(new Error('model.js::rsFindOrCreate, Multiple objects already exist'));
     }
   }); 
 };
@@ -114,7 +119,7 @@ var artistFindOrCreate = function(artist_name, callback){
 //    `album_name`: [string],  
 //    `callback`  : [function(err, album)]
 var albumFindOrCreate = function(artistRs, album_name, callback){
-  var resource   = searchObj = {"id": album_name, "artist_id": artistRs.name},
+  var searchObj  = {"id": album_name, "artist_id": artistRs.id},
       createObj  = {"id": idSanitize(album_name), "name": album_name}, 
       createFunc = function(){
         log.info('model.js::Creating album: ' + createObj.name);
@@ -131,7 +136,7 @@ var albumFindOrCreate = function(artistRs, album_name, callback){
 //    `song_obj`: [obj],  
 //    `callback`: [function(err, album)]
 var songFindOrCreate = function(albumRs, songObj, callback){
-  var searchObj  = {"id": songObj.name.replace(/ /g, '_'), "album_id": albumRs.name},
+  var searchObj  = {"id":idSanitize(songObj.name), "album_id": albumRs.id},
       createObj  = {"id":idSanitize(songObj.name), "name": songObj.name, "urls": songObj.urls},
       createFunc = function(){
         log.info('model.js::Creating song: ' + createObj.name);
