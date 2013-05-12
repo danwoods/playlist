@@ -42,7 +42,7 @@ vows.describe('Add Song').addBatch({
         });
       },
       'The song\'s artist is created': function (err, songRs) {
-        Model.Artist.find({"name":songTestObj.artist}, function(results){
+        Model.Artist.find({"name":songTestObj.artist}, function(err, results){
           assert.equal(1, results.length);
         });
       }

@@ -1,32 +1,24 @@
-/*  TODO:
- *    * down to 80 character lines
- *    * comment code
- *    * have Jen proof-read documentation
- *    * have someone review some part of the code
- *    * song foc id?
- * */
-
 // Module/Container for a library of music data  
 // **model.js** acts as the model layer of playlist.js. It exports 
 // the router for the resourceful database and acts as an interface 
 // for it while adding needed functionality.
 
 // #Contents
-// 1. [Configuration/Setup](#section-3)
-// 2. [Funtions/Objects](#section-5)
-//  + [private](#section-6)
-//      - [idSanitize](#section-7)
-//      - [rsFindOrCreate](#section-8)
-//      - [artistFindOrCreate](#section-9)
-//      - [albumFindOrCreate](#section-10)
-//      - [songFindOrCreate](#section-16)
-//  + [public](#section-18)
-//      + [Artist](#section-19)
+// - [Configuration/Setup](#section-4)
+// + [Funtions/Objects](#section-6)
+//  + [private](#section-7)
+//      - [idSanitize](#section-8)
+//      - [rsFindOrCreate](#section-9)
+//      - [artistFindOrCreate](#section-13)
+//      - [albumFindOrCreate](#section-14)
+//      - [songFindOrCreate](#section-15)
+//  + [public](#section-16)
+//      + [Artist](#section-17)
+//          - [find](#section-18)
+//      + [Album](#section-19)
 //          - [find](#section-20)
-//      + [Album](#section-21)
-//          - [find](#section-22)
-//      + [Song](#section-23)
-//          - [add](#section-24)
+//      + [Song](#section-21)
+//          - [add](#section-22)
 //          - [get](#section-25)
 
 var log         = require('./log').logger,
@@ -65,39 +57,39 @@ var idSanitize = function(id){
 };
 
 // ###Function: rsFindOrCreate(rsType, searchObj, createFunc, callback)
-//    Searches for a resource based on `searchObj`. 
-//    If resource not found, createObj is created. If multiple resources 
-//    found, err is returned.
+//    Searches for a resource based on `searchObj`. Meant to find a 
+//    single resource. If resource not found, createObj is created. 
+//    If multiple resources found, err is returned.  
 // **params**:  
-//    `rsType` : [resource type, ie: `db.Artist`],  
+//    `rsType`    : [resource type, ie: `db.Artist`],  
 //    `searchObj` : [{resource type attributes}],  
-//    `createFunc` : [function()],  
-//    `callback`    : [function(err, artist)]
+//    `createFunc`: [function()],  
+//    `callback`  : [function(err, resource)]
 var rsFindOrCreate = function(rsType, searchObj, createFunc, callback){
   rsType.find(searchObj, function(err, results){
-    if(err){
+    // If error or more than one resource found, 
+    // provide additional data and pass error to callback
+    if(err || (results && results.length > 1)){
+      err = err || new Error('model.js::rsFindOrCreate, Multiple objects already exist');
+      err.func    = err.func || rsType.find;
+      err.params  = err.params || searchObj;
+      err.result      = err.result || results;
       callback(err);
     }
-    // If no albums found
-    else if(results.length === 0){
-      createFunc();
-    }
-    // If album found
-    else if(results.length === 1){
-      // Call callback with resource 
+    // If resource found, pass it to callback
+    else if(results && results.length === 1){
       callback(null, results[0]);
     }
-    // If more than one album found
+    // If no resource found, fire create function
     else{
-      // Call callback with error
-      callback(new Error('model.js::rsFindOrCreate, Multiple objects already exist'));
+      createFunc();
     }
   }); 
 };
 
 // ###Function: artistFindOrCreate(artist_name, callback)
-//    Searches for an artist based on `artist_name`; 
-//    if artist not found, artist is created  
+//    Wrapper for `rsFindOrCreate()`. Searches for an artist 
+//    based on `artist_name`; if artist not found, artist is created  
 // **params**:  
 //    `artist_name` : [string],  
 //    `callback`    : [function(err, artist)]
@@ -112,8 +104,9 @@ var artistFindOrCreate = function(artist_name, callback){
 };
 
 // ###Function: albumFindOrCreate(artistRs, album_name, callback)
-//    Searches for an album based on `album_name`; 
-//    if album not found, album is created  
+//    Wrapper for `rsFindOrCreate()`. Searches for an album 
+//    based on `album_name` and `artistRs.id`; if album not found, 
+//    album is created  
 // **params**:  
 //    `artistRs`  : [resource],  
 //    `album_name`: [string],  
@@ -129,15 +122,16 @@ var albumFindOrCreate = function(artistRs, album_name, callback){
 };
 
 // ###Function: songFindOrCreate(albumRs, songObj, callback)
-//    Searches for a song based on album name/id and song name/id; 
-//    if song not found, song is created  
+//    Wrapper for `rsFindOrCreate()`. Searches for a song 
+//    based on `songObj.name` and `albumRs.id`; if song not found, 
+//    song is created  
 // **params**:  
 //    `albumRs` : [resource],  
-//    `song_obj`: [obj],  
-//    `callback`: [function(err, album)]
+//    `songObj` : [{song attributes}],  
+//    `callback`: [function(err, song)]
 var songFindOrCreate = function(albumRs, songObj, callback){
-  var searchObj  = {"id":idSanitize(songObj.name), "album_id": albumRs.id},
-      createObj  = {"id":idSanitize(songObj.name), "name": songObj.name, "urls": songObj.urls},
+  var searchObj  = {"id": idSanitize(songObj.name), "album_id": albumRs.id},
+      createObj  = {"id": idSanitize(songObj.name), "name": songObj.name, "urls": songObj.urls},
       createFunc = function(){
         log.info('model.js::Creating song: ' + createObj.name);
         albumRs.createSong(createObj, callback);
@@ -158,14 +152,7 @@ exports.Artist = {
   //    `searchObj`: [{artist attributes}] *may be empty/null to request all artist*,  
   //    `callback`: [function(results)]
   find : function(searchObj, callback){
-    db.Artist.find(searchObj || {}, function(err, results){
-      if(!err){
-        callback(results);
-      }
-      else{
-        log.info(['Error in get_artist.db.Artist_find', err]);
-      }
-    });
+    db.Artist.find(searchObj || {}, callback);
   }
 };
 
