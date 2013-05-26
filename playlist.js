@@ -10,6 +10,7 @@ var fs        = require('fs'),
     url       = require('url'),
     http      = require('http'),
     path      = require('path'),
+    opts      = require('./options'),
     log       = require('./log').logger,
     router    = Model.router,
     mimeTypes = {
@@ -116,6 +117,12 @@ var lookForOtherFormats = function(given_filename, formats){
 *  Parameters:
 *   currentPath - path to traverse
 */
+/*TODO: 
+ *  - scan for formats ex/inclusivley
+ *  - scan multiple directories
+ *  - launch browser
+ *  - set log level
+ * */
 var scanFiles = function (currentPath) {
   // Variables
   var files = fs.readdirSync(currentPath),  // the current path
@@ -126,7 +133,7 @@ var scanFiles = function (currentPath) {
     // Local variables
     var currentFile = currentPath + '/' + files[i], // the path to the current file
         stats = fs.statSync(currentFile);           // the data for the current file
-    // If the file is actually a file and it ends in .mp3
+    // If the file is actually a file and it ends in one of the specified formats
     if (stats.isFile() && /mp3$/.test(currentFile)) {
       // Get the id3 data from the file
       id3Obj = parseFile(currentFile);
@@ -194,7 +201,7 @@ var serveStatic = function(req, res){
 
 /*** Operations ***/
 // Recursively scan the files for the given directory, or use the one we're currently in
-scanFiles(process.argv[2] || '..');
+scanFiles(opts._[0]);
 
 // Start Server
 http.createServer(function (req, res) {

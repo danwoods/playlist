@@ -4,7 +4,7 @@
   "description": "audio client/server",
   "subdomain": "danwoods.playlist",
   "scripts": {
-    "start": "playlist.js"
+    "start": "node playlist.js"
   },
   "version": "0.0.1",
   "preferGlobal": "true",
