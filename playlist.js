@@ -10,6 +10,7 @@ var fs        = require('fs'),
     url       = require('url'),
     http      = require('http'),
     path      = require('path'),
+    exec      = require('child_process').exec,
     opts      = require('./options'),
     log       = require('./log').logger,
     router    = Model.router,
@@ -225,3 +226,13 @@ http.createServer(function (req, res) {
   }
 }).listen(1337, '0.0.0.0');
 log.info('playlist.js::server running at http://127.0.0.1:1337/');
+
+// If requested, launch browser
+if(opts.browser){
+  exec('xdg-open http://127.0.0.1:1337/', function(error, stdout, stderr) {
+    if(error){
+      log.error(error);
+    }
+    log.info('launching browser: ' + stdout);
+  });
+}
