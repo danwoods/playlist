@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-/* TODO:
- *  - setup to work with playlist
-*/
+/*TODO: 
+ *  - set log level
+ * */
 
 var pkgJSON  = require('./package.json'),
     optimist = require('optimist')
@@ -34,10 +34,15 @@ if(argv._.length === 0){
   argv._.push('.');  
 }
 
-// Set query type
-// Array.isArray(fmt)
-if(((typeof argv.fmt) === 'string')){
+// Operate on `fmt` data
+// Make sure it's an array, and set it's exclusivity (and/or) based on 
+// the presence of a comma
+argv.fmtExclusive = false;
+if((typeof argv.fmt) === 'string'){
   argv.fmt = argv.fmt.split(',');
+  if(argv.fmt.length > 1){
+    argv.fmtExclusive = true;
+  }
 }
 
 // Export

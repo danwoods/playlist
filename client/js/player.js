@@ -45,7 +45,8 @@ var Player = function(elm){
       // Loop through song urls and add them to the audio's source
       for(source in song.urls){
         var sourceElm = $('<source src="'+song.urls[source].url+
-                        '" type="audio/'+song.urls[source].format+'" />');
+                        '" type="'+song.urls[source].format+'" />');
+                        console.log(song.urls[source].format);
         $('audio').append(sourceElm);
       }
 

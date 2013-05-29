@@ -102,7 +102,7 @@ var lookForOtherFormats = function(given_filename, formats){
         // add it's url and format to the return array
         retArr.push({
                       "url"   :path.resolve(process.cwd(), filename + '.'+formats[format]), 
-                      "format":formats[format]
+                      "format":mimeTypes[formats[format]]
                     });
       }
     }
@@ -113,17 +113,11 @@ var lookForOtherFormats = function(given_filename, formats){
 
 /* Function: scanFiles
 *
-*  Recursively traverses files in a given path and parses/adds to the Model the mp3s
+*  Recursively traverses files in a given path and parses/adds songs to the Model
 *
 *  Parameters:
 *   currentPath - path to traverse
 */
-/*TODO: 
- *  - scan for formats ex/inclusivley
- *  - scan multiple directories
- *  - launch browser
- *  - set log level
- * */
 var scanFiles = function (currentPath) {
   // Variables
   var files = fs.readdirSync(currentPath),  // the current path
@@ -133,20 +127,22 @@ var scanFiles = function (currentPath) {
   for (var i in files) {
     // Local variables
     var currentFile = currentPath + '/' + files[i], // the path to the current file
-        stats = fs.statSync(currentFile);           // the data for the current file
-    // If the file is actually a file and it ends in one of the specified formats
-    if (stats.isFile() && /mp3$/.test(currentFile)) {
+        stats = fs.statSync(currentFile),           // the data for the current file
+        fmtRegex = new RegExp(opts.fmt[0] + '$');   // a regular expression for matching the first format to the end of a filename
+    // If the file is actually a file and matches `fmtRegx`
+    if (stats.isFile() && fmtRegex.test(currentFile)) {
       // Get the id3 data from the file
       id3Obj = parseFile(currentFile);
       // Add the url to the id3 data
       id3Obj.urls = [];
-      id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":"mpeg"});
-      id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, ['ogg']));
-      // For now, only add files which have both formats, to improve cross brrowser comaptability
-      if(id3Obj.urls.length > 1){
+      id3Obj.urls.push({"url":path.resolve(process.cwd(), currentFile), "format":mimeTypes[opts.fmt[0]]});
+      // Search for any of the other formats
+      id3Obj.urls = id3Obj.urls.concat(lookForOtherFormats(currentFile, opts.fmt.slice(1)));
+      // If file matches the correct format criteria, add it to the Model
+      if(id3Obj.urls.length === opts.fmt.length || !opts.fmtExclusive){
         // Add the song
         Model.Song.add(id3Obj, function(err, songObj){
-          // Just check for error
+          // Check for error
           if(err){
             log.error('playlist.js::add_song, error when creating song. Error:\n'+JSON.stringify(err,null,2)+'\nsong:\n'+JSON.stringify(id3Obj,null,2));
           }
