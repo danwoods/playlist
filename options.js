@@ -7,7 +7,7 @@ var pkgJSON  = require('./package.json'),
     optimist = require('optimist')
                 .usage(pkgJSON.description + '\nUsage: $0')
                 .options('h', {
-                  alias: 'help',
+                  alias   : 'help',
                   describe: 'Display this help message',
                 })
                 .options('b', {
@@ -16,11 +16,11 @@ var pkgJSON  = require('./package.json'),
                 })
                 .options('log', {
                   describe: 'Log level',
-                  default : {'info':true},
+                  default : 'info',
                 })
                 .options('fmt', {
                   describe: 'Returned audio formats. AND = --fmt=mp3,ogg OR = --fmt=mp3 --fmt=ogg',
-                  default : 'mp3',
+                  default : ['mp3', 'ogg'],
                 }),
     argv     = optimist.argv;
 
