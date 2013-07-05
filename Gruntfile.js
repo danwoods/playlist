@@ -25,7 +25,7 @@ module.exports = function(grunt) {
     },
     docco: {
       all: {
-        src: ['model.js', 'playlist.js'],
+        src: ['model.js', 'playlist.js', 'options.js'],
         options: {
           output: 'docs/'
         }
@@ -42,6 +42,7 @@ module.exports = function(grunt) {
         noempty:true,
         undef:  true,
         unused: true,
+        browser:false
       },
       all: ['model.js']
     }

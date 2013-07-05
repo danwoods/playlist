@@ -1,40 +1,40 @@
 #!/usr/bin/env node
-/*TODO: 
- *  - set log level
- * */
-
+// Command line option parser  
+// **options.js** acts as the command line options parser for playlist.js.  
+// It handles defaults and `--help` messages, and exports command line options.
 var pkgJSON  = require('./package.json'),
     optimist = require('optimist')
-                .usage(pkgJSON.description + '\nUsage: $0')
+                .usage(pkgJSON.description + '\nUsage: $0 [options] [target_directory]')
                 .options('h', {
                   alias   : 'help',
-                  describe: 'Display this help message',
+                  describe: 'Display this help message'
                 })
                 .options('b', {
                   describe: 'Launch the default browser',
-                  alias   : 'browser',
+                  alias   : 'browser'
                 })
                 .options('log', {
                   describe: 'Log level',
-                  default : 'info',
+                  default : 'info'
                 })
                 .options('fmt', {
                   describe: 'Returned audio formats. AND = --fmt=mp3,ogg OR = --fmt=mp3 --fmt=ogg',
-                  default : ['mp3', 'ogg'],
+                  default : ['mp3', 'ogg']
                 }),
     argv     = optimist.argv;
 
-// If help requested, show help
+// If help requested, show help and exit
 if(argv.help){
   console.log(optimist.help());
+  process.exit(code=0);
 }
 
-// Default path is current directory
+// Set default path to current directory
 if(argv._.length === 0){
   argv._.push('.');  
 }
 
-// Operate on `fmt` data
+// Operate on `fmt` data  
 // Make sure it's an array, and set it's exclusivity (and/or) based on 
 // the presence of a comma
 argv.fmtExclusive = false;
