@@ -8,7 +8,7 @@ module.exports = function(grunt) {
               '<%= grunt.template.today("yyyy-mm-dd") %> */'
     },
     lint: {
-      all: ['grunt.js', 'api.js', 'js/catalog.js', 'js/playlist.js']
+      all: ['grunt.js', 'api.js', 'js/catalog.js', 'js/playlist_v2.js']
     },
     jshint: {
       option: {
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
     },
     min: {
       scripts: {
-        src: ['<banner>', 'js/api.js', 'js/catalog.js', 'js/playlist.js'],
+        src: ['<banner>', 'js/api.js', 'js/catalog.js'/*, 'js/playlist.js'*/],
         dest: 'js/scripts.js'
       }
     }
