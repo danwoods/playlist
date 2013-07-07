@@ -1,8 +1,34 @@
+// Module/Container for a library of music data  
+// **playlist.js** acts as a client-side container for playlist data. 
+// It responds to catalog and playlist items being dropped on it, 
+// holds data about the current state of the playlist, 
+// holds the code for playlist items, and 
+// handles updating the view.
+
+// #Contents
+// - [Configuration/Setup](#section-4)
+// + [Funtions/Objects](#section-6)
+//  + [private](#section-7)
+//      - [idSanitize](#section-8)
+//      - [rsFindOrCreate](#section-9)
+//      - [artistFindOrCreate](#section-13)
+//      - [albumFindOrCreate](#section-14)
+//      - [songFindOrCreate](#section-15)
+//  + [public](#section-16)
+//      + [Artist](#section-17)
+//          - [find](#section-18)
+//      + [Album](#section-19)
+//          - [find](#section-20)
+//      + [Song](#section-21)
+//          - [add](#section-22)
+//          - [get](#section-25)
+
 /*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
 //TODO:
 //Add artist/album ability
 //Reconnect to Player
-//Fix dragLeave issue w/ plis
+//Fix adding duplicates on top of each other doesn't always add item to list until it refreshes
+//Fix dragLeave issue w/ plis [May be fixed by adding class/style] [OR add event catching function to each sub-element (I'd rather not fix it by adding a style),  http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
 //Make plis draggable
 
 var Playlist = function(elm){
@@ -17,6 +43,7 @@ var Playlist = function(elm){
     if (e.preventDefault) {
       e.preventDefault();
     }
+    // Is this neccessary?
     e.dataTransfer.dropEffect = 'move';
             
     return false;
@@ -112,6 +139,9 @@ var Playlist = function(elm){
     };
     // ####Function handler for dragleave
     var dragLeave = function(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
       var $elm = $(e.target);
 
       if(!$elm.hasClass('song')){
@@ -120,6 +150,7 @@ var Playlist = function(elm){
       else{
         $elm.removeClass('dodge');
       }
+      return false;
     };
     // ####Function handler for drop
     var drop = function(e){
@@ -148,13 +179,14 @@ var Playlist = function(elm){
       songElm.addClass('song');
       songElm.attr('id', _.uniqueId('pl-'));
       songElm.attr('data-id', songObj.id);
-      songElm.append('<span class="song-name" title="'+songName+'">'+songName+'</span>');
-      songElm.append('<span class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
-      songElm.append('<span class="song-artist" title="'+songArtistName+'">'+songArtistName+'</span>');
-      songElm.append('<span class="song-time" title="'+songLength+'">'+songLength+'</span>');
+      songElm.append('<span style="pointer-events: none;" class="song-name" title="'+songName+'">'+songName+'</span>');
+      songElm.append('<span style="pointer-events: none;" class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
+      songElm.append('<span style="pointer-events: none;" class="song-artist" title="'+songArtistName+'">'+songArtistName+'</span>');
+      songElm.append('<span style="pointer-events: none;" class="song-time" title="'+songLength+'">'+songLength+'</span>');
 
       // Add event handlers
       songElm.get()[0].addEventListener('dragover', dragOver, true);
+      songElm.get()[0].addEventListener('dragleave', dragLeave, true);
       songElm.get()[0].addEventListener('drop', drop, true);
 
       // Return song element
