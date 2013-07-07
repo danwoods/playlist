@@ -2,7 +2,9 @@ var Playlist = function(elm){
 
   // Variables
   var api = new API(),
-      self = this;
+      self = this,
+      items = [],
+      $playlist;
   // Helper functions
   var dragOver = function(e){
     if (e.preventDefault) {
@@ -13,9 +15,10 @@ var Playlist = function(elm){
     return false;
   };
   var drop = function(e) {
-    // this / e.target is current target element.
+
+    // Make sure nothing else happens
     if (e.stopPropagation) {
-      e.stopPropagation(); // stops the browser from redirecting.
+      e.stopPropagation();
     }
     
     var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
@@ -24,7 +27,7 @@ var Playlist = function(elm){
     if(droppedObj.type === 'song'){
       // Add song to playlist
       api.buildSong(droppedObj.id, function(data){
-        addSong(data);
+        playlist.addItem(data);
       });
     }
     else if(droppedObj.type === 'album'){
@@ -43,20 +46,40 @@ var Playlist = function(elm){
         }
       });
     }
-
     // Return false
     return false;
   };
-  var updateView = function(){}; 
+  var updateView = function(){
+    var len = items.length,
+        idx = 0,
+        viewItems = $playlist.find('.song');
+    if(viewItems.length === 0 && len > 0){
+      $playlist.append(items[0].$elm);
+    }
+    for(idx; idx < len; idx++){
+      if(!viewItems[idx] || (viewItems[idx].getAttribute('data-id') !== items[idx].item.id)){
+        if(!viewItems[idx]){
+          $playlist.append(items[idx].$elm); 
+        }
+        else{
+          items[idx].$elm.insertBefore(viewItems[idx]);
+        }
+      }
+    }
+  }; 
   // Return object
-  var playlist = {
-  
+  var playlist = { 
     addItem: function(item, idx){
-      var pli = new PlaylistItem(item);
-      //items.splice()
-      
+      var pli = new PlaylistItem(item),
+          idx = idx || items.length;
+
+      pli.position = idx;
+      items.splice(idx, 0, pli);
+      updateView();
     },
     removeItem: function(idx){
+    },
+    setActive: function(idx){
     },
     getItem: function(idx){
     }
@@ -94,10 +117,20 @@ var Playlist = function(elm){
     };
     // ####Function handler for drop
     var drop = function(e){
-      $(elm).trigger('drop', e); 
+    // Stop the drop event from propagating to the playlist
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+      var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain')),
+          droppedOnPli = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
+          droppedOnPliIdx = $playlist.find('li').index(droppedOnPli);
+      api.buildSong(droppedObj.id, function(data){
+        playlist.addItem(data, droppedOnPliIdx);
+      });
+      return false;
     };
     // ####Creates HTML element
-    var createStructure = function(){ 
+    var createStructure = function(songObj){ 
       // Variables
       var songElm = $('<li />'),                                            // Song element
           songName = (songObj.name || 'unknown song name'),                 // Song name
@@ -122,23 +155,38 @@ var Playlist = function(elm){
       // Return song element
       return songElm;
     };
-    var updateView = function(){};
+    var updateView = function(){
+    };
     // Return Object
     var playlistItem = {
       playing: false,
       title: '',
       length: 0,
       position: 0,
-      item: {}
+      item: {},
+      $elm: {},
+      updateView: updateView
     };
     var init = function(data){
+      playlistItem.$elm   = createStructure(data);
+      playlistItem.item   = data;
+      playlistItem.title  = data.name;
     };
     init(data);
     return playlistItem;
   };
 
   var init = function(elm){
-  
+    // Add event listeners and bindings, and create any required elements
+    $('document').ready(function(){
+      $(elm).get()[0].addEventListener('dragover', dragOver, false);
+      $(elm).get()[0].addEventListener('drop', drop, false);
+      // Add the list element
+      $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
+      $(elm).append($playlist);
+
+    });
+
   };
 
   init(elm);

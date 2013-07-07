@@ -190,7 +190,7 @@ var serveStatic = function(req, res){
       // Create and send the filestream
       var fileStream = fs.createReadStream(filename);
       fileStream.pipe(res);
-      log.info("playlist.js::serveStatic, served static file '"+filename+"' with mime-type '"+mimeType+"'");
+      log.debug("playlist.js::serveStatic, served static file '"+filename+"' with mime-type '"+mimeType+"'");
     }
   }
 
