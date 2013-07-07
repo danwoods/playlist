@@ -34,7 +34,7 @@ section#playlist > ol > li:nth-child(odd) {
   background-color: #e6e6e5;
 }
 section#playlist ol li.song.dodge{
-  margin-top: 25px;
+  padding-top: 25px;
   -webkit-transition: all .25s ease;
   -moz-transition: all .25s ease;
   -ms-transition: all .25s ease;

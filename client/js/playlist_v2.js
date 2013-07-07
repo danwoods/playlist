@@ -1,3 +1,10 @@
+/*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
+//TODO:
+//Add artist/album ability
+//Reconnect to Player
+//Fix dragLeave issue w/ plis
+//Make plis draggable
+
 var Playlist = function(elm){
 
   // Variables
@@ -65,6 +72,7 @@ var Playlist = function(elm){
           items[idx].$elm.insertBefore(viewItems[idx]);
         }
       }
+      items[idx].updateView();
     }
   }; 
   // Return object
@@ -89,8 +97,7 @@ var Playlist = function(elm){
   var PlaylistItem = function(data){
     // Helper functions
     // ####Function handler for dragenter
-    var dragEnter = function(e) {
-      // this / e.target is the current hover target.
+    var dragOver = function(e) {
       // Clear any existing 'dodge' classes
       $('.song').removeClass('dodge');
       // Add class to li element
@@ -105,7 +112,6 @@ var Playlist = function(elm){
     };
     // ####Function handler for dragleave
     var dragLeave = function(e) {
-      // this / e.target is previous target element.
       var $elm = $(e.target);
 
       if(!$elm.hasClass('song')){
@@ -148,14 +154,14 @@ var Playlist = function(elm){
       songElm.append('<span class="song-time" title="'+songLength+'">'+songLength+'</span>');
 
       // Add event handlers
-      songElm.get()[0].addEventListener('dragenter', dragEnter, true);
-      songElm.get()[0].addEventListener('dragleave', dragLeave, true);
+      songElm.get()[0].addEventListener('dragover', dragOver, true);
       songElm.get()[0].addEventListener('drop', drop, true);
 
       // Return song element
       return songElm;
     };
     var updateView = function(){
+      playlistItem.$elm.removeClass('dodge');
     };
     // Return Object
     var playlistItem = {
@@ -165,7 +171,7 @@ var Playlist = function(elm){
       position: 0,
       item: {},
       $elm: {},
-      updateView: updateView
+      updateView: function(){this.$elm.removeClass('dodge');}
     };
     var init = function(data){
       playlistItem.$elm   = createStructure(data);
