@@ -76,7 +76,7 @@ var Playlist = function(elm){
       // Add songs to playlist
       api.buildSongsFromArtist(droppedObj.id, function(data){
         for(var idx = 0; idx < data.length; idx++){
-          addSong(data[idx]);
+          playlist.addItem(data[idx]);
         }
       });
     }
