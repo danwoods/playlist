@@ -25,7 +25,6 @@
 
 /*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
 //TODO:
-//Add artist/album ability
 //Reconnect to Player
 //Fix adding duplicates on top of each other doesn't always add item to list until it refreshes
 //Fix dragLeave issue w/ plis [May be fixed by adding class/style] [OR add event catching function to each sub-element (I'd rather not fix it by adding a style),  http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
