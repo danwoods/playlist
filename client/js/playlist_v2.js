@@ -57,7 +57,7 @@ var Playlist = function(elm){
     
     var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
-    // Processw dropped object
+    // Process dropped object
     if(droppedObj.type === 'song'){
       // Add song to playlist
       api.buildSong(droppedObj.id, function(data){
@@ -68,7 +68,7 @@ var Playlist = function(elm){
       // Add songs to playlist
       api.buildSongsFromAlbum(droppedObj.id, function(data){
         for(var idx = 0; idx < data.length; idx++){
-          addSong(data[idx]);
+          playlist.addItem(data[idx]);
         }
       });
     }
