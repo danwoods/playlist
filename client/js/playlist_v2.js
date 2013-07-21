@@ -25,10 +25,12 @@
 
 /*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
 //TODO:
-//Reconnect to Player
 //Fix adding duplicates on top of each other doesn't always add item to list until it refreshes
 //Fix dragLeave issue w/ plis [May be fixed by adding class/style] [OR add event catching function to each sub-element (I'd rather not fix it by adding a style),  http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
+//Revise documentation
+//Make plis double-clickable
 //Make plis draggable
+//Remove dependency on jQuery
 
 var Playlist = function(elm){
 
@@ -90,7 +92,7 @@ var Playlist = function(elm){
       $playlist.append(items[0].$elm);
     }
     for(idx; idx < len; idx++){
-      if(!viewItems[idx] || (viewItems[idx].getAttribute('data-id') !== items[idx].item.id)){
+      if(!viewItems[idx] || (viewItems[idx].getAttribute('data-id') !== items[idx].data.id)){
         if(!viewItems[idx]){
           $playlist.append(items[idx].$elm); 
         }
@@ -98,25 +100,94 @@ var Playlist = function(elm){
           items[idx].$elm.insertBefore(viewItems[idx]);
         }
       }
+      // Call pli's updateView function
       items[idx].updateView();
     }
   }; 
+  var addItem = function(data, idx){
+    var pli = new PlaylistItem(data),
+        idx = idx || items.length;
+
+    pli.position = idx;
+    items.splice(idx, 0, pli);
+    updateView();
+  };
+  var getItem = function(idx){
+    var ret = items;
+    if(idx){
+      ret = items[idx];
+    }
+    return ret;
+  };
+  var getActive = function(){
+    // write this better
+    var retObj = null;
+    for(var i = 0; i < items.length; i++){
+      if(items[i].active){
+        // should this be it's item?
+        retObj = items[0];
+        break;
+      }
+    }
+    return retObj;
+  };
+  var setActive = function(idx){
+    // write this better
+    var active = null;
+    for(var i = 0; i < items.length; i++){
+      if(i === idx){
+        items[i].active = true;
+        items[i].updateView();
+        active = items[i];
+      }
+      else if(items[i].active === true){
+        items[i].active = false;
+        items[i].updateView();
+      }
+    }
+    return active;
+  };
+  var activateNext = function(){
+    var pliNext = {'data':null},
+        active = this.getActive();
+    if(active){
+      pliNext = this.getItem(active.position + 1);
+    }
+    else if(items[0]){
+      pliNext = items[0];
+    }
+    if(pliNext){
+      this.setActive(pliNext.position); 
+    }
+    
+    return pliNext.data;
+
+  };
+  var activatePrev = function(){
+    var pliPrev = {'data':null},
+        active = this.getActive();
+    if(active && active.position > 0){
+      pliPrev = this.getItem(active.position - 1);
+    }
+    else if(items[0]){
+      pliPrev = items[0];
+    }
+    if(pliPrev){
+      this.setActive(pliPrev.position); 
+    }
+    
+    return pliPrev.data;
+
+  };
   // Return object
   var playlist = { 
-    addItem: function(item, idx){
-      var pli = new PlaylistItem(item),
-          idx = idx || items.length;
-
-      pli.position = idx;
-      items.splice(idx, 0, pli);
-      updateView();
-    },
-    removeItem: function(idx){
-    },
-    setActive: function(idx){
-    },
-    getItem: function(idx){
-    }
+    addItem: addItem,
+    removeItem: function(idx){},
+    getItem: getItem,
+    getActive: getActive,
+    setActive: setActive,
+    activateNext: activateNext,
+    activatePrev: activatePrev,
   };
 
   // Playlist item
@@ -191,22 +262,27 @@ var Playlist = function(elm){
       // Return song element
       return songElm;
     };
-    var updateView = function(){
-      playlistItem.$elm.removeClass('dodge');
-    };
     // Return Object
     var playlistItem = {
-      playing: false,
+      active: false,
       title: '',
       length: 0,
       position: 0,
-      item: {},
+      data: {},
       $elm: {},
-      updateView: function(){this.$elm.removeClass('dodge');}
+      updateView: function(){
+        this.$elm.removeClass('dodge');
+        if(this.active){
+          this.$elm.addClass('active');
+        }
+        else{
+          this.$elm.removeClass('active');
+        }
+      }
     };
     var init = function(data){
       playlistItem.$elm   = createStructure(data);
-      playlistItem.item   = data;
+      playlistItem.data   = data;
       playlistItem.title  = data.name;
     };
     init(data);
