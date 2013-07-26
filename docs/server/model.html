@@ -1,0 +1,186 @@
+<!DOCTYPE html>  <html> <head>   <title>model.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="model.html">                 model.js               </a>                                           <a class="source" href="options.html">                 options.js               </a>                                           <a class="source" href="playlist.html">                 playlist.js               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               model.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Module/Container for a library of music data <br />
+<strong>model.js</strong> acts as the model layer of playlist.js. It exports 
+the router for the resourceful database and acts as an interface 
+for it while adding needed functionality.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h1>Contents</h1>
+
+<ul>
+<li><a href="#section-4">Configuration/Setup</a></li>
+<li><a href="#section-6">Funtions/Objects</a>
+<ul><li><a href="#section-7">private</a>
+<ul><li><a href="#section-8">idSanitize</a></li>
+<li><a href="#section-9">rsFindOrCreate</a></li>
+<li><a href="#section-13">artistFindOrCreate</a></li>
+<li><a href="#section-14">albumFindOrCreate</a></li>
+<li><a href="#section-15">songFindOrCreate</a></li></ul></li>
+<li><a href="#section-16">public</a>
+<ul><li><a href="#section-17">Artist</a>
+<ul><li><a href="#section-18">find</a></li></ul></li>
+<li><a href="#section-19">Album</a>
+<ul><li><a href="#section-20">find</a></li></ul></li>
+<li><a href="#section-21">Song</a>
+<ul><li><a href="#section-22">add</a></li>
+<li><a href="#section-25">get</a></li></ul></li></ul></li></ul></li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">log</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./log&#39;</span><span class="p">).</span><span class="nx">logger</span><span class="p">,</span>
+    <span class="nx">restful</span>     <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;restful&quot;</span><span class="p">),</span>
+    <span class="nx">db</span>          <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./schema&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h1>Configuration/Setup</h1>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Setup router</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">exports</span><span class="p">.</span><span class="nx">router</span> <span class="o">=</span> <span class="nx">restful</span><span class="p">.</span><span class="nx">createRouter</span><span class="p">([</span><span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">,</span> <span class="nx">db</span><span class="p">.</span><span class="nx">Album</span><span class="p">,</span> <span class="nx">db</span><span class="p">.</span><span class="nx">Song</span><span class="p">],</span> <span class="p">{</span> <span class="nx">explore</span><span class="o">:</span> <span class="kc">false</span> <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h1>Functions</h1>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h2>Private</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>Function: idSanitize(id)</h3>
+
+<p>Makes sure id is compatable with restful's api <br />
+<strong>params</strong>: <br />
+   <code>id</code>: [string] <br />
+<strong>returns</strong>: <br />
+   A modified <code>id</code>, with commas and any othe non-alphanumeric characters,
+   replaced with underscores</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">idSanitize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">retStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">id</span><span class="p">){</span>
+    <span class="nx">retStr</span> <span class="o">=</span> <span class="nx">id</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/,/g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/([^._a-zA-Z0-9-]+)/g</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span><span class="p">{</span>
+    <span class="nx">log</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;model.js::idSanitize, trying to sanitize a null id&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">retStr</span><span class="p">;</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>Function: rsFindOrCreate(rsType, searchObj, createFunc, callback)</h3>
+
+<p>Searches for a resource based on <code>searchObj</code>. Meant to find a 
+   single resource. If resource not found, createObj is created. 
+   If multiple resources found, err is returned. <br />
+<strong>params</strong>: <br />
+   <code>rsType</code>    : [resource type, ie: <code>db.Artist</code>], <br />
+   <code>searchObj</code> : [{resource type attributes}], <br />
+   <code>createFunc</code>: [function()], <br />
+   <code>callback</code>  : [function(err, resource)]</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">rsFindOrCreate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">rsType</span><span class="p">,</span> <span class="nx">searchObj</span><span class="p">,</span> <span class="nx">createFunc</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="nx">rsType</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>If error or more than one resource found, 
+provide additional data and pass error to callback</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="nx">err</span> <span class="o">||</span> <span class="p">(</span><span class="nx">results</span> <span class="o">&amp;&amp;</span> <span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)){</span>
+      <span class="nx">err</span> <span class="o">=</span> <span class="nx">err</span> <span class="o">||</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;model.js::rsFindOrCreate, Multiple objects already exist&#39;</span><span class="p">);</span>
+      <span class="nx">err</span><span class="p">.</span><span class="nx">func</span>    <span class="o">=</span> <span class="nx">err</span><span class="p">.</span><span class="nx">func</span> <span class="o">||</span> <span class="nx">rsType</span><span class="p">.</span><span class="nx">find</span><span class="p">;</span>
+      <span class="nx">err</span><span class="p">.</span><span class="nx">params</span>  <span class="o">=</span> <span class="nx">err</span><span class="p">.</span><span class="nx">params</span> <span class="o">||</span> <span class="nx">searchObj</span><span class="p">;</span>
+      <span class="nx">err</span><span class="p">.</span><span class="nx">result</span>      <span class="o">=</span> <span class="nx">err</span><span class="p">.</span><span class="nx">result</span> <span class="o">||</span> <span class="nx">results</span><span class="p">;</span>
+      <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>If resource found, pass it to callback</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">results</span> <span class="o">&amp;&amp;</span> <span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">1</span><span class="p">){</span>
+      <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>If no resource found, fire create function</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">else</span><span class="p">{</span>
+      <span class="nx">createFunc</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">});</span> 
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h3>Function: artistFindOrCreate(artist_name, callback)</h3>
+
+<p>Wrapper for <code>rsFindOrCreate()</code>. Searches for an artist 
+   based on <code>artist_name</code>; if artist not found, artist is created <br />
+<strong>params</strong>: <br />
+   <code>artist_name</code> : [string], <br />
+   <code>callback</code>    : [function(err, artist)]</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">artistFindOrCreate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">artist_name</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">searchObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">artist_name</span><span class="p">},</span>
+      <span class="nx">createObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">idSanitize</span><span class="p">(</span><span class="nx">artist_name</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">artist_name</span><span class="p">},</span>
+      <span class="nx">createFunc</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">log</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;model.js::Creating artist: &#39;</span> <span class="o">+</span> <span class="nx">createObj</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+        <span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">createObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+      <span class="p">};</span>
+  <span class="nx">rsFindOrCreate</span><span class="p">(</span><span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">,</span> <span class="nx">searchObj</span><span class="p">,</span> <span class="nx">createFunc</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h3>Function: albumFindOrCreate(artistRs, album_name, callback)</h3>
+
+<p>Wrapper for <code>rsFindOrCreate()</code>. Searches for an album 
+   based on <code>album_name</code> and <code>artistRs.id</code>; if album not found, 
+   album is created <br />
+<strong>params</strong>: <br />
+   <code>artistRs</code>  : [resource], <br />
+   <code>album_name</code>: [string], <br />
+   <code>callback</code>  : [function(err, album)]</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">albumFindOrCreate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">artistRs</span><span class="p">,</span> <span class="nx">album_name</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">searchObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">album_name</span><span class="p">,</span> <span class="s2">&quot;artist_id&quot;</span><span class="o">:</span> <span class="nx">artistRs</span><span class="p">.</span><span class="nx">id</span><span class="p">},</span>
+      <span class="nx">createObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">idSanitize</span><span class="p">(</span><span class="nx">album_name</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">album_name</span><span class="p">},</span> 
+      <span class="nx">createFunc</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">log</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;model.js::Creating album: &#39;</span> <span class="o">+</span> <span class="nx">createObj</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+        <span class="nx">artistRs</span><span class="p">.</span><span class="nx">createAlbum</span><span class="p">(</span><span class="nx">createObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+      <span class="p">};</span>
+  <span class="nx">rsFindOrCreate</span><span class="p">(</span><span class="nx">db</span><span class="p">.</span><span class="nx">Album</span><span class="p">,</span> <span class="nx">searchObj</span><span class="p">,</span> <span class="nx">createFunc</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h3>Function: songFindOrCreate(albumRs, songObj, callback)</h3>
+
+<p>Wrapper for <code>rsFindOrCreate()</code>. Searches for a song 
+   based on <code>songObj.name</code> and <code>albumRs.id</code>; if song not found, 
+   song is created <br />
+<strong>params</strong>: <br />
+   <code>albumRs</code> : [resource], <br />
+   <code>songObj</code> : [{song attributes}], <br />
+   <code>callback</code>: [function(err, song)]</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">songFindOrCreate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">albumRs</span><span class="p">,</span> <span class="nx">songObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">searchObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">idSanitize</span><span class="p">(</span><span class="nx">songObj</span><span class="p">.</span><span class="nx">name</span><span class="p">),</span> <span class="s2">&quot;album_id&quot;</span><span class="o">:</span> <span class="nx">albumRs</span><span class="p">.</span><span class="nx">id</span><span class="p">},</span>
+      <span class="nx">createObj</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="nx">idSanitize</span><span class="p">(</span><span class="nx">songObj</span><span class="p">.</span><span class="nx">name</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="nx">songObj</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="s2">&quot;urls&quot;</span><span class="o">:</span> <span class="nx">songObj</span><span class="p">.</span><span class="nx">urls</span><span class="p">},</span>
+      <span class="nx">createFunc</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">log</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;model.js::Creating song: &#39;</span> <span class="o">+</span> <span class="nx">createObj</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+        <span class="nx">albumRs</span><span class="p">.</span><span class="nx">createSong</span><span class="p">(</span><span class="nx">createObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+      <span class="p">};</span>
+  <span class="nx">rsFindOrCreate</span><span class="p">(</span><span class="nx">db</span><span class="p">.</span><span class="nx">Song</span><span class="p">,</span> <span class="nx">searchObj</span><span class="p">,</span> <span class="nx">createFunc</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h2>Public</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>Object: Artist</h3>
+
+<p>Contains functionality for working with artist resources <br />
+<strong>functions</strong>: <br />
+   <code>find</code>: [function(searchObj, callback)]  </p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">exports</span><span class="p">.</span><span class="nx">Artist</span> <span class="o">=</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h3>Function: find(searchObj, callback)</h3>
+
+<p>Retrieves artist(s) from the database <br />
+<strong>params</strong>: <br />
+   <code>searchObj</code>: [{artist attributes}] <em>may be empty/null to request all artist</em>, <br />
+   <code>callback</code>: [function(results)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">find</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nx">Artist</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">searchObj</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">callback</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h3>Object: Album</h3>
+
+<p>Contains functionality for working with album resources <br />
+<strong>functions</strong>: <br />
+   <code>find</code>: [function(searchObj, callback)]  </p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">exports</span><span class="p">.</span><span class="nx">Album</span> <span class="o">=</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>Function: find(searchObj, callback)</h3>
+
+<p>Retrieves albums(s) from the database <br />
+<strong>params</strong>: <br />
+   <code>searchObj</code>: [{album attributes}] <em>may be empty/null to request all albums</em>, <br />
+   <code>callback</code>: [function(results)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">find</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">searchObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nx">Album</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">searchObj</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">callback</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <h3>Object: Song</h3>
+
+<p>Contains functionality for working with song resources <br />
+<strong>functions</strong>: <br />
+   <code>add</code>: [function(songObj, callback)], <br />
+   <code>get</code>: [function(songId, callback)]  </p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">exports</span><span class="p">.</span><span class="nx">Song</span> <span class="o">=</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <h3>Function: add(songObj, callback)</h3>
+
+<p>If song does not exist in library, add song to library.
+   Creates artist and album if they don't exist. <br />
+<strong>params</strong>: <br />
+   <code>songObj</code>: [ <br />
+       { <br />
+         <code>name</code>    : [string], <br />
+         <code>artist</code>  : [string], <br />
+         <code>album</code>   : [string], <br />
+         <code>year</code>    : [string], <br />
+         <code>comment</code> : [string], <br />
+         <code>track</code>   : [string], <br />
+         <code>genre</code>   : [string], <br />
+         <code>urls</code>    : [ [{<code>url</code>: [string], <code>format</code> : [string]},] ] <br />
+       } <br />
+   ], <br />
+   <code>callback</code>: [function(err, songRs)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">add</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">songObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>Avoid 'undefined's</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="nx">songObj</span><span class="p">.</span><span class="nx">artist</span> <span class="o">&amp;&amp;</span> <span class="nx">songObj</span><span class="p">.</span><span class="nx">album</span> <span class="o">&amp;&amp;</span> <span class="nx">songObj</span><span class="p">.</span><span class="nx">name</span><span class="p">){</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <p>Call artistFindOrCreate to create the song's 
+artist or retrieve it, if it exist</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">artistFindOrCreate</span><span class="p">(</span><span class="nx">songObj</span><span class="p">.</span><span class="nx">artist</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">artist</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+          <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span><span class="p">{</span>
+          <span class="nx">albumFindOrCreate</span><span class="p">(</span><span class="nx">artist</span><span class="p">,</span> <span class="nx">songObj</span><span class="p">.</span><span class="nx">album</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">album</span><span class="p">){</span> 
+            <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+              <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">else</span><span class="p">{</span>
+              <span class="nx">songFindOrCreate</span><span class="p">(</span><span class="nx">album</span><span class="p">,</span> <span class="nx">songObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">});</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+      <span class="nx">log</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;Model.Song.add, trying to add a song with missing data. songObj = &#39;</span><span class="o">+</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">songObj</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+    <span class="p">}</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <h3>Function: get(songId, callback)</h3>
+
+<p>Retrieves song from the database. <br />
+<strong>params</strong>: <br />
+   <code>songId</code>: [string], <br />
+   <code>callback</code>: [function(err, songRs)]</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">get</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">songId</span><span class="p">,</span> <span class="nx">callback</span><span class="p">){</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nx">Song</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">songId</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
