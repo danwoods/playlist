@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Playlist : A node.js based audio server/client" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Playlist</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/danwoods/playlist">View on GitHub</a>
+
+          <h1 id="project_title">Playlist</h1>
+          <h2 id="project_tagline">A node.js based audio server/client</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/danwoods/playlist/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/danwoods/playlist/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="playlistjs" class="anchor" href="#playlistjs"><span class="octicon octicon-link"></span></a>Playlist.js</h1>
+
+<p>A node.js based audio server/client</p>
+
+<h1>
+<a name="to-run" class="anchor" href="#to-run"><span class="octicon octicon-link"></span></a>To Run</h1>
+
+<pre lang="shell"><code>$&gt; node ./playlist [options] [target_directory]
+</code></pre>
+
+<p>where [options] are the command line options listed from the <code>--help</code> command:</p>
+
+<pre lang="shell"><code>$&gt; node playlist.js --help
+audio client/server
+Usage: node ./playlist.js [options] [target_directory]
+
+Options:
+  -h, --help     Display this help message    
+  -b, --browser  Launch the default browser    
+  --log          Log level                                                             [default: "info"]
+  --fmt          Returned audio formats. AND = --fmt=mp3,ogg OR = --fmt=mp3 --fmt=ogg  [default: ["mp3","ogg"]]
+</code></pre>
+
+<p>and [target_directory] is the directory of the audio files. If no [target_directory] specified, the current directory is used.</p>
+
+<h1>
+<a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h1>
+
+<p>Mainly to play with node and html5 :) I'm also trying to use as few libraries as possible on the client side, to keep the code as lean and fast as possible.</p>
+
+<h1>
+<a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h1>
+
+<p><a href="http://danwoods.playlist.jit.su/">http://danwoods.playlist.jit.su/</a></p>
+
+<h1>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h1>
+
+<p>docs<br>
+client/docs</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Playlist maintained by <a href="https://github.com/danwoods">danwoods</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
