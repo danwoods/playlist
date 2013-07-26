@@ -25,12 +25,16 @@
 
 /*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
 //TODO:
-//Fix adding duplicates on top of each other doesn't always add item to list until it refreshes
 //Fix dragLeave issue w/ plis [May be fixed by adding class/style] [OR add event catching function to each sub-element (I'd rather not fix it by adding a style),  http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
 //Revise documentation
 //Make plis double-clickable
 //Make plis draggable
 //Remove dependency on jQuery
+//Avoid repetition (mainly for rendering's sake). Allow functions to accept arrays
+//Use `self` or remove it
+//Use document partials when rendering
+//Make active item reflect it in it's  view
+//Update build
 
 var Playlist = function(elm){
 
@@ -58,29 +62,12 @@ var Playlist = function(elm){
     
     var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
-    // Process dropped object
-    if(droppedObj.type === 'song'){
-      // Add song to playlist
-      api.buildSong(droppedObj.id, function(data){
-        playlist.addItem(data);
-      });
-    }
-    else if(droppedObj.type === 'album'){
-      // Add songs to playlist
-      api.buildSongsFromAlbum(droppedObj.id, function(data){
-        for(var idx = 0; idx < data.length; idx++){
-          playlist.addItem(data[idx]);
-        }
-      });
-    }
-    else if(droppedObj.type === 'artist'){
-      // Add songs to playlist
-      api.buildSongsFromArtist(droppedObj.id, function(data){
-        for(var idx = 0; idx < data.length; idx++){
-          playlist.addItem(data[idx]);
-        }
-      });
-    }
+    api.buildSongs(droppedObj.type, droppedObj.id, function(data){
+      for(var idx = 0; idx < data.length; idx++){
+        playlist.addItem(data[idx]);
+      }
+    });
+
     // Return false
     return false;
   };
@@ -92,7 +79,7 @@ var Playlist = function(elm){
       $playlist.append(items[0].$elm);
     }
     for(idx; idx < len; idx++){
-      if(!viewItems[idx] || (viewItems[idx].getAttribute('data-id') !== items[idx].data.id)){
+      if(!viewItems[idx] || (viewItems[idx].getAttribute('id') !== items[idx].id)){
         if(!viewItems[idx]){
           $playlist.append(items[idx].$elm); 
         }
@@ -106,7 +93,7 @@ var Playlist = function(elm){
   }; 
   var addItem = function(data, idx){
     var pli = new PlaylistItem(data),
-        idx = idx || items.length;
+        idx = (typeof idx === 'number') ? idx : items.length;
 
     pli.position = idx;
     items.splice(idx, 0, pli);
@@ -181,11 +168,11 @@ var Playlist = function(elm){
   };
   // Return object
   var playlist = { 
-    addItem: addItem,
-    removeItem: function(idx){},
-    getItem: getItem,
-    getActive: getActive,
-    setActive: setActive,
+    addItem :     addItem,
+    removeItem:   function(idx){},
+    getItem:      getItem,
+    getActive:    getActive,
+    setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
   };
@@ -230,10 +217,14 @@ var Playlist = function(elm){
     }
       var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain')),
           droppedOnPli = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
-          droppedOnPliIdx = $playlist.find('li').index(droppedOnPli);
-      api.buildSong(droppedObj.id, function(data){
-        playlist.addItem(data, droppedOnPliIdx);
+          droppedOnPliIdx = $playlist.find('li').index(droppedOnPli) - 1;
+
+      api.buildSongs(droppedObj.type, droppedObj.id, function(data){
+        for(var idx = 0; idx < data.length; idx++){
+          playlist.addItem(data[idx], droppedOnPliIdx += 1);
+        }
       });
+
       return false;
     };
     // ####Creates HTML element
@@ -247,7 +238,7 @@ var Playlist = function(elm){
 
       // Setup song element attributes and child elements
       songElm.addClass('song');
-      songElm.attr('id', _.uniqueId('pl-'));
+      songElm.attr('id', playlistItem.id);
       songElm.attr('data-id', songObj.id);
       songElm.append('<span style="pointer-events: none;" class="song-name" title="'+songName+'">'+songName+'</span>');
       songElm.append('<span style="pointer-events: none;" class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
@@ -264,6 +255,7 @@ var Playlist = function(elm){
     };
     // Return Object
     var playlistItem = {
+      id: _.uniqueId('pli-'),
       active: false,
       title: '',
       length: 0,

@@ -48,7 +48,7 @@ var API = function () {
   };
 
   // Build full song object from song_id
-  this.buildSong = function(song_id, callback){
+  this.buildSong = function(song_id, callback, returnAsArr){
     var retObj = {};
     self.getSongs({'id':song_id}, function(songObj){
       retObj = songObj;
@@ -57,7 +57,12 @@ var API = function () {
         self.getArtists({'id':retObj.album.artist_id}, function(artistObj){
           retObj.album.artist = artistObj;
           if(callback){
-            callback(retObj);
+            if(returnAsArr){
+              callback([retObj]);
+            }
+            else{
+              callback(retObj);
+            }
           }
         });
       });
@@ -104,6 +109,19 @@ var API = function () {
         };
       });
     });
+  };
+
+  // Build full song object array from an artist, album, or song
+  this.buildSongs = function(resourceType, resourceId, callback){
+    if(resourceType === 'artist'){
+      self.buildSongsFromArtist(resourceId, callback);
+    }
+    else if(resourceType === 'album'){
+      self.buildSongsFromAlbum(resourceId, callback);
+    }
+    if(resourceType === 'song'){
+      self.buildSong(resourceId, callback, true);
+    }
   };
 
 };
