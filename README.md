@@ -32,5 +32,5 @@ http://danwoods.playlist.jit.su/
 
 Documentation
 =============
-docs  
-client/docs
+[Server](http://danwoods.github.io/playlist/docs/server/playlist.html)  
+[Client](http://danwoods.github.io/playlist/docs/client/playlist.html)
