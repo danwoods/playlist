@@ -23,17 +23,15 @@
 //          - [add](#section-22)
 //          - [get](#section-25)
 
-/*XXX CURRENT ISSUE is that `dragLeave` on playlist elements causes flickering, but removing it causes styles to be left behind if a drag is released XXX*/
 //TODO:
-//Fix dragLeave issue w/ plis [May be fixed by adding class/style] [OR add event catching function to each sub-element (I'd rather not fix it by adding a style),  http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
-//Revise documentation
-//Make plis double-clickable
 //Make plis draggable
 //Remove dependency on jQuery
 //Avoid repetition (mainly for rendering's sake). Allow functions to accept arrays
 //Use `self` or remove it
 //Use document partials when rendering
 //Make active item reflect it in it's  view
+//Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
+//Revise documentation
 //Update build
 
 var Playlist = function(elm){
@@ -175,6 +173,7 @@ var Playlist = function(elm){
     setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
+    updateView:   updateView
   };
 
   // Playlist item
@@ -199,22 +198,20 @@ var Playlist = function(elm){
     if (e.stopPropagation) {
       e.stopPropagation();
     }
-      var $elm = $(e.target);
-
-      if(!$elm.hasClass('song')){
-        $elm.parents('.song').removeClass('dodge');
-      }
-      else{
-        $elm.removeClass('dodge');
-      }
-      return false;
+    var $elm = $(e.target);
+    // Make sure we're actually dealing with the pli 
+    // and not an event from a child element 
+    if($elm.hasClass('song')){
+      $elm.removeClass('dodge');
+    }
+    return false;
     };
     // ####Function handler for drop
     var drop = function(e){
-    // Stop the drop event from propagating to the playlist
-    if (e.stopPropagation) {
-      e.stopPropagation();
-    }
+      // Stop the drop event from propagating to the playlist
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
       var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain')),
           droppedOnPli = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
           droppedOnPliIdx = $playlist.find('li').index(droppedOnPli) - 1;
@@ -227,6 +224,15 @@ var Playlist = function(elm){
 
       return false;
     };
+    // ####Function handler for double click
+    var doubleClick = function(e){
+      // Stop the drop event from propagating to the playlist
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      activate();
+      return false;
+    };
     // ####Creates HTML element
     var createStructure = function(songObj){ 
       // Variables
@@ -236,41 +242,51 @@ var Playlist = function(elm){
           songArtistName = (songObj.album.artist.name || 'unknown artist'), // Song artist name
           songLength = (songObj.length || 'unknown length');                // Song length
 
-      // Setup song element attributes and child elements
+      // Setup song element attributes
       songElm.addClass('song');
       songElm.attr('id', playlistItem.id);
       songElm.attr('data-id', songObj.id);
-      songElm.append('<span style="pointer-events: none;" class="song-name" title="'+songName+'">'+songName+'</span>');
-      songElm.append('<span style="pointer-events: none;" class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
-      songElm.append('<span style="pointer-events: none;" class="song-artist" title="'+songArtistName+'">'+songArtistName+'</span>');
-      songElm.append('<span style="pointer-events: none;" class="song-time" title="'+songLength+'">'+songLength+'</span>');
+
+      // Add child elements
+      songElm.append('<span class="song-name" title="'+songName+'">'+songName+'</span>');
+      songElm.append('<span class="song-album" title="'+songAlbumName+'">'+songAlbumName+'</span>');
+      songElm.append('<span class="song-artist" title="'+songArtistName+'">'+songArtistName+'</span>');
+      songElm.append('<span class="song-time" title="'+songLength+'">'+songLength+'</span>');
 
       // Add event handlers
       songElm.get()[0].addEventListener('dragover', dragOver, true);
       songElm.get()[0].addEventListener('dragleave', dragLeave, true);
       songElm.get()[0].addEventListener('drop', drop, true);
+      songElm.get()[0].addEventListener('dblclick', doubleClick, true);
 
       // Return song element
       return songElm;
+    };
+    var activate = function(){
+      player.play(playlistItem.data);
+      playlistItem.active = true;
+      playlist.updateView();
+    };
+    var updateView = function(){
+      this.$elm.removeClass('dodge');
+      if(this.active){
+        this.$elm.addClass('active');
+      }
+      else{
+        this.$elm.removeClass('active');
+      }
     };
     // Return Object
     var playlistItem = {
       id: _.uniqueId('pli-'),
       active: false,
+      activate: activate,
       title: '',
       length: 0,
       position: 0,
       data: {},
       $elm: {},
-      updateView: function(){
-        this.$elm.removeClass('dodge');
-        if(this.active){
-          this.$elm.addClass('active');
-        }
-        else{
-          this.$elm.removeClass('active');
-        }
-      }
+      updateView: updateView
     };
     var init = function(data){
       playlistItem.$elm   = createStructure(data);
