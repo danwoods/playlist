@@ -43,7 +43,7 @@ exports.router = restful.createRouter([db.Artist, db.Album, db.Song], { explore:
 // **params**:  
 //    `id`: [string]  
 // **returns**:  
-//    A modified `id`, with commas and any othe non-alphanumeric characters,
+//    A modified `id`, with commas and any other non-alphanumeric characters,
 //    replaced with underscores
 var idSanitize = function(id){
   var retStr = '';

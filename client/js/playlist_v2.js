@@ -1,8 +1,7 @@
 // Module/Container for a library of music data  
 // **playlist.js** acts as a client-side container for playlist data. 
 // It responds to catalog and playlist items being dropped on it, 
-// holds data about the current state of the playlist, 
-// holds the code for playlist items, and 
+// holds data about the current state of the playlist, and 
 // handles updating the view.
 
 // #Contents
@@ -24,77 +23,177 @@
 //          - [get](#section-25)
 
 //TODO:
-//Make plis draggable
+//Revise documentation
+//  Playlist
+//    config/setup
+//    ui
+//    functions
+//    return object
+//Remove position updating from the playlist's `updateView` function
+//Make active item reflect it in it's view
+//Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
 //Remove dependency on jQuery
 //Avoid repetition (mainly for rendering's sake). Allow functions to accept arrays
 //Use `self` or remove it
-//Use document partials when rendering
-//Make active item reflect it in it's  view
-//Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
 //Revise documentation
 //Update build
 
 var Playlist = function(elm){
+
+  //
+  // #Configuration/Setup#
+  //
 
   // Variables
   var api = new API(),
       self = this,
       items = [],
       $playlist;
-  // Helper functions
+
+  //
+  // #Event Handlers#
+  //
+
+  // ##Function: dragOver(e)
+  //    Prevents default functionality  
+  // **params**:  
+  //    `e`: [event]  
+  // **returns**:  
+  //    false
   var dragOver = function(e){
     if (e.preventDefault) {
       e.preventDefault();
     }
-    // Is this neccessary?
+    //XXX Is this neccessary? XXX//
     e.dataTransfer.dropEffect = 'move';
             
     return false;
   };
-  var drop = function(e) {
 
-    // Make sure nothing else happens
+  // ##Function: drop(e)
+  //    Handles items being dropped on the playlist  
+  // **params**:  
+  //    `e`: [event]  
+  // **returns**:  
+  //    false
+  var drop = function(e) {
+    
+    // Variables
+    var droppedPliIdx = e.dataTransfer.getData('application/playlistItem-index'),
+        droppedObjStr = e.dataTransfer.getData('text/plain'),
+        droppedObj    = {};
+
+    // Stop the propagation of the event
     if (e.stopPropagation) {
       e.stopPropagation();
     }
-    
-    var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain'));
 
-    api.buildSongs(droppedObj.type, droppedObj.id, function(data){
-      for(var idx = 0; idx < data.length; idx++){
-        playlist.addItem(data[idx]);
-      }
-    });
+    // If the event had playlistItem-index data, move the playlist item 
+    // from the specified index to the end of the playlist
+    if(droppedPliIdx){
+      playlist.moveItem(droppedPliIdx, items.length + 1);
+    }
+    // Else, parse `text/plain` data to get dropped object data, 
+    // build song objects from that data, and append them to the end of the playlist
+    else{
+      droppedObj = JSON.parse(droppedObjStr);
+      api.buildSongs(droppedObj.type, droppedObj.id, function(data){
+        for(var idx = 0; idx < data.length; idx++){
+          playlist.addItem(data[idx]);
+        }
+      });
+    }
 
     // Return false
     return false;
   };
+
+  //
+  // #Functions#
+  //
+  
+  // ##Function: updateView()
+  //    Updates the DOM elements to reflect the playlist  
+  // **params**:  
+  //    none  
+  // **returns**:  
+  //    false
   var updateView = function(){
+
+    // Variables
     var len = items.length,
         idx = 0,
-        viewItems = $playlist.find('.song');
+        viewItems = $playlist.find('.song'),
+        clean = true;
+
+    //XXX Why do I need this?
     if(viewItems.length === 0 && len > 0){
       $playlist.append(items[0].$elm);
     }
+
+    // Loop through the playlist items. If there's no corresponding 
+    // view item, add the playlist item's element to the end of 
+    // the playlist element; else if... XXX
     for(idx; idx < len; idx++){
-      if(!viewItems[idx] || (viewItems[idx].getAttribute('id') !== items[idx].id)){
-        if(!viewItems[idx]){
-          $playlist.append(items[idx].$elm); 
-        }
-        else{
-          items[idx].$elm.insertBefore(viewItems[idx]);
-        }
+      if(!viewItems[idx]){
+        $playlist.append(items[idx].$elm); 
       }
+      else if (viewItems[idx].getAttribute('id') !== items[idx].id){
+        clean = false;
+        items[idx].$elm.insertBefore(viewItems[idx]);
+        // Push view item back one
+        viewItems.splice(idx - 1, 0, null);
+      }
+      //XXX This should not be here.
+      //XXX This should only affect the view
+      // Update pli's position
+      items[idx].position = idx;
       // Call pli's updateView function
       items[idx].updateView();
     }
-  }; 
+    // Remove any remaining view items
+    for(idx; idx < viewItems.length; idx++){
+      $(viewItems[idx]).remove();
+    }
+    //XXX There's probably a better way to solve this
+    if(!clean){
+      updateView();
+    }
+
+    // Return false
+    return false;
+  };
+
+  // Main functionality
   var addItem = function(data, idx){
-    var pli = new PlaylistItem(data),
+    var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, playlist),
         idx = (typeof idx === 'number') ? idx : items.length;
 
     pli.position = idx;
     items.splice(idx, 0, pli);
+    updateView();
+  };
+  var removeItem = function(idx){
+    //console.log('splice('+(idx)+', 1)');
+    var item = items.splice(idx, 1)[0];
+    updateView();
+    return item;
+  };
+  var moveItem = function(from, to){
+    //console.log('moving item '+from+' to location '+to);
+    //console.log(items);
+    // Remove item
+    var item = removeItem(from);
+    // And add it back
+    if(from < to){
+      //console.log('splice('+(to - 1)+', 0)');
+      items.splice((to - 1), 0, item);
+    }
+    else{
+      //console.log('splice('+(to)+', 0)');
+      items.splice(to, 0, item);
+    }
+    //console.log(items);
     updateView();
   };
   var getItem = function(idx){
@@ -164,20 +263,46 @@ var Playlist = function(elm){
     return pliPrev.data;
 
   };
+  var itemStartDrag = function(idx){
+    item = playlist.removeItem(idx);
+    playlist.dragging[item.id] = item;
+  };
+
   // Return object
   var playlist = { 
-    addItem :     addItem,
-    removeItem:   function(idx){},
+    addItem:      addItem,
+    moveItem:     moveItem,
+    removeItem:   removeItem,
     getItem:      getItem,
     getActive:    getActive,
     setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
+    dragging:     {},
+    itemStartDrag:itemStartDrag,
     updateView:   updateView
   };
 
+
+  var init = function(elm){
+    // Add event listeners and bindings, and create any required elements
+    $('document').ready(function(){
+      $(elm).get()[0].addEventListener('dragover', dragOver, false);
+      $(elm).get()[0].addEventListener('drop', drop, false);
+      // Add the list element
+      $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
+      $(elm).append($playlist);
+
+    });
+
+  };
+
+  init(elm);
+  return playlist;
+};
   // Playlist item
-  var PlaylistItem = function(data){
+  var PlaylistItem = function(data, playlist){
+    var api = new API();
     // Helper functions
     // ####Function handler for dragenter
     var dragOver = function(e) {
@@ -212,17 +337,29 @@ var Playlist = function(elm){
       if (e.stopPropagation) {
         e.stopPropagation();
       }
-      var droppedObj = JSON.parse(e.dataTransfer.getData('text/plain')),
-          droppedOnPli = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
-          droppedOnPliIdx = $playlist.find('li').index(droppedOnPli) - 1;
-
-      api.buildSongs(droppedObj.type, droppedObj.id, function(data){
-        for(var idx = 0; idx < data.length; idx++){
-          playlist.addItem(data[idx], droppedOnPliIdx += 1);
-        }
-      });
+      var droppedObjStr   = e.dataTransfer.getData('text/plain'),
+          droppedPliIdx   = e.dataTransfer.getData('application/playlistItem-index'),
+          droppedOnPli    = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
+          droppedOnPliIdx = $(droppedOnPli).parents('ol').find('li').index(droppedOnPli),
+          droppedObj      = {};
+      if(droppedPliIdx){
+        playlist.moveItem(droppedPliIdx, droppedOnPliIdx);
+      }
+      else{
+        droppedObj = JSON.parse(droppedObjStr);
+        api.buildSongs(droppedObj.type, droppedObj.id, function(data){
+          for(var idx = 0; idx < data.length; idx++){
+            playlist.addItem(data[idx], droppedOnPliIdx);
+            droppedOnPliIdx++;
+          }
+        });
+      }
 
       return false;
+    };
+    // ####Function handler for drag start
+    var dragStart = function(e){
+      e.dataTransfer.setData('application/playlistItem-index', playlistItem.position);
     };
     // ####Function handler for double click
     var doubleClick = function(e){
@@ -246,6 +383,7 @@ var Playlist = function(elm){
       songElm.addClass('song');
       songElm.attr('id', playlistItem.id);
       songElm.attr('data-id', songObj.id);
+      songElm.attr('draggable', 'true');
 
       // Add child elements
       songElm.append('<span class="song-name" title="'+songName+'">'+songName+'</span>');
@@ -256,6 +394,7 @@ var Playlist = function(elm){
       // Add event handlers
       songElm.get()[0].addEventListener('dragover', dragOver, true);
       songElm.get()[0].addEventListener('dragleave', dragLeave, true);
+      songElm.get()[0].addEventListener('dragstart', dragStart, true);
       songElm.get()[0].addEventListener('drop', drop, true);
       songElm.get()[0].addEventListener('dblclick', doubleClick, true);
 
@@ -278,14 +417,15 @@ var Playlist = function(elm){
     };
     // Return Object
     var playlistItem = {
-      id: _.uniqueId('pli-'),
-      active: false,
+      id:       _.uniqueId('pli-'),
+      active:   false,
       activate: activate,
-      title: '',
-      length: 0,
+      title:    '',
+      length:   0,
       position: 0,
-      data: {},
-      $elm: {},
+      data:     {},
+      $elm:     {},
+      type:     'playlistItem',
       updateView: updateView
     };
     var init = function(data){
@@ -296,20 +436,3 @@ var Playlist = function(elm){
     init(data);
     return playlistItem;
   };
-
-  var init = function(elm){
-    // Add event listeners and bindings, and create any required elements
-    $('document').ready(function(){
-      $(elm).get()[0].addEventListener('dragover', dragOver, false);
-      $(elm).get()[0].addEventListener('drop', drop, false);
-      // Add the list element
-      $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
-      $(elm).append($playlist);
-
-    });
-
-  };
-
-  init(elm);
-  return playlist;
-};

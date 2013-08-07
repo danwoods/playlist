@@ -15,12 +15,11 @@ var Catalog = function(elm){
   // ==
   // Drag/drop functionality
   var dragStart = function(e){
-    var songObj = {
-      "id": e.target.getAttribute("data-id"),
-      "type": e.target.getAttribute("data-type"),
-      "name": $(e.target).find(".name").text()
+    var dataObj = {
+      "id"  : e.target.getAttribute("data-id"),
+      "type": e.target.getAttribute("data-type")//,
     };
-    e.dataTransfer.setData('text/plain', JSON.stringify(songObj));
+    e.dataTransfer.setData('text/plain', JSON.stringify(dataObj));
   };
 
   // Create ordered list from array
