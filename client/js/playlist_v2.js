@@ -29,6 +29,8 @@
 //    ui
 //    functions
 //    return object
+//Change this file to be playlist.js
+//Avoid creation of return object. Use this/self and vars
 //Remove position updating from the playlist's `updateView` function
 //Make active item reflect it in it's view
 //Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
@@ -117,7 +119,7 @@ var Playlist = function(elm){
   // **params**:  
   //    none  
   // **returns**:  
-  //    false
+  //    nothing
   var updateView = function(){
 
     // Variables
@@ -131,17 +133,21 @@ var Playlist = function(elm){
       $playlist.append(items[0].$elm);
     }
 
-    // Loop through the playlist items. If there's no corresponding 
-    // view item, add the playlist item's element to the end of 
-    // the playlist element; else if... XXX
+    // Loop through the playlist items.
     for(idx; idx < len; idx++){
+      // If there's no corresponding 
+      // view item, add the playlist item's element to the end of 
+      // the playlist element
       if(!viewItems[idx]){
         $playlist.append(items[idx].$elm); 
       }
+      // Else if the view item id does not match the playlist item id
+      // insert the playlist item in front of the view item, and update 
+      // the view item array so stays current when comparing ids
       else if (viewItems[idx].getAttribute('id') !== items[idx].id){
+        //XXX There's probably a better way to solve this
         clean = false;
         items[idx].$elm.insertBefore(viewItems[idx]);
-        // Push view item back one
         viewItems.splice(idx - 1, 0, null);
       }
       //XXX This should not be here.
@@ -151,27 +157,40 @@ var Playlist = function(elm){
       // Call pli's updateView function
       items[idx].updateView();
     }
+
     // Remove any remaining view items
     for(idx; idx < viewItems.length; idx++){
       $(viewItems[idx]).remove();
     }
+
     //XXX There's probably a better way to solve this
     if(!clean){
       updateView();
     }
 
-    // Return false
-    return false;
   };
 
-  // Main functionality
+  // ##Function: addItem(data, [idx])
+  //    Adds an item (exisitng playlist item, or a newly created 
+  //    one from the passed in `data`) to the playlist  
+  // **params**:  
+  //    `data`: [{playlist item || data to create playlist item}] 
+  //    `idx` : [number]   
+  // **returns**:  
+  //    nothing
   var addItem = function(data, idx){
     var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, playlist),
         idx = (typeof idx === 'number') ? idx : items.length;
 
+    // Set playlist item's position'
     pli.position = idx;
+
+    // Add the item to the playlist at `idx`
     items.splice(idx, 0, pli);
+
+    // update the view
     updateView();
+
   };
   var removeItem = function(idx){
     //console.log('splice('+(idx)+', 1)');
