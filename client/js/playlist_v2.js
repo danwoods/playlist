@@ -170,15 +170,17 @@ var Playlist = function(elm){
 
   };
 
-  // ##Function: addItem(data, [idx])
+  // ##Function: addItem(data, idx)
   //    Adds an item (exisitng playlist item, or a newly created 
   //    one from the passed in `data`) to the playlist  
   // **params**:  
   //    `data`: [{playlist item || data to create playlist item}] 
-  //    `idx` : [number]   
+  //    `idx` : [number; if `undefined`, item is added at the end]   
   // **returns**:  
   //    nothing
   var addItem = function(data, idx){
+
+    // Get the playlist item and index
     var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, playlist),
         idx = (typeof idx === 'number') ? idx : items.length;
 
@@ -192,42 +194,82 @@ var Playlist = function(elm){
     updateView();
 
   };
+
+  // ##Function: removeItem(idx)
+  //    Removes an item from the playlist  
+  // **params**:  
+  //    `idx` : [number]   
+  // **returns**:  
+  //    the removed playlist item
   var removeItem = function(idx){
-    //console.log('splice('+(idx)+', 1)');
+
+    // Remove and save the item
     var item = items.splice(idx, 1)[0];
+
+    // Update the view
     updateView();
+
+    // Return the item
     return item;
+
   };
+
+  // ##Function: moveItem(from, to)
+  //    Moves an item in the playlist  
+  // **params**:  
+  //    `from` : [number]   
+  //    `to`   : [number]   
+  // **returns**:  
+  //    nothing
   var moveItem = function(from, to){
-    //console.log('moving item '+from+' to location '+to);
-    //console.log(items);
+
     // Remove item
     var item = removeItem(from);
+
     // And add it back
+    // If moving further down the playlist, 
+    // adjust it's destination to account for it's removal
     if(from < to){
-      //console.log('splice('+(to - 1)+', 0)');
       items.splice((to - 1), 0, item);
     }
+    // Else just add it at the specified `to` index
     else{
-      //console.log('splice('+(to)+', 0)');
       items.splice(to, 0, item);
     }
-    //console.log(items);
+
+    // Update the view
     updateView();
+
   };
+
+  // ##Function: getItem(idx)
+  //    Retrieves an item from the playlist  
+  // **params**:  
+  //    `idx` : [number]   
+  // **returns**:  
+  //    the item at the requested `idx` or the 
+  //    entire playlist, if `idx` is undefined
   var getItem = function(idx){
+
+    // Assume no `idx` was passed in
     var ret = items;
+
+    // If `idx` was passed in, use the item at that 
+    // index for the return value
     if(idx){
       ret = items[idx];
     }
+
+    // Return
     return ret;
+
   };
   var getActive = function(){
     // write this better
     var retObj = null;
     for(var i = 0; i < items.length; i++){
       if(items[i].active){
-        // should this be it's item?
+        // XXX should this be it's item?
         retObj = items[0];
         break;
       }
