@@ -23,15 +23,9 @@
 //          - [get](#section-25)
 
 //TODO:
-//Revise documentation
-//  Playlist
-//    config/setup
-//    ui
-//    functions
-//    return object
 //Change this file to be playlist.js
-//Avoid creation of return object. Use this/self and vars
-//Remove position updating from the playlist's `updateView` function
+//Avoid creation of return object. Use this/self and vars (or exports)
+//Remove position updating from the playlist's `updateView` function (where is position necessary?)
 //Make active item reflect it in it's view
 //Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
 //Remove dependency on jQuery
@@ -264,9 +258,19 @@ var Playlist = function(elm){
     return ret;
 
   };
+  
+  // ##Function: getActive()
+  //    Retrieves the item from the playlist  
+  // **params**:  
+  //    none   
+  // **returns**:  
+  //    the active playlist item 
   var getActive = function(){
-    // write this better
+    // XXX write this better
     var retObj = null;
+
+    // Loop through the items, and save the 
+    // first `active` item as the return value
     for(var i = 0; i < items.length; i++){
       if(items[i].active){
         // XXX should this be it's item?
@@ -274,56 +278,109 @@ var Playlist = function(elm){
         break;
       }
     }
+
+    // Return the playlist item ( or `null` if no active item found)
     return retObj;
+
   };
+
+  // XXX set active and activate next return different types of things. they shouldn't
+
+
+  // ##Function: setActive(idx)
+  //    Retrieves the item from the playlist  
+  // **params**:  
+  //    `idx`: [number]   
+  // **returns**:  
+  //    the newly active playlist item 
   var setActive = function(idx){
-    // write this better
+    // XXX write this better
     var active = null;
+
+    // Loop through the playlist items
     for(var i = 0; i < items.length; i++){
+      // If this is the item to make active, activate it
+      // XXX this functionality should be handeled by the item
       if(i === idx){
         items[i].active = true;
         items[i].updateView();
         active = items[i];
       }
+      // Else, deactivate item
       else if(items[i].active === true){
         items[i].active = false;
         items[i].updateView();
       }
     }
+
+    // Return the newly active item
     return active;
   };
+
+  // ##Function: activeNext()
+  //    Activates the next item playlist  
+  // **params**:  
+  //    none   
+  // **returns**:  
+  //    the newly active playlist item 
   var activateNext = function(){
+
+    // Setup return item and get active item
     var pliNext = {'data':null},
         active = this.getActive();
+
+    // If active item found, get the following item
     if(active){
       pliNext = this.getItem(active.position + 1);
     }
+    // Else return the first item 
     else if(items[0]){
       pliNext = items[0];
     }
+
+    // If a 'next' item is found, activate it
     if(pliNext){
       this.setActive(pliNext.position); 
     }
-    
+
+    // Return the data of the 'next' playlist item
     return pliNext.data;
 
   };
+
+  // ##Function: activePrev()
+  //    Activates the previous item playlist  
+  // **params**:  
+  //    none   
+  // **returns**:  
+  //    the newly active playlist item 
   var activatePrev = function(){
+
+    // Setup return item and get active item
     var pliPrev = {'data':null},
         active = this.getActive();
+
+    // If an active item found, and it's not the first one, 
+    // active the one before it 
     if(active && active.position > 0){
       pliPrev = this.getItem(active.position - 1);
     }
+    // Else, if possible, return the first item
     else if(items[0]){
       pliPrev = items[0];
     }
+
+    // If a 'previous' item is found, activate it
     if(pliPrev){
       this.setActive(pliPrev.position); 
     }
-    
+
+    // Return the data of the 'next' playlist item
     return pliPrev.data;
 
   };
+
+  // XXX is this being used?
   var itemStartDrag = function(idx){
     item = playlist.removeItem(idx);
     playlist.dragging[item.id] = item;
@@ -345,11 +402,19 @@ var Playlist = function(elm){
   };
 
 
+  // ##Function: init()
+  //    Setup the playlist  
+  // **params**:  
+  //    none   
+  // **returns**:  
+  //    nothing 
   var init = function(elm){
+
     // Add event listeners and bindings, and create any required elements
     $('document').ready(function(){
       $(elm).get()[0].addEventListener('dragover', dragOver, false);
       $(elm).get()[0].addEventListener('drop', drop, false);
+
       // Add the list element
       $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
       $(elm).append($playlist);
@@ -358,8 +423,10 @@ var Playlist = function(elm){
 
   };
 
+  // Start and return the playlist
   init(elm);
   return playlist;
+
 };
   // Playlist item
   var PlaylistItem = function(data, playlist){
