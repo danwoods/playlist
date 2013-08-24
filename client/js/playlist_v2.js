@@ -401,7 +401,6 @@ var Playlist = function(elm){
     updateView:   updateView
   };
 
-
   // ##Function: init()
   //    Setup the playlist  
   // **params**:  
@@ -430,15 +429,27 @@ var Playlist = function(elm){
 };
   // Playlist item
   var PlaylistItem = function(data, playlist){
+    // Variables
     var api = new API();
-    // Helper functions
-    // ####Function handler for dragenter
+
+    //
+    // #Event Handlers#
+    //
+
+    // ##Function: dragOver(e)
+    //    Adds `dodge` class  
+    // **params**:  
+    //    `e`: [event]  
+    // **returns**:  
+    //    nothing XXX should this be false XXX
     var dragOver = function(e) {
       // Clear any existing 'dodge' classes
       $('.song').removeClass('dodge');
-      // Add class to li element
+
+      // Get target element
       var $elm = $(e.target);
 
+      // Add class
       if(!$elm.hasClass('song')){
         $elm.parents('.song').addClass('dodge');
       }
@@ -446,35 +457,65 @@ var Playlist = function(elm){
         $elm.addClass('dodge');
       }
     };
-    // ####Function handler for dragleave
+
+    // ##Function: dragLeave(e)
+    //    Stops event propagation and removes `dodge` class  
+    // **params**:  
+    //    `e`: [event]  
+    // **returns**:  
+    //    false
     var dragLeave = function(e) {
-    if (e.stopPropagation) {
-      e.stopPropagation();
-    }
-    var $elm = $(e.target);
-    // Make sure we're actually dealing with the pli 
-    // and not an event from a child element 
-    if($elm.hasClass('song')){
-      $elm.removeClass('dodge');
-    }
-    return false;
+
+      // Stop event propagation
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+
+      // Get target element
+      var $elm = $(e.target);
+
+      // Make sure we're actually dealing with the playlist item 
+      // and not an event from a child element 
+      if($elm.hasClass('song')){
+        $elm.removeClass('dodge');
+      }
+
+      // Return
+      return false;
     };
-    // ####Function handler for drop
+
+    // ##Function: drop(e)
+    //    Stops event propagating and determines if the dropped 
+    //    item was an existing playlist item (which it then moves), 
+    //    or a new item (which it then creates and adds to the playlist)  
+    // **params**:  
+    //    `e`: [event]  
+    // **returns**:  
+    //    false
     var drop = function(e){
+
       // Stop the drop event from propagating to the playlist
       if (e.stopPropagation) {
         e.stopPropagation();
       }
+
+      // Build data XXX Can this be on top? XXX
       var droppedObjStr   = e.dataTransfer.getData('text/plain'),
           droppedPliIdx   = e.dataTransfer.getData('application/playlistItem-index'),
           droppedOnPli    = $(e.target).hasClass('song') ? e.target : $(e.target).parents('.song'),
           droppedOnPliIdx = $(droppedOnPli).parents('ol').find('li').index(droppedOnPli),
           droppedObj      = {};
+
+      // If the dropped item had an index, 
+      // it's an existing playlist item; just move it
       if(droppedPliIdx){
         playlist.moveItem(droppedPliIdx, droppedOnPliIdx);
       }
+      // Else; this is a new item. Create an object from the passed 
+      // in `text/plain` data, and build playlist items from it, and 
+      // add them to the playlist
       else{
-        droppedObj = JSON.parse(droppedObjStr);
+        droppedObj = JSON.parse(droppedObjStr); // XXX Could I do this in the variable declaration?
         api.buildSongs(droppedObj.type, droppedObj.id, function(data){
           for(var idx = 0; idx < data.length; idx++){
             playlist.addItem(data[idx], droppedOnPliIdx);
@@ -483,22 +524,47 @@ var Playlist = function(elm){
         });
       }
 
+      // Return
       return false;
     };
-    // ####Function handler for drag start
+
+    // ##Function: dragStart(e)
+    //    Sets the dataTransfer's `application/playlistItem-index` data 
+    //    to the playlist item's index 
+    // **params**:  
+    //    `e`: [event]  
+    // **returns**:  
+    //    nothing
     var dragStart = function(e){
       e.dataTransfer.setData('application/playlistItem-index', playlistItem.position);
     };
-    // ####Function handler for double click
+
+    // ##Function: doubleClick(e)
+    //    Stops the event's propagation and activates the item 
+    // **params**:  
+    //    `e`: [event]  
+    // **returns**:  
+    //    false
     var doubleClick = function(e){
+
       // Stop the drop event from propagating to the playlist
       if (e.stopPropagation) {
         e.stopPropagation();
       }
+
+      // Activate
       activate();
+
+      // Return
       return false;
     };
-    // ####Creates HTML element
+
+    // ##Function: createStructure(songObj)
+    //    Creates the DOM elements from the passed in `songObj` and binds events 
+    // **params**:  
+    //    `songObj`: [{song attributes}]  
+    // **returns**:  
+    //    false
     var createStructure = function(songObj){ 
       // Variables
       var songElm = $('<li />'),                                            // Song element
@@ -526,15 +592,39 @@ var Playlist = function(elm){
       songElm.get()[0].addEventListener('drop', drop, true);
       songElm.get()[0].addEventListener('dblclick', doubleClick, true);
 
-      // Return song element
+      // Return element
       return songElm;
     };
+
+    // ##Function: activate()
+    //    Calls player.play() function with item data, 
+    //    sets item's `active` attribute to `true`, 
+    //    and updates the item's view
+    // **params**:  
+    //    none  
+    // **returns**:  
+    //    nothing
     var activate = function(){
+
+      // Pass plaer item data
       player.play(playlistItem.data);
+
+      // Set `active` to `true`
       playlistItem.active = true;
+
+      // Update view
       playlist.updateView();
     };
+
+    // ##Function: updateView()
+    //    Updates an item's view based on it's attributes/data 
+    // **params**:  
+    //    none  
+    // **returns**:  
+    //    nothing
     var updateView = function(){
+
+      // Add/remove decorative classes
       this.$elm.removeClass('dodge');
       if(this.active){
         this.$elm.addClass('active');
@@ -543,6 +633,7 @@ var Playlist = function(elm){
         this.$elm.removeClass('active');
       }
     };
+
     // Return Object
     var playlistItem = {
       id:       _.uniqueId('pli-'),
@@ -556,11 +647,22 @@ var Playlist = function(elm){
       type:     'playlistItem',
       updateView: updateView
     };
+
+    // ##Function: init()
+    //    Setup the playlist item  
+    // **params**:  
+    //    `data`: [{playlist item attributes}]  
+    // **returns**:  
+    //    nothing 
     var init = function(data){
       playlistItem.$elm   = createStructure(data);
       playlistItem.data   = data;
       playlistItem.title  = data.name;
     };
+
+    // Init playlist item
     init(data);
+
+    // Return playlist item
     return playlistItem;
   };
