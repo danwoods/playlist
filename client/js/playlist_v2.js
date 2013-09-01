@@ -133,7 +133,7 @@ var Playlist = function(elm){
       // view item, add the playlist item's element to the end of 
       // the playlist element
       if(!viewItems[idx]){
-        $playlist.append(items[idx].$elm); 
+        $playlist.append(items[idx].$elm);
       }
       // Else if the view item id does not match the playlist item id
       // insert the playlist item in front of the view item, and update 
@@ -372,7 +372,7 @@ var Playlist = function(elm){
 
     // If a 'previous' item is found, activate it
     if(pliPrev){
-      this.setActive(pliPrev.position); 
+      this.setActive(pliPrev.position);
     }
 
     // Return the data of the 'next' playlist item
@@ -381,13 +381,15 @@ var Playlist = function(elm){
   };
 
   // XXX is this being used?
+  /*
   var itemStartDrag = function(idx){
     item = playlist.removeItem(idx);
     playlist.dragging[item.id] = item;
   };
+  */
 
   // Return object
-  var playlist = { 
+  var playlist = {
     addItem:      addItem,
     moveItem:     moveItem,
     removeItem:   removeItem,
@@ -397,7 +399,7 @@ var Playlist = function(elm){
     activateNext: activateNext,
     activatePrev: activatePrev,
     dragging:     {},
-    itemStartDrag:itemStartDrag,
+    //itemStartDrag:itemStartDrag,
     updateView:   updateView
   };
 
