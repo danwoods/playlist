@@ -340,7 +340,7 @@ var Playlist = function(elm){
 
     // If a 'next' item is found, activate it
     if(pliNext){
-      this.setActive(pliNext.position); 
+      this.setActive(pliNext.position);
     }
 
     // Return the data of the 'next' playlist item
@@ -390,7 +390,8 @@ var Playlist = function(elm){
     setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
-    dragging:     {},
+    // XXX
+    //dragging:     {},
     updateView:   updateView
   };
 
