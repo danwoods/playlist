@@ -380,14 +380,6 @@ var Playlist = function(elm){
 
   };
 
-  // XXX is this being used?
-  /*
-  var itemStartDrag = function(idx){
-    item = playlist.removeItem(idx);
-    playlist.dragging[item.id] = item;
-  };
-  */
-
   // Return object
   var playlist = {
     addItem:      addItem,
@@ -399,7 +391,6 @@ var Playlist = function(elm){
     activateNext: activateNext,
     activatePrev: activatePrev,
     dragging:     {},
-    //itemStartDrag:itemStartDrag,
     updateView:   updateView
   };
 
