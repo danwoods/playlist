@@ -23,8 +23,13 @@
 //          - [get](#section-25)
 
 //TODO:
+//Standardize functions (similar functions should return similar things)
+//Grep for all function names to make sure they're all being used
+
+//Move playlist updateView, etc to View obj
+
 //Change this file to be playlist.js
-//Avoid creation of return object. Use this/self and vars (or exports)
+//Avoid creation of return object. Use this/self and vars (or exports <= this, use this)
 //Remove position updating from the playlist's `updateView` function (where is position necessary?)
 //Make active item reflect it in it's view
 //Make document partial creating function to create all elements and accept arguments like `bubbleEvents` [http://stackoverflow.com/questions/814564/inserting-html-elements-with-javascript]
@@ -57,12 +62,11 @@ var Playlist = function(elm){
   // **returns**:  
   //    false
   var dragOver = function(e){
+    //XXX Is this neccessary? XXX//
     if (e.preventDefault) {
       e.preventDefault();
     }
-    //XXX Is this neccessary? XXX//
-    e.dataTransfer.dropEffect = 'move';
-            
+
     return false;
   };
 
@@ -73,7 +77,7 @@ var Playlist = function(elm){
   // **returns**:  
   //    false
   var drop = function(e) {
-    
+
     // Variables
     var droppedPliIdx = e.dataTransfer.getData('application/playlistItem-index'),
         droppedObjStr = e.dataTransfer.getData('text/plain'),
@@ -390,8 +394,6 @@ var Playlist = function(elm){
     setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
-    // XXX
-    //dragging:     {},
     updateView:   updateView
   };
 
@@ -435,7 +437,7 @@ var Playlist = function(elm){
     // **params**:  
     //    `e`: [event]  
     // **returns**:  
-    //    nothing XXX should this be false XXX
+    //    nothing XXX should this be false? XXX
     var dragOver = function(e) {
       // Clear any existing 'dodge' classes
       $('.song').removeClass('dodge');
