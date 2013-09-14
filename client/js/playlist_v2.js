@@ -23,6 +23,7 @@
 //          - [get](#section-25)
 
 //TODO:
+//XXX s
 //Standardize functions (similar functions should return similar things)
 //Grep for all function names to make sure they're all being used
 
@@ -56,13 +57,13 @@ var Playlist = function(elm){
   //
 
   // ##Function: dragOver(e)
-  //    Prevents default functionality  
+  //    Prevents default functionality; neccessary to allow dropping  
   // **params**:  
   //    `e`: [event]  
   // **returns**:  
   //    false
   var dragOver = function(e){
-    //XXX Is this neccessary? XXX//
+
     if (e.preventDefault) {
       e.preventDefault();
     }
@@ -125,11 +126,6 @@ var Playlist = function(elm){
         idx = 0,
         viewItems = $playlist.find('.song'),
         clean = true;
-
-    //XXX Why do I need this?
-    if(viewItems.length === 0 && len > 0){
-      $playlist.append(items[0].$elm);
-    }
 
     // Loop through the playlist items.
     for(idx; idx < len; idx++){
