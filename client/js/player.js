@@ -30,10 +30,8 @@ var Player = function(elm){
         self.pause();
       }
       else{
-        // Get next song from playlist
-        playlist.getNextSong(function(song){
-          self.play(song);
-        });
+        // Play next song from playlist
+        self.play(playlist.activateNext());
       }
     }
     // If song passed in, remove current audio souce, 
@@ -57,7 +55,7 @@ var Player = function(elm){
       var titleElm = $(self.elm).find('.title');
       titleElm.find('.song').text(song.name);
       titleElm.find('.album').text(song.album.name);
-      titleElm.find('.artist').text(song.artist.name);
+      titleElm.find('.artist').text(song.album.artist.name);
       self.$elm.addClass('playing');
 
       // Restart audio
@@ -79,16 +77,14 @@ var Player = function(elm){
 
   // Play the previous track (defaults to first track)
   this.playPrev = function(){
-    playlist.getPrevSong(function(song){
-      self.play(song);
-    });
+    // Play previous song from playlist
+    self.play(playlist.activatePrev());
   };
 
   // Play the next track (defaults to first track)
   this.playNext = function(){
-    playlist.getNextSong(function(song){
-      self.play(song);
-    });
+    // Play next song from playlist
+    self.play(playlist.activateNext());
   };
 
   // Pause playback
