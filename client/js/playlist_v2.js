@@ -266,15 +266,13 @@ var Playlist = function(elm){
   // **returns**:  
   //    the active playlist item 
   var getActive = function(){
-    // XXX write this better
     var retObj = null;
 
     // Loop through the items, and save the 
     // first `active` item as the return value
     for(var i = 0; i < items.length; i++){
       if(items[i].active){
-        // XXX should this be it's item?
-        retObj = items[0];
+        retObj = items[i];
         break;
       }
     }
@@ -284,9 +282,6 @@ var Playlist = function(elm){
 
   };
 
-  // XXX set active and activate next return different types of things. they shouldn't
-
-
   // ##Function: setActive(idx)
   //    Retrieves the item from the playlist  
   // **params**:  
@@ -294,7 +289,6 @@ var Playlist = function(elm){
   // **returns**:  
   //    the newly active playlist item 
   var setActive = function(idx){
-    // XXX write this better
     var active = null;
 
     // Loop through the playlist items
