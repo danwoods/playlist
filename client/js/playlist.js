@@ -1,8 +1,7 @@
 // Module/Container for a library of music data  
 // **playlist.js** acts as a client-side container for playlist data. 
 // It responds to catalog and playlist items being dropped on it, 
-// holds data about the current state of the playlist, and 
-// handles updating the view.
+// and holds data about the current state of the playlist.
 
 // #Contents
 // - [Configuration/Setup](#section-4)
@@ -110,6 +109,54 @@ var Playlist = function(elm){
   // #Functions#
   //
   
+  //
+  // #View#
+  //
+  var view = function(){
+    // XXX CURRENT WORK XXX // 
+    var update = function(){
+      // Variables
+      var len = items.length,
+          idx = 0,
+          viewItems = $playlist.find('.song'),
+          clean = true;
+
+      // Loop through the playlist items.
+      for(idx; idx < len; idx++){
+        // If there's no corresponding 
+        // view item, add the playlist item's element to the end of 
+        // the playlist element
+        if(!viewItems[idx]){
+          $playlist.append(items[idx].$elm);
+        }
+        // Else if the view item id does not match the playlist item id
+        // insert the playlist item in front of the view item, and update 
+        // the view item array so stays current when comparing ids
+        else if (viewItems[idx].getAttribute('id') !== items[idx].id){
+          //XXX There's probably a better way to solve this
+          clean = false;
+          items[idx].$elm.insertBefore(viewItems[idx]);
+          viewItems.splice(idx - 1, 0, null);
+        }
+        //XXX This should not be here.
+        //XXX This should only affect the view
+        // Update pli's position
+        items[idx].position = idx;
+        // Call pli's updateView function
+        items[idx].updateView();
+      }
+
+      // Remove any remaining view items
+      for(idx; idx < viewItems.length; idx++){
+        $(viewItems[idx]).remove();
+      }
+
+      //XXX There's probably a better way to solve this
+      if(!clean){
+        updateView();
+      }
+    };
+  };
   // ##Function: updateView()
   //    Updates the DOM elements to reflect the playlist  
   // **params**:  
