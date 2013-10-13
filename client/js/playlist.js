@@ -97,6 +97,7 @@ var Playlist = function(elm){
       api.buildSongs(droppedObj.type, droppedObj.id, function(data){
         for(var idx = 0; idx < data.length; idx++){
           playlist.addItem(data[idx]);
+          //self.items.add(data[idx]);
         }
       });
     }
@@ -106,67 +107,128 @@ var Playlist = function(elm){
   };
 
   //
-  // #Functions#
+  // #Items#
   //
+  self.items = function(){
+    var items = {};
+    this.init = function(){};
+    this.add = function(data, insertAfterId){
+      // Get the playlist item and index
+      var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, self),
+          pliPrev = self.items.get(insertAfterId);
 
-  /*
-   *  #self.items = function(){
-   *    var items = {};
-   *    return {
-     *    init: function(){
-     *      //items = {};
-     *    },
-     *    add: function(data, insertAfterId){
-            // Get the playlist item and index
-            var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, self),
-                pliPrev = self.items.get(insertAfterId);
+      // If no issues creating new item, set it up
+      if(pli){
 
-            // If no issues creating new item, set it up
-            if(pli){
+        // Add it to items
+        items[pli.id] = pli;
 
-              // Add it to items
-              items[pli.id] = pli;
+        // Set previous item
+        pli.prev = function(){
+          return pliPrev;
+        };
 
-              // Set previous item
-              pli.prev = function(){
-                return pliPrev;
-              };
+        // If previous item, set new item as it's next
+        if(pliPrev){
+          pliPrev.next = function(){
+            return pli;
+          };
+        }
 
-              // If previous item, set new item as it's next
-              if(pliPrev){
-                pliPrev.next = function(){
-                  return pli;
-                }
+        // update the view
+        self.view.update();
+      }
+    };
+    this.remove = function(id){
+      var pliToRemove = self.items.get(id),
+          pliPrev,
+          pliNext;
+    };
+    this.move = function(id, insertAfterId){
+      var pli = self.items.get(id),
+          pliPrev,
+          pliNext,
+          pliNextNew,
+          pliPrevNew;
+   
+      if(pli){
+        // Unlink item
+        pliPrev = pli.prev();
+        pliNext = pli.next();
+        if(pliPrev){
+          pliPrev.next = function(){
+            return pliNext;
+          };
+        }
+        if(pliNext){
+          pliNext.prev = function(){
+            return pliPrev;
+          };
+        }
+        // Link item in new position
+        pliPrevNew = self.items.get(insertAfterId);
+        pli.prev = function(){
+          return pliPrevNew;
+        };
+        if(pliPrevNew){
+          pliNextNew = pliPrevNew.next();
+          pliPrevNew.next = function(){
+            return pli;
+          };
+          pli.next = function(){
+            return pliNextNew;
+          };
+          if(pliNextNew){
+            pliNextNew.prev = function(){
+              return pli;
+            };
+          }
+        }
+      }
+
+      // Update the view
+      self.view.update();
+
+    };
+    // ##Function: getItem(id_x)
+    //    Retrieves an item from the playlist  
+    // **params**:  
+    //    `idx` : [number]   
+    // **returns**:  
+    //    the item at the requested `idx` or the 
+    //    entire playlist, if `idx` is undefined
+    this.get = function(id_x){
+      // Assume no `idx` was passed in
+      var retItem = items,
+          idx = 0;
+
+      // If `id_x` was passed in, use the item at that 
+      // index for the return value
+      if(id_x){
+        if(typeof id_x === 'string'){
+          retItem = items[id_x];
+        }
+        else if(typeof id_x === 'number'){
+          for(retItem in items) {
+            if(items.hasOwnProperty(retItem)){
+              while(retItem.prev && retItem.prev()){
+                retItem = retItem.prev();
               }
-
-              // update the view
-              self.view.update(); 
+              // Just needed the first one
+              break;
             }
-     *    },
-     *    remove: function(id){
-     *      var pliToRemove = self.items.get(id);
-     *          pliPrev,
-     *          pliNext;
-     *    },
-     *    move: function(){},
-     *    get: function(id){
-            // Assume no `idx` was passed in
-            var retItem = items;
+          }
+          while(idx !== id_x){
+            retItem = retItem.next();
+          }
+        }
 
-            // If `idx` was passed in, use the item at that 
-            // index for the return value
-            if(id && typeof id === 'string'){
-              retItem = items[id];
-            }
+        // Return
+        return retItem;
+      }
+    };
+  };
 
-            // Return
-            return retItem;
-     *    }
-   *    }
-   * };
-   *
-   * */
-  
   //
   // #View#
   //
@@ -185,47 +247,37 @@ var Playlist = function(elm){
       });
 
     },
-    // XXX CURRENT WORK XXX // 
     update: function(){
       // Variables
-      var len = items.length,
-          idx = 0,
+      var idx = 0,
           viewItems = $playlist.find('.song'),
-          clean = true;
+          pli = self.items.get(0);
 
       // Loop through the playlist items.
-      for(idx; idx < len; idx++){
+      while(pli){
         // If there's no corresponding 
         // view item, add the playlist item's element to the end of 
         // the playlist element
         if(!viewItems[idx]){
-          $playlist.append(items[idx].$elm);
+          $playlist.append(pli.$elm);
         }
         // Else if the view item id does not match the playlist item id
         // insert the playlist item in front of the view item, and update 
         // the view item array so stays current when comparing ids
-        else if (viewItems[idx].getAttribute('id') !== items[idx].id){
-          //XXX There's probably a better way to solve this
-          clean = false;
-          items[idx].$elm.insertBefore(viewItems[idx]);
+        else if (viewItems[idx].getAttribute('id') !== pli.id){
+          pli.$elm.insertBefore(viewItems[idx]);
           viewItems.splice(idx - 1, 0, null);
         }
-        //XXX This should not be here.
-        //XXX This should only affect the view
-        // Update pli's position
-        items[idx].position = idx;
         // Call pli's updateView function
-        items[idx].updateView();
+        items[idx].view.update();
+
+        pli = pli.next();
+        idx++;
       }
 
       // Remove any remaining view items
       for(idx; idx < viewItems.length; idx++){
         $(viewItems[idx]).remove();
-      }
-
-      //XXX There's probably a better way to solve this
-      if(!clean){
-        updateView();
       }
     }
   };
@@ -492,14 +544,21 @@ var Playlist = function(elm){
   // Return object
   var playlist = {
     addItem:      addItem,
+    //addItem:      self.items().add,
     moveItem:     moveItem,
+    //moveItem:     self.items().move,
     removeItem:   removeItem,
+    //removeItem:   self.items().remove,
     getItem:      getItem,
+    //getItem:      self.items().get,
     getActive:    getActive,
     setActive:    setActive,
     activateNext: activateNext,
     activatePrev: activatePrev,
-    updateView:   updateView
+    updateView:   updateView,
+    //updateView:   self.view.update,
+    items:  self.items,
+    view: self.view
   };
 
   // ##Function: init()
