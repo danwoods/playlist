@@ -110,12 +110,59 @@ var Playlist = function(elm){
   //
 
   /*
-   *  #self.items = {
-   *    init: function(){},
-   *    add: function(){},
-   *    remove: function(){},
-   *    move: function(){},
-   *    get: function(){}
+   *  #self.items = function(){
+   *    var items = {};
+   *    return {
+     *    init: function(){
+     *      //items = {};
+     *    },
+     *    add: function(data, insertAfterId){
+            // Get the playlist item and index
+            var pli = (data.type === 'playlistItem') ? data : new PlaylistItem(data, self),
+                pliPrev = self.items.get(insertAfterId);
+
+            // If no issues creating new item, set it up
+            if(pli){
+
+              // Add it to items
+              items[pli.id] = pli;
+
+              // Set previous item
+              pli.prev = function(){
+                return pliPrev;
+              };
+
+              // If previous item, set new item as it's next
+              if(pliPrev){
+                pliPrev.next = function(){
+                  return pli;
+                }
+              }
+
+              // update the view
+              self.view.update(); 
+            }
+     *    },
+     *    remove: function(id){
+     *      var pliToRemove = self.items.get(id);
+     *          pliPrev,
+     *          pliNext;
+     *    },
+     *    move: function(){},
+     *    get: function(id){
+            // Assume no `idx` was passed in
+            var retItem = items;
+
+            // If `idx` was passed in, use the item at that 
+            // index for the return value
+            if(id && typeof id === 'string'){
+              retItem = items[id];
+            }
+
+            // Return
+            return retItem;
+     *    }
+   *    }
    * };
    *
    * */
@@ -136,6 +183,7 @@ var Playlist = function(elm){
         $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
         $playlistContainer.append($playlist);
       });
+
     },
     // XXX CURRENT WORK XXX // 
     update: function(){
