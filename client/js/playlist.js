@@ -108,13 +108,37 @@ var Playlist = function(elm){
   //
   // #Functions#
   //
+
+  /*
+   *  #self.items = {
+   *    init: function(){},
+   *    add: function(){},
+   *    remove: function(){},
+   *    move: function(){},
+   *    get: function(){}
+   * };
+   *
+   * */
   
   //
   // #View#
   //
-  var view = function(){
+  self.view = {
+    // Init
+    init: function(elm){
+
+      var $playlistContainer = $(elm) || $('body');
+
+      // Add event listeners and bindings, and create any required elements
+      $('document').ready(function(){
+        $playlistContainer.get()[0].addEventListener('dragover', dragOver, false);
+        $playlistContainer.get()[0].addEventListener('drop', drop, false);
+        $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
+        $playlistContainer.append($playlist);
+      });
+    },
     // XXX CURRENT WORK XXX // 
-    var update = function(){
+    update: function(){
       // Variables
       var len = items.length,
           idx = 0,
@@ -155,7 +179,7 @@ var Playlist = function(elm){
       if(!clean){
         updateView();
       }
-    };
+    }
   };
   // ##Function: updateView()
   //    Updates the DOM elements to reflect the playlist  
@@ -437,18 +461,7 @@ var Playlist = function(elm){
   // **returns**:  
   //    nothing 
   var init = function(elm){
-
-    // Add event listeners and bindings, and create any required elements
-    $('document').ready(function(){
-      $(elm).get()[0].addEventListener('dragover', dragOver, false);
-      $(elm).get()[0].addEventListener('drop', drop, false);
-
-      // Add the list element
-      $playlist = $('<ol dropzone="copy string:text/x-example" data-blankslate="Drop Artists/Albums/Songs here"/>');
-      $(elm).append($playlist);
-
-    });
-
+    self.view.init(elm);
   };
 
   // Start and return the playlist
@@ -460,6 +473,24 @@ var Playlist = function(elm){
   var PlaylistItem = function(data, playlist){
     // Variables
     var api = new API();
+  /*
+   *  #self.item = {
+   *    init: function(){},
+   *    prev: function(){},
+   *    next: function(){},
+   *    activate: function(){},
+   *    getString: function(){},
+   *    view: {
+   *      $elm: $(),
+   *      init: function(elm){},
+   *      update: function(){}
+   *      UI: {
+   *        init: function(){}
+   *      }
+   *    }
+   * };
+   *
+   * */
 
     //
     // #Event Handlers#
