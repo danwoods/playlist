@@ -193,10 +193,10 @@ var Playlist = function(elm){
     // ##Function: getItem(id_x)
     //    Retrieves an item from the playlist  
     // **params**:  
-    //    `idx` : [number]   
+    //    `id_x` : [number]   
     // **returns**:  
-    //    the item at the requested `idx` or the 
-    //    entire playlist, if `idx` is undefined
+    //    the item at the requested `id_x` or the 
+    //    entire playlist, if `id_x` is undefined
     this.get = function(id_x){
       // Assume no `idx` was passed in
       var retItem = items,
