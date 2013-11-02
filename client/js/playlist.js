@@ -190,7 +190,7 @@ var Playlist = function(elm){
       self.view.update();
 
     };
-    // ##Function: getItem(id_x)
+    // ##Function: get(id_x)
     //    Retrieves an item from the playlist  
     // **params**:  
     //    `id_x` : [number]   
