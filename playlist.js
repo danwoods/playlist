@@ -14,6 +14,7 @@ var fs        = require('fs'),
     opts      = require('./options'),
     log       = require('./log').logger,
     router    = Model.router,
+    port      = opts.port || '8080',
     mimeTypes = {
                   "html": "text/html",
                   "jpeg": "image/jpeg",
@@ -220,12 +221,12 @@ http.createServer(function (req, res) {
       }
     });
   }
-}).listen(1337, '0.0.0.0');
-log.info('playlist.js::server running at http://127.0.0.1:1337/');
+}).listen(port, '0.0.0.0');
+log.info('playlist.js::server running at http://127.0.0.1:'+port);
 
 // If requested, launch browser
 if(opts.browser){
-  exec('xdg-open http://127.0.0.1:1337/', function(error, stdout, stderr) {
+  exec('xdg-open http://127.0.0.1:'+port, function(error, stdout, stderr) {
     if(error){
       log.error(error);
     }

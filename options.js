@@ -13,6 +13,11 @@ var pkgJSON  = require('./package.json'),
                   describe: 'Launch the default browser',
                   alias   : 'browser'
                 })
+                .options('p', {
+                  describe: 'Port',
+                  alias   : 'port',
+                  default : '8080'
+                })
                 .options('log', {
                   describe: 'Log level',
                   default : 'info'
