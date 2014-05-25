@@ -3,6 +3,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-docco");
   grunt.loadNpmTasks("grunt-vows");
   grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks('grunt-contrib-sass');
 
   grunt.initConfig({
     pkg: '<json:package.json>',
@@ -30,6 +31,17 @@ module.exports = function(grunt) {
           output: 'docs/'
         }
       } 
+    },
+    sass: {
+      all: {
+        files: [{
+          expand: true,
+          cwd: 'client/css/sass',
+          src: ['*.scss'],
+          dest: 'client/css',
+          ext: '.css'
+        }]
+      }
     },
     jshint: {
       options: {

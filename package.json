@@ -34,6 +34,8 @@
     "vows": "~0.7.0",
     "grunt-vows": "~0.4.0",
     "grunt-docco": "~0.2.0",
-    "grunt-contrib-jshint": "~0.4.3"
+    "grunt-contrib-jshint": "~0.4.3",
+    "grunt-contrib-sass": "~0.7.3",
+    "grunt-contrib-watch": "~0.6.1"
   }
 }
