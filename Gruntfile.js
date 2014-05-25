@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-vows");
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.initConfig({
     pkg: '<json:package.json>',
@@ -34,6 +35,11 @@ module.exports = function(grunt) {
     },
     sass: {
       all: {
+        options: {
+          sourcemap: true,
+          require: 'sass',
+          style: 'compressed'
+        },
         files: [{
           expand: true,
           cwd: 'client/css/sass',
@@ -57,8 +63,14 @@ module.exports = function(grunt) {
         browser:false
       },
       all: ['model.js']
+    },
+    watch: {
+      sass: {
+        files: 'client/css/sass/**',
+        tasks: ['sass'],
+      }
     }
   });
   // Default task
-  grunt.registerTask('default', ['vows', 'docco', 'jshint']);
+  grunt.registerTask('default', ['vows', 'docco', 'jshint', 'sass']);
 };
