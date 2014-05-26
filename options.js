@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Command line option parser  
 // **options.js** acts as the command line options parser for playlist.js.  
-// It handles defaults and `--help` messages, and exports command line options.
+// It uses [optimist](https://www.npmjs.org/package/optimist) to handle
+// defaults and `--help` messages. It exports command line options.
 var pkgJSON  = require('./package.json'),
     optimist = require('optimist')
                 .usage(pkgJSON.description + '\nUsage: $0 [options] [target_directory]')
@@ -11,7 +12,8 @@ var pkgJSON  = require('./package.json'),
                 })
                 .options('b', {
                   describe: 'Launch the default browser',
-                  alias   : 'browser'
+                  alias   : 'browser',
+                  boolean : true
                 })
                 .options('p', {
                   describe: 'Port',
